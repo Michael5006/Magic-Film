@@ -1,0 +1,100 @@
+erDiagram
+
+  generos {
+    INT id PK
+    VARCHAR nombre
+    TIMESTAMP creado_en
+  }
+
+  usuarios {
+    INT id PK
+    VARCHAR nombre_usuario
+    VARCHAR email
+    VARCHAR password_hash
+    VARCHAR nombre_completo
+    ENUM rol
+    ENUM nivel_cinefilo
+    BOOLEAN onboarding_completo
+    BOOLEAN activo
+    TIMESTAMP creado_en
+    TIMESTAMP actualizado_en
+  }
+
+  usuario_generos {
+    INT usuario_id FK
+    INT genero_id FK
+  }
+
+  peliculas {
+    INT id PK
+    INT tmdb_id
+    VARCHAR titulo
+    VARCHAR titulo_original
+    YEAR anio
+    VARCHAR director
+    SMALLINT duracion_min
+    TEXT sinopsis
+    BIGINT presupuesto
+    BIGINT recaudacion
+    DECIMAL calificacion
+    VARCHAR poster_url
+    ENUM tipo_analisis
+    BOOLEAN tipo_forzado
+    BOOLEAN activa
+    TIMESTAMP creado_en
+    TIMESTAMP actualizado_en
+  }
+
+  pelicula_generos {
+    INT pelicula_id FK
+    INT genero_id FK
+  }
+
+  analisis {
+    INT id PK
+    INT pelicula_id FK
+    ENUM tipo
+    VARCHAR modelo_ia
+    TIMESTAMP generado_en
+    TIMESTAMP actualizado_en
+  }
+
+  capas_analisis {
+    INT id PK
+    INT analisis_id FK
+    ENUM nombre_capa
+    LONGTEXT contenido
+    TINYINT orden
+  }
+
+  favoritos {
+    INT id PK
+    INT usuario_id FK
+    INT pelicula_id FK
+    TIMESTAMP guardado_en
+  }
+
+  historial_admin {
+    INT id PK
+    INT admin_id FK
+    ENUM accion
+    VARCHAR entidad
+    INT entidad_id
+    VARCHAR detalle
+    TIMESTAMP realizado_en
+  }
+
+  %% ─── RELACIONES ───────────────────────────────
+  usuarios          ||--o{ usuario_generos   : "selecciona"
+  generos           ||--o{ usuario_generos   : "es seleccionado en"
+
+  peliculas         ||--o{ pelicula_generos  : "tiene"
+  generos           ||--o{ pelicula_generos  : "clasifica"
+
+  peliculas         ||--|| analisis          : "tiene un"
+  analisis          ||--o{ capas_analisis    : "se divide en"
+
+  usuarios          ||--o{ favoritos         : "guarda"
+  peliculas         ||--o{ favoritos         : "es guardada en"
+
+  usuarios          ||--o{ historial_admin   : "genera (admin)"

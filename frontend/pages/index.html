@@ -1,0 +1,744 @@
+<!-- ===== Proyecto Magic Film V0.1 (Febrero) ===== -->
+ <!-- ===== Primera maqueta creada con amor y mucha investigación para lograr un diseño decente. ===== -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Film - Análisis Cinematográfico Adaptativo</title>
+    <link rel="stylesheet" href="../css/pages/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ===== Barra de navegación (Mejorable a futuro) ===== -->
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="#" class="logo" onclick="showPage('home')">Magic Film</a>
+        <ul class="nav-links">
+            <li><a href="#" onclick="showPage('home')" class="nav-link active" data-page="home">Inicio</a></li>
+            <li><a href="#" onclick="showPage('explore')" class="nav-link" data-page="explore">Explorar</a></li>
+            <li><a href="#" onclick="showPage('user-profile')" class="nav-link" data-page="user-profile">Mi perfil</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="search-btn" onclick="showPage('explore')"><i class="fas fa-search"></i></button>
+            <div class="avatar" onclick="showPage('user-profile')">
+                <img src="../assets/images/Profile.jpg" alt="User">
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== PÁGINA 1: INICIO POR PRIMERA VEZ ===== -->
+<section id="home" class="page active">
+    <div class="home-bg-gradient"></div>
+    <div class="home-container">
+        <div class="home-content">
+            <div class="badge">
+                <i class="fas fa-sparkles"></i>
+                <span>Descubre el cine como nunca antes</span>
+            </div>
+            <h1 class="home-title">
+                Entiende el<br>
+                <span class="highlight">Verdadero</span><br>
+                Significado del<br>
+                Cine
+            </h1>
+            <p class="home-description">
+                Explora curiosidades, análisis profundos, líneas de tiempo interactivas y el detrás de cámaras de tus películas favoritas.
+            </p>
+            <div class="home-buttons">
+                <button class="btn btn-primary" onclick="showPage('register')">
+                    <span>Comenzar Aventura</span>
+                    <i class="fas fa-film"></i>
+                </button>
+                <button class="btn btn-secondary" onclick="showPage('explore')">Explorar Análisis</button>
+            </div>
+            <div class="users-stats">
+                <div class="avatars-group">
+                    <img src="../assets/images/Profile.jpg" alt="User 1">
+                    <img src="../assets/images/Profile2.jpg" alt="User 2">
+                    <img src="../assets/images/Profile3.jpg" alt="User 3">
+                </div>
+                <p><strong>+10,000</strong> cinéfilos ya exploran el significado detrás del cine</p>
+            </div>
+        </div>
+
+        <div class="home-visual">
+    <div class="movie-cards">
+
+        <!-- POSTER #1: Midsommar -->
+        <div class="movie-card card-1" onclick="showMovieDetail('midsommar')">
+            <img src="../assets/images/Midsommar.jpg" alt="Midsommar">
+            <div class="card-grain"></div>
+            <div class="card-overlay">
+                <span class="card-badge profundo"><i class="fas fa-brain"></i> PROFUNDO</span>
+                <div class="card-info">
+                    <div class="card-meta-row">
+                        <span class="card-year">2019</span>
+                        <span class="card-sep">·</span>
+                        <span class="card-genre-label">Folk Horror</span>
+                    </div>
+                    <h4 class="card-movie-title">Midsommar</h4>
+                    <div class="card-bottom-row">
+                        <div class="card-score"><i class="fas fa-star"></i> 7.1</div>
+                        <div class="card-cta">Ver análisis <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- POSTER #2: La Monja -->
+        <div class="movie-card card-2" onclick="showMovieDetail('monja')">
+            <img src="../assets/images/Nun.jpg" alt="La Monja">
+            <div class="card-grain"></div>
+            <div class="card-overlay">
+                <span class="card-badge entertainment"><i class="fas fa-bolt"></i> ENTRETENIMIENTO</span>
+                <div class="card-info">
+                    <div class="card-meta-row">
+                        <span class="card-year">2018</span>
+                        <span class="card-sep">·</span>
+                        <span class="card-genre-label">Terror</span>
+                    </div>
+                    <h4 class="card-movie-title">La Monja</h4>
+                    <div class="card-bottom-row">
+                        <div class="card-score"><i class="fas fa-star"></i> 5.4</div>
+                        <div class="card-cta">Ver análisis <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- POSTER #3: Loki -->
+        <div class="movie-card card-3" onclick="showMovieDetail('loki')">
+            <img src="../assets/images/Loki.jpg" alt="Loki">
+            <div class="card-grain"></div>
+            <div class="card-overlay">
+                <span class="card-badge entertainment"><i class="fas fa-bolt"></i> ENTRETENIMIENTO</span>
+                <div class="card-info">
+                    <div class="card-meta-row">
+                        <span class="card-year">2021</span>
+                        <span class="card-sep">·</span>
+                        <span class="card-genre-label">Ciencia Ficción</span>
+                    </div>
+                    <h4 class="card-movie-title">Loki</h4>
+                    <div class="card-bottom-row">
+                        <div class="card-score"><i class="fas fa-star"></i> 8.2</div>
+                        <div class="card-cta">Ver análisis <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- POSTER #4: Scary Movie -->
+        <div class="movie-card card-4" onclick="showMovieDetail('scary')">
+            <img src="../assets/images/Scary.jpg" alt="Scary Movie">
+            <div class="card-grain"></div>
+            <div class="card-overlay">
+                <span class="card-badge entertainment"><i class="fas fa-bolt"></i> ENTRETENIMIENTO</span>
+                <div class="card-info">
+                    <div class="card-meta-row">
+                        <span class="card-year">2000</span>
+                        <span class="card-sep">·</span>
+                        <span class="card-genre-label">Comedia</span>
+                    </div>
+                    <h4 class="card-movie-title">Scary Movie</h4>
+                    <div class="card-bottom-row">
+                        <div class="card-score"><i class="fas fa-star"></i> 6.3</div>
+                        <div class="card-cta">Ver análisis <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+    </div>
+</section>
+
+<!-- ===== PÁGINA 2: CONFIGURACIÓN DE PERFIL (PRIMERA VEZ) (SE PUEDE MEJORAR MUCHO MÁS) ===== -->
+<section id="user-profile" class="page">
+    <div class="user-profile-bg"></div>
+    <div class="user-profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar-large">
+                <img src="../assets/images/Leon.jpg" alt="User">
+            </div>
+            <div class="profile-info">
+                <h2>PapiLeonKennedy</h2>
+                <span class="profile-level"><i class="fas fa-film"></i> Nivel: Entusiasta</span>
+                <p class="profile-bio">"El cine es mi escape favorito. Me encanta descubrir películas que me hagan pensar y sentir."</p>
+                <div class="profile-stats">
+                    <div class="stat">
+                        <span class="stat-number">24</span>
+                        <span class="stat-label">Películas vistas</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">12</span>
+                        <span class="stat-label">Guardadas</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">8</span>
+                        <span class="stat-label">Análisis leídos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-sections">
+            <div class="profile-section">
+                <h3><i class="fas fa-heart"></i> Mis Géneros Favoritos</h3>
+                <div class="favorite-genres">
+                    <span class="fav-genre">Terror</span>
+                    <span class="fav-genre">Ciencia Ficción</span>
+                    <span class="fav-genre">Comedia</span>
+                    <span class="fav-genre">Thriller</span>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-bookmark"></i> Películas Guardadas</h3>
+                <div class="saved-movies">
+                    <div class="saved-movie" onclick="showMovieDetail('midsommar')">
+                        <img src="../assets/images/Midsommar.jpg" alt="Midsommar">
+                        <div class="saved-info">
+                            <span class="saved-title">Midsommar</span>
+                            <span class="saved-meta">2019 • Folk Horror</span>
+                            <span class="saved-type profundo">Profundo</span>
+                        </div>
+                    </div>
+                    <div class="saved-movie" onclick="showMovieDetail('monja')">
+                        <img src="../assets/images/Nun.jpg" alt="La Monja">
+                        <div class="saved-info">
+                            <span class="saved-title">La Monja</span>
+                            <span class="saved-meta">2018 • Terror</span>
+                            <span class="saved-type entertainment">Entretenimiento</span>
+                        </div>
+                    </div>
+                    <div class="saved-movie" onclick="showMovieDetail('loki')">
+                        <img src="../assets/images/Loki.jpg" alt="Loki">
+                        <div class="saved-info">
+                            <span class="saved-title">Loki</span>
+                            <span class="saved-meta">2021 • Ciencia Ficción</span>
+                            <span class="saved-type entertainment">Entretenimiento</span>
+                        </div>
+                    </div>
+                    <div class="saved-movie" onclick="showMovieDetail('scary')">
+                        <img src="../assets/images/Scary.jpg" alt="Scary Movie">
+                        <div class="saved-info">
+                            <span class="saved-title">Scary Movie</span>
+                            <span class="saved-meta">2000 • Comedia</span>
+                            <span class="saved-type entertainment">Entretenimiento</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-history"></i> Historial de Búsquedas</h3>
+                <div class="search-history">
+                    <div class="history-item" onclick="showMovieDetail('midsommar')">
+                        <i class="fas fa-search"></i>
+                        <span>Midsommar</span>
+                        <span class="history-date">Hace 1 día</span>
+                    </div>
+                    <div class="history-item" onclick="showMovieDetail('monja')">
+                        <i class="fas fa-search"></i>
+                        <span>La Monja</span>
+                        <span class="history-date">Hace 3 días</span>
+                    </div>
+                    <div class="history-item" onclick="showMovieDetail('loki')">
+                        <i class="fas fa-search"></i>
+                        <span>Loki Serie</span>
+                        <span class="history-date">Hace 1 semana</span>
+                    </div>
+                    <div class="history-item" onclick="showMovieDetail('scary')">
+                        <i class="fas fa-search"></i>
+                        <span>Scary Movie</span>
+                        <span class="history-date">Hace 2 semanas</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-magic"></i> Recomendado para ti</h3>
+                <div class="recommended-movies">
+                    <div class="rec-movie" onclick="showMovieDetail('jacob')">
+                        <img src="../assets/images/Jacob.jpeg" alt="La Escalera De Jacob">
+                        <span class="rec-title">La Escalera De Jacob</span>
+                        <span class="rec-meta">1990</span>
+                    </div>
+                    <div class="rec-movie" onclick="showMovieDetail('endgame')">
+                        <img src="../assets/images/Avengers.jpg" alt="Endgame">
+                        <span class="rec-title">Endgame</span>
+                        <span class="rec-meta">2019</span>
+                    </div>
+                    <div class="rec-movie" onclick="showMovieDetail('ironman')">
+                        <img src="../assets/images/Iron.jpg" alt="Iron Man">
+                        <span class="rec-title">Iron Man</span>
+                        <span class="rec-meta">2008</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <button class="btn btn-secondary" onclick="showPage('setup-profile')">
+                    <i class="fas fa-cog"></i> Configurar Perfil
+                </button>
+                <button class="btn btn-primary" onclick="showPage('explore')">
+                    <i class="fas fa-search"></i> Buscar Películas
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== PÁGINA 3: LOGIN ===== -->
+<section id="login" class="page">
+    <div class="login-bg"></div>
+
+    <div class="login-layout">
+
+        <!-- Panel izquierdo — decorativo -->
+        <div class="login-visual">
+            <div class="login-posters">
+                <div class="lp-col lp-col-1">
+                    <img src="../assets/images/Midsommar.jpg" alt="">
+                    <img src="../assets/images/Loki.jpg" alt="">
+                </div>
+                <div class="lp-col lp-col-2">
+                    <img src="../assets/images/Nun.jpg" alt="">
+                    <img src="../assets/images/Scary.jpg" alt="">
+                </div>
+            </div>
+            <div class="login-visual-overlay"></div>
+            <div class="login-visual-text">
+                <h2>"El cine es un espejo que refleja<br>lo que no podemos decir con palabras."</h2>
+                <span>— Magic Film</span>
+            </div>
+        </div>
+
+        <!-- Panel derecho — formulario -->
+        <div class="login-form-panel">
+            <p class="register-logo" style="text-align:left; margin-bottom:2.5rem;">Magic Film</p>
+
+            <h2 class="login-form-title">Bienvenido de nuevo</h2>
+            <p class="login-form-subtitle">Continúa tu viaje cinematográfico</p>
+
+            <div class="login-form-body">
+                <div class="form-group">
+                    <label>Correo electrónico</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="login-email" placeholder="tucorreo@ejemplo.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="login-password" placeholder="Tu contraseña">
+                    </div>
+                    <div class="login-forgot">
+                        <a onclick="">¿Olvidaste tu contraseña?</a>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-full" onclick="showPage('explore')" style="margin-top:0.75rem;">
+                    INICIAR SESIÓN &nbsp;<i class="fas fa-sign-in-alt"></i>
+                </button>
+
+                <div class="login-divider"><span>o</span></div>
+
+                <div class="login-alt-actions">
+                    <div class="login-alt-btn" onclick="showPage('explore')">
+                        <i class="fab fa-google"></i> Continuar con Google
+                    </div>
+                </div>
+
+                <p class="login-register-link">
+                    ¿No tienes cuenta? <a onclick="showPage('register')">Crear cuenta gratis</a>
+                </p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ===== PÁGINA 4: REGISTRO PASO 1 DE 2 ===== -->
+<section id="register" class="page">
+    <div class="register-bg-gradient"></div>
+    <div class="register-container">
+        <p class="register-logo">Magic Film</p>
+        <div class="step-indicator" style="margin-bottom:1rem;">
+            <span class="step-text">Paso 1 de 2 — Crear cuenta</span>
+        </div>
+        <div class="progress-bar" style="margin:0 auto 1.5rem;">
+            <div class="progress-fill" style="width:50%;"></div>
+        </div>
+        <h2 class="register-title">Únete a Magic Film</h2>
+        <p class="register-subtitle">Crea tu cuenta y descubre el cine como nunca antes</p>
+
+        <div class="register-card">
+            <div class="form-group">
+                <label>Nombre completo</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="reg-name" placeholder="Ej. Ana María">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Correo electrónico</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="reg-email" placeholder="tucorreo@ejemplo.com">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" oninput="checkPasswordStrength(this.value)">
+                </div>
+                <div class="password-strength" style="margin-top:0.5rem;">
+                    <div class="password-strength-bar" id="strength-bar"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Confirmar contraseña</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="reg-confirm" placeholder="Repite tu contraseña">
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-full" onclick="completeRegister()" style="margin-top:0.5rem;">
+                CONTINUAR <i class="fas fa-arrow-right"></i>
+            </button>
+
+            <p class="terms-text">
+                Al continuar aceptas nuestros <a>Términos de Servicio</a> y <a>Política de Privacidad</a>
+            </p>
+        </div>
+
+        <div class="register-footer">
+            ¿Ya tienes cuenta? <a onclick="showPage('login')">Iniciar sesión</a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== PÁGINA 5: OBTENER LOS GUSTOS DEL USUARIO ===== -->
+<section id="setup-profile" class="page">
+    <div class="profile-bg-gradient"></div>
+    <div class="profile-container">
+        <div class="step-indicator">
+            <span class="step-text">Paso 2 de 2</span>
+        </div>
+        <h2 class="profile-title">¿Qué tipo de cinéfilo eres?</h2>
+        <p class="profile-subtitle">Selecciona al menos 3 categorías que te apasionen para personalizar tu experiencia</p>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+
+        <div class="profile-card">
+            <h3>Crea tu perfil cinematográfico</h3>
+            <p class="card-description">Selecciona tu nivel de experiencia y personaliza tu análisis de películas</p>
+            <div class="popcorn-icon"><i class="fas fa-popcorn"></i></div>
+
+            <div class="form-group">
+                <label>Nombre de usuario</label>
+                <input type="text" id="setup-username" placeholder="Ej. PapiLeonKennedy">
+            </div>
+
+            <div class="form-group">
+                <label>Tu nivel de cinéfilo</label>
+                <div class="level-options">
+                    <div class="level-card" onclick="selectLevel(this, 'explorador')">
+                        <i class="fas fa-couch"></i>
+                        <span class="level-name">Explorador</span>
+                        <span class="level-desc">Recién Comienzo</span>
+                    </div>
+                    <div class="level-card active" onclick="selectLevel(this, 'entusiasta')">
+                        <i class="fas fa-film"></i>
+                        <span class="level-name">Entusiasta</span>
+                        <span class="level-desc">Veo Regularmente</span>
+                    </div>
+                    <div class="level-card" onclick="selectLevel(this, 'experto')">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span class="level-name">Experto del cine</span>
+                        <span class="level-desc">Vivo El Cine</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>¿Cuáles son tus géneros favoritos?</label>
+                <span class="hint">Selecciona al menos 3</span>
+                <div class="genre-tags" id="setupGenreTags">
+                    <span class="genre-tag" onclick="toggleSetupGenre(this)">Acción</span>
+                    <span class="genre-tag" onclick="toggleSetupGenre(this)">Drama</span>
+                    <span class="genre-tag" onclick="toggleSetupGenre(this)">Comedia</span>
+                    <span class="genre-tag" onclick="toggleSetupGenre(this)">Terror</span>
+                    <span class="genre-tag" onclick="toggleSetupGenre(this)">Ciencia Ficción</span>
+                    <span class="genre-tag" onclick="toggleSetupGenre(this)">Thriller</span>
+                    <span class="genre-tag" onclick="toggleSetupGenre(this)">Romance</span>
+                    <span class="genre-tag" onclick="toggleSetupGenre(this)">Psicológico</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-full" onclick="completeSetup()">COMENZAR MI VIAJE CINEMATOGRÁFICO</button>
+        </div>
+    </div>
+</section>
+
+<!-- ===== PÁGINA 6: BUSCADOR ===== -->
+<section id="explore" class="page">
+    <div class="explore-bg-gradient"></div>
+    <div class="explore-container">
+        <div class="badge">
+            <i class="fas fa-sparkles"></i>
+            <span>Descubre el cine como nunca antes</span>
+        </div>
+        <h2 class="explore-title">¿Qué película quieres<br><span class="highlight">descifrar</span> hoy?</h2>
+        <p class="explore-subtitle">Busca cualquier película y descubre sus secretos ocultos, curiosidades, significados profundos y líneas de tiempo.</p>
+
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Busca una película..." onkeyup="handleSearch(event)">
+        </div>
+
+        <div class="quick-tags">
+            <span class="quick-tag" onclick="quickSearch('Acción')">Acción</span>
+            <span class="quick-tag" onclick="quickSearch('Ciencia Ficción')">Ciencia Ficción</span>
+            <span class="quick-tag" onclick="quickSearch('Comedia')">Comedia</span>
+            <span class="quick-tag" onclick="quickSearch('Terror')">Terror</span>
+            <span class="quick-tag" onclick="quickSearch('Drama')">Drama</span>
+        </div>
+
+        <div id="searchResults" class="search-results" style="display:none;">
+            <h3>Resultados de búsqueda</h3>
+            <div class="results-grid" id="resultsGrid"></div>
+        </div>
+
+        <div class="recommendations" id="recommendations">
+            <h3>RECOMENDADO PARA TI</h3>
+            <div class="movie-grid">
+                <div class="movie-item" onclick="showMovieDetail('midsommar')">
+                    <div class="movie-poster">
+                        <img src="../assets/images/Midsommar.jpg" alt="Midsommar">
+                        <div class="poster-type profundo">PROFUNDO</div>
+                    </div>
+                    <span class="movie-name">Midsommar</span>
+                    <span class="movie-year">2019</span>
+                </div>
+                <div class="movie-item" onclick="showMovieDetail('monja')">
+                    <div class="movie-poster">
+                        <img src="../assets/images/Nun.jpg" alt="La Monja">
+                        <div class="poster-type entertainment">ENTRETENIMIENTO</div>
+                    </div>
+                    <span class="movie-name">La Monja</span>
+                    <span class="movie-year">2018</span>
+                </div>
+                <div class="movie-item" onclick="showMovieDetail('loki')">
+                    <div class="movie-poster">
+                        <img src="../assets/images/Loki.jpg" alt="Loki">
+                        <div class="poster-type entertainment">ENTRETENIMIENTO</div>
+                    </div>
+                    <span class="movie-name">Loki</span>
+                    <span class="movie-year">2021</span>
+                </div>
+                <div class="movie-item" onclick="showMovieDetail('scary')">
+                    <div class="movie-poster">
+                        <img src="../assets/images/Scary.jpg" alt="Scary Movie">
+                        <div class="poster-type entertainment">ENTRETENIMIENTO</div>
+                    </div>
+                    <span class="movie-name">Scary Movie</span>
+                    <span class="movie-year">2000</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="categories-section">
+            <h3>EXPLORA POR CATEGORÍA</h3>
+            <div class="category-grid">
+                <div class="category-card" onclick="quickSearch('Acción')"><i class="fas fa-fire"></i><span>Acción</span></div>
+                <div class="category-card" onclick="quickSearch('Drama')"><i class="fas fa-theater-masks"></i><span>Drama</span></div>
+                <div class="category-card" onclick="quickSearch('Comedia')"><i class="fas fa-laugh-beam"></i><span>Comedia</span></div>
+                <div class="category-card" onclick="quickSearch('Terror')"><i class="fas fa-ghost"></i><span>Terror</span></div>
+                <div class="category-card" onclick="quickSearch('Ciencia Ficción')"><i class="fas fa-rocket"></i><span>Ciencia Ficción</span></div>
+                <div class="category-card" onclick="quickSearch('Romance')"><i class="fas fa-heart"></i><span>Romance</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== PÁGINA 7: MODO ANALISIS ENTRETENIMIENTO ===== -->
+<section id="movie-detail-entertainment" class="page">
+    <div class="movie-hero">
+        <div class="hero-background">
+            <img id="ent-hero-img" src="../assets/images/Scary.jpg" alt="Movie Background">
+            <div class="hero-gradient"></div>
+        </div>
+        <div class="movie-info-container">
+            <div class="movie-poster-large">
+                <img id="ent-poster-img" src="../assets/images/Scary.jpg" alt="Movie Poster">
+            </div>
+            <div class="movie-details">
+                <div class="movie-type-badge entertainment">ANÁLISIS DE ENTRETENIMIENTO</div>
+                <div class="movie-meta">
+                    <span class="meta-tag genre" id="ent-genre">Comedia</span>
+                    <span class="meta-tag year" id="ent-year">2000</span>
+                    <span class="meta-tag duration" id="ent-duration">1h 28min</span>
+                </div>
+                <h1 class="movie-title" id="ent-title">Scary Movie</h1>
+                <p class="movie-synopsis" id="ent-synopsis">Un grupo de adolescentes es acosado por un asesino mientras parodian los grandes clásicos del terror.</p>
+                <div class="movie-stats">
+                    <span class="stat-box"><i class="fas fa-dollar-sign"></i> <span id="ent-boxoffice">$278M</span> recaudados</span>
+                    <span class="stat-box rating"><i class="fas fa-star"></i> <span id="ent-rating">6.3</span></span>
+                    <span class="stat-box"><i class="fas fa-users"></i> <span id="ent-audience">88%</span> audiencia</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="movie-content">
+        <div class="content-tabs">
+            <button class="tab active" onclick="showTab('ent-resumen')" data-tab="ent-resumen"><i class="fas fa-book-open"></i> Resumen</button>
+            <button class="tab" onclick="showTab('ent-momentos')" data-tab="ent-momentos"><i class="far fa-clock"></i> Momentos Épicos</button>
+            <button class="tab" onclick="showTab('ent-escenas')" data-tab="ent-escenas"><i class="fas fa-fire"></i> Escenas Hot</button>
+            <button class="tab" onclick="showTab('ent-easter')" data-tab="ent-easter"><i class="fas fa-egg"></i> Easter Eggs</button>
+            <button class="tab" onclick="showTab('ent-curiosidades')" data-tab="ent-curiosidades"><i class="fas fa-lightbulb"></i> Curiosidades</button>
+        </div>
+
+        <!-- Resumen Tab -->
+        <div id="ent-resumen" class="tab-content active">
+            <div class="content-section">
+                <h3 class="section-title red">Sinopsis</h3>
+                <p class="section-text" id="ent-sinopsis-full">Cargando...</p>
+            </div>
+            <div class="analysis-box entertainment-analysis">
+                <h4><i class="fas fa-bolt"></i> Análisis de Entretenimiento</h4>
+                <div class="analysis-content" id="ent-analysis">Cargando...</div>
+            </div>
+            <div class="cast-section">
+                <h3 class="section-title">Reparto Principal</h3>
+                <div class="cast-grid" id="ent-cast"></div>
+            </div>
+            <div class="stats-row" id="ent-stats-row"></div>
+        </div>
+
+        <!-- Momentos Épicos Tab -->
+        <div id="ent-momentos" class="tab-content">
+            <div class="timeline-section">
+                <h3 class="timeline-title">Momentos Épicos</h3>
+                <div class="timeline" id="ent-timeline"></div>
+            </div>
+        </div>
+
+        <!-- Escenas Hot Tab --> <!-- Profe, si lee esto, el nombre de la sección "Escenas hot" se puede modificar para tener un titulo menos malinterpretado -->
+        <div id="ent-escenas" class="tab-content">
+            <div class="hot-scenes-grid" id="ent-escenas-grid"></div>
+        </div>
+
+        <!-- Easter Eggs Tab -->
+        <div id="ent-easter" class="tab-content">
+            <div class="easter-eggs-list" id="ent-easter-list"></div>
+        </div>
+
+        <!-- Curiosidades Tab -->
+        <div id="ent-curiosidades" class="tab-content">
+            <div class="curiosities-grid" id="ent-curiosidades-grid"></div>
+        </div>
+    </div>
+
+    <!-- YouTube Section (fuera de tabs) -->
+    <div class="movie-content">
+        <div id="ent-youtube-section"></div>
+    </div>
+</section>
+
+<!-- ===== PÁGINA 8: MODO - PROFUNDO ===== --> <!-- Profe, el modo "Profundo" puede mejorar muchisimo más al igual que el del entretenimiento, entonces como ahora es una idea inicial, es lo que tenemos -->
+<section id="movie-detail-profound" class="page">
+    <div class="movie-hero profound-hero">
+        <div class="hero-background">
+            <img id="prof-hero-img" src="../assets/images/Midsommar.jpg" alt="Movie Background">
+            <div class="hero-gradient"></div>
+        </div>
+        <div class="movie-info-container">
+            <div class="movie-poster-large">
+                <img id="prof-poster-img" src="../assets/images/Midsommar.jpg" alt="Movie Poster">
+            </div>
+            <div class="movie-details">
+                <div class="movie-type-badge profundo">ANÁLISIS PROFUNDO</div>
+                <div class="movie-meta">
+                    <span class="meta-tag genre" id="prof-genre">Folk Horror</span>
+                    <span class="meta-tag year" id="prof-year">2019</span>
+                    <span class="meta-tag duration" id="prof-duration">2h 28min</span>
+                </div>
+                <h1 class="movie-title" id="prof-title">Midsommar</h1>
+                <p class="movie-synopsis" id="prof-synopsis">Una pareja en crisis viaja a Suecia para un festival rural que se celebra solo cada 90 años.</p>
+                <div class="movie-stats">
+                    <span class="stat-box"><i class="fas fa-award"></i> <span id="prof-awards">27 Premios</span></span>
+                    <span class="stat-box rating"><i class="fas fa-star"></i> <span id="prof-rating">7.1</span></span>
+                    <span class="stat-box"><i class="fas fa-trophy"></i> <span id="prof-prize">Saturn Award</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="movie-content">
+        <div class="content-tabs">
+            <button class="tab active" onclick="showTab('prof-resumen')" data-tab="prof-resumen"><i class="fas fa-book-open"></i> Análisis Profundo</button>
+            <button class="tab" onclick="showTab('prof-simbolismo')" data-tab="prof-simbolismo"><i class="fas fa-puzzle-piece"></i> Simbolismo</button>
+            <button class="tab" onclick="showTab('prof-temas')" data-tab="prof-temas"><i class="fas fa-brain"></i> Temas</button>
+            <button class="tab" onclick="showTab('prof-director')" data-tab="prof-director"><i class="fas fa-video"></i> Estilo Director</button>
+            <button class="tab" onclick="showTab('prof-contexto')" data-tab="prof-contexto"><i class="fas fa-globe"></i> Contexto Social</button>
+        </div>
+
+        <!-- Análisis Profundo Tab -->
+        <div id="prof-resumen" class="tab-content active">
+            <div class="analysis-box profound-analysis">
+                <h4><i class="fas fa-brain"></i> Análisis Cinematográfico Profundo</h4>
+                <div class="analysis-content" id="prof-analysis">Cargando...</div>
+            </div>
+            <div class="content-section">
+                <h3 class="section-title red">Sinopsis Extendida</h3>
+                <p class="section-text" id="prof-sinopsis-full">Cargando...</p>
+            </div>
+            <div class="cast-section">
+                <h3 class="section-title">Reparto y Personajes</h3>
+                <div class="cast-grid" id="prof-cast"></div>
+            </div>
+            <div class="stats-row" id="prof-stats-row"></div>
+        </div>
+
+        <!-- Simbolismo Tab -->
+        <div id="prof-simbolismo" class="tab-content">
+            <div class="symbolism-grid" id="prof-simbolismo-grid"></div>
+        </div>
+
+        <!-- Temas Tab -->
+        <div id="prof-temas" class="tab-content">
+            <div class="themes-list" id="prof-temas-list"></div>
+        </div>
+
+        <!-- Estilo Director Tab -->
+        <div id="prof-director" class="tab-content">
+            <div id="prof-director-section"></div>
+        </div>
+
+        <!-- Contexto Social Tab -->
+        <div id="prof-contexto" class="tab-content">
+            <div id="prof-contexto-section"></div>
+        </div>
+    </div>
+
+    <!-- YouTube Section (fuera de tabs) -->
+    <div class="movie-content">
+        <div id="prof-youtube-section"></div>
+    </div>
+</section>
+
+<script src="../js/pages/app.js"></script>
+</body>
+</html>
