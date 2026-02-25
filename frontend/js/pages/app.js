@@ -320,7 +320,7 @@ const moviesDB = {
         boxoffice: '$585M', audience: '91%',
         synopsis: 'Tony Stark, millonario fabricante de armas, construye una armadura tecnológica para escapar del cautiverio y convertirse en Iron Man.',
         fullSynopsis: 'Tony Stark es capturado por terroristas y forzado a construir un arma. En cambio, construye una armadura de alta tecnología y escapa. De vuelta en casa, perfecciona la armadura y adopta la identidad de Iron Man.',
-        poster: '../assets/images/Iron.jpg',
+        poster: '../assets/images/iron.jpg',
         hero: '../assets/images/iron2.jpg',
         cast: [{ name: 'Robert Downey Jr.', role: 'Tony Stark', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face' }],
         stats: [{ value: '94%', color: 'red', label: 'Rotten Tomatoes' }],
