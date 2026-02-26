@@ -5,8 +5,8 @@ erDiagram
 
     USUARIOS {
         int id PK
-        varchar nombre_usuario UK
-        varchar email UK
+        varchar nombre_usuario
+        varchar email
         varchar password_hash
         varchar nombre_completo
         enum rol
@@ -19,7 +19,7 @@ erDiagram
 
     GENEROS {
         int id PK
-        varchar nombre UK
+        varchar nombre
         timestamp creado_en
     }
 
@@ -30,7 +30,7 @@ erDiagram
 
     PELICULAS {
         int id PK
-        int tmdb_id UK
+        int tmdb_id
         varchar titulo
         varchar titulo_original
         year anio
@@ -56,7 +56,7 @@ erDiagram
 
     ANALISIS {
         int id PK
-        int pelicula_id FK UK
+        int pelicula_id FK
         enum tipo
         varchar modelo_ia
         enum estado
