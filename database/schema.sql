@@ -1,11 +1,10 @@
 -- ============================================================
 --  MAGIC FILM — Base de Datos MySQL
---  Versión 1.1 | Febrero 2026
+--  Versión 0.1 | Marzo 2026
 --  Autores: Michael Hernández, Yennifer Salas, Luis Riascos
---  Correcciones v1.1:
---    + Tabla historial_busquedas agregada
---    + Campo keywords en peliculas
---    + Campo modo en capas_analisis
+--
+--  Cambios v0.1:
+--   + Tabla catalogo_peliculas (gestor / puente de consultas)
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS magic_filmv01
@@ -52,7 +51,7 @@ CREATE TABLE usuario_generos (
 );
 
 -- ============================================================
--- TABLA: peliculas
+-- TABLA: peliculas (fuente principal)
 -- ============================================================
 CREATE TABLE peliculas (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -74,6 +73,22 @@ CREATE TABLE peliculas (
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CHECK (calificacion BETWEEN 0 AND 10)
+);
+
+-- ============================================================
+-- TABLA GESTORA: catalogo_peliculas
+-- Centraliza búsquedas y listados
+-- ============================================================
+CREATE TABLE catalogo_peliculas (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  pelicula_id INT UNSIGNED NOT NULL,
+  titulo VARCHAR(255) NOT NULL,
+  anio YEAR,
+  calificacion DECIMAL(3,1),
+  poster_url VARCHAR(500),
+  texto_busqueda TEXT,
+  actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (pelicula_id) REFERENCES peliculas(id) ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -176,12 +191,13 @@ CREATE TABLE log_ia (
 -- ============================================================
 -- ÍNDICES DE OPTIMIZACIÓN
 -- ============================================================
-CREATE INDEX idx_peliculas_tmdb       ON peliculas (tmdb_id);
-CREATE INDEX idx_favoritos_usuario    ON favoritos (usuario_id);
-CREATE INDEX idx_usuario_generos      ON usuario_generos (usuario_id);
-CREATE INDEX idx_pelicula_generos     ON pelicula_generos (pelicula_id);
-CREATE INDEX idx_historial_busquedas  ON historial_busquedas (usuario_id);
-CREATE INDEX idx_capas_analisis       ON capas_analisis (analisis_id);
+CREATE INDEX idx_peliculas_tmdb        ON peliculas (tmdb_id);
+CREATE INDEX idx_catalogo_titulo       ON catalogo_peliculas (titulo);
+CREATE INDEX idx_favoritos_usuario     ON favoritos (usuario_id);
+CREATE INDEX idx_usuario_generos       ON usuario_generos (usuario_id);
+CREATE INDEX idx_pelicula_generos      ON pelicula_generos (pelicula_id);
+CREATE INDEX idx_historial_busquedas   ON historial_busquedas (usuario_id);
+CREATE INDEX idx_capas_analisis        ON capas_analisis (analisis_id);
 
 -- ============================================================
 -- DATOS INICIALES
@@ -191,7 +207,6 @@ INSERT INTO generos (nombre) VALUES
 ('Ciencia Ficción'),('Thriller'),('Romance'),('Psicológico'),
 ('Animación'),('Documental'),('Histórico'),('Musical');
 
--- ⚠️ IMPORTANTE: Reemplazar HASH_PENDIENTE con bcrypt real antes de producción
 INSERT INTO usuarios (
   nombre_usuario, email, password_hash, nombre_completo, rol, onboarding_completo
 ) VALUES (
