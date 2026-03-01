@@ -1,5 +1,5 @@
 ---
-title: Magic Film — Modelo Entidad-Relación v0.1
+title: Magic Film — Modelo Entidad-Relación v1.1
 ---
 erDiagram
 
@@ -117,7 +117,7 @@ erDiagram
 
     PELICULAS ||--|| ANALISIS            : "tiene uno"
     ANALISIS  ||--o{ CAPAS_ANALISIS      : "se divide en"
-    ANALISIS  ||--o{ LOG_IA              : "registra"
+    ANALISIS  ||--o{ LOG_IA             : "registra"
 
     USUARIOS  ||--o{ FAVORITOS           : "guarda"
     PELICULAS ||--o{ FAVORITOS           : "guardada en"
