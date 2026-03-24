@@ -9,23 +9,27 @@ const geminiService = {
   construirPrompt(pelicula, tipo) {
     const keywords = Array.isArray(pelicula.keywords)
       ? pelicula.keywords.join(', ')
-      : JSON.parse(pelicula.keywords || '[]').join(', ');
+      : (typeof pelicula.keywords === 'string' ? pelicula.keywords : JSON.parse(pelicula.keywords || '[]').join(', '));
 
-const base = `Película: "${pelicula.titulo}" (${pelicula.anio})
-Director: ${pelicula.director}
-${pelicula.guionista ? `Guionista: ${pelicula.guionista}` : ''}
-${pelicula.dp ? `Director de Fotografía: ${pelicula.dp}` : ''}
-${pelicula.compositor ? `Compositor: ${pelicula.compositor}` : ''}
-Sinopsis: ${pelicula.sinopsis}
-Calificación TMDB: ${pelicula.calificacion}/10
-${pelicula.duracion ? `Duración: ${pelicula.duracion}` : ''}
-${pelicula.presupuesto ? `Presupuesto: ${pelicula.presupuesto}` : ''}
-${pelicula.recaudacion ? `Recaudación mundial: ${pelicula.recaudacion}` : ''}
-${pelicula.reparto ? `Reparto principal: ${pelicula.reparto}` : ''}
-${pelicula.paises ? `Países de producción: ${pelicula.paises}` : ''}
-${pelicula.productoras ? `Productoras: ${pelicula.productoras}` : ''}
-${pelicula.similares ? `Películas similares: ${pelicula.similares}` : ''}
-Keywords: ${pelicula.keywords || keywords}`;
+    const lineasBase = [
+      `Película: "${pelicula.titulo}" (${pelicula.anio})`,
+      `Director: ${pelicula.director}`,
+      pelicula.guionista     ? `Guionista: ${pelicula.guionista}` : null,
+      pelicula.dp            ? `Director de Fotografía: ${pelicula.dp}` : null,
+      pelicula.compositor    ? `Compositor: ${pelicula.compositor}` : null,
+      `Sinopsis: ${pelicula.sinopsis}`,
+      `Calificación TMDB: ${pelicula.calificacion}/10`,
+      pelicula.duracion      ? `Duración: ${pelicula.duracion}` : null,
+      pelicula.presupuesto   ? `Presupuesto: ${pelicula.presupuesto}` : null,
+      pelicula.recaudacion   ? `Recaudación mundial: ${pelicula.recaudacion}` : null,
+      pelicula.reparto       ? `Reparto principal: ${pelicula.reparto}` : null,
+      pelicula.paises        ? `Países de producción: ${pelicula.paises}` : null,
+      pelicula.productoras   ? `Productoras: ${pelicula.productoras}` : null,
+      pelicula.similares     ? `Películas similares: ${pelicula.similares}` : null,
+      keywords               ? `Keywords: ${keywords}` : null,
+    ].filter(Boolean);
+
+    const base = lineasBase.join('\n');
 
     const instruccionesGenerales = `
 INSTRUCCIONES GENERALES (OBLIGATORIAS):
@@ -45,7 +49,7 @@ ROL: Eres un crítico cinematográfico y ensayista cultural de élite. Escribes 
 
 TONO: Analítico, evocador e intelectual pero accesible. Piensa en un video ensayo de YouTube sobre cine de autor — profundo pero apasionante. Usa frases variadas, mezcla oraciones cortas e impactantes con análisis más desarrollados. Evita frases genéricas y lugares comunes.
 
-OBJETIVO: Que el lector sienta que entiende la película a un nivel que nunca había tenido. No cuentes la trama — analiza el PORQUÉ de cada decisión del director.
+OBJETIVO: Que el lector sienta que entiende la película a un nivel que nunca había tenido. No cuentes la trama — analiza el PORQUÉ de cada decisión del director. Usa los datos reales del reparto, director de fotografía y compositor cuando estén disponibles para hacer el análisis más específico.
 
 Responde SOLO con este JSON sin comentarios ni texto adicional:
 
@@ -63,7 +67,7 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
       },
       {
         "titulo": "Título sobre el lenguaje visual",
-        "texto": "Cómo la puesta en escena y el cromatismo refuerzan el tema central (120-150 palabras)"
+        "texto": "Cómo la puesta en escena y el cromatismo refuerzan el tema central. Menciona al director de fotografía si está disponible (120-150 palabras)"
       },
       {
         "titulo": "Título sobre el subtexto",
@@ -72,10 +76,10 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
     ]
   },
   "simbolismo": [
-    { "icono": "fas fa-eye", "titulo": "Símbolo visual específico", "texto": "Interpretación profunda de su significado oculto (70-80 palabras)" },
-    { "icono": "fas fa-ghost", "titulo": "Símbolo del trauma", "texto": "Cómo se manifiesta el conflicto interior en elementos físicos (70-80 palabras)" },
-    { "icono": "fas fa-door-open", "titulo": "Símbolo espacial", "texto": "Los escenarios como extensiones del estado mental de los personajes (70-80 palabras)" },
-    { "icono": "fas fa-skull", "titulo": "Símbolo de la mortalidad", "texto": "El tratamiento de la finitud o el miedo en la obra (70-80 palabras)" }
+    { "icono": "fas fa-eye", "titulo": "Símbolo visual específico de esta película", "texto": "Interpretación profunda de su significado oculto (70-80 palabras)" },
+    { "icono": "fas fa-ghost", "titulo": "Símbolo del trauma o conflicto", "texto": "Cómo se manifiesta el conflicto interior en elementos físicos (70-80 palabras)" },
+    { "icono": "fas fa-door-open", "titulo": "Símbolo espacial o ambiental", "texto": "Los escenarios como extensiones del estado mental de los personajes (70-80 palabras)" },
+    { "icono": "fas fa-skull", "titulo": "Símbolo de la mortalidad o transformación", "texto": "El tratamiento de la finitud o el miedo en la obra (70-80 palabras)" }
   ],
   "momentos": [
     { "tiempo": "Apertura", "color": "red", "tag": "Inicio", "titulo": "El primer golpe narrativo", "texto": "El elemento en los primeros minutos que establece el tono filosófico de toda la obra (70-80 palabras)" },
@@ -86,15 +90,15 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
     "intro": "La obra en su corriente artística y momento histórico (2-3 oraciones)",
     "items": [
       { "icono": "fas fa-history", "titulo": "Movimiento o Corriente", "texto": "A qué corriente cinematográfica pertenece o desafía (70-80 palabras)" },
-      { "icono": "fas fa-fingerprint", "titulo": "Sello de Autor", "texto": "Obsesiones del director presentes en esta obra (70-80 palabras)" },
-      { "icono": "fas fa-bolt", "titulo": "Impacto Cultural", "texto": "Cómo cambió el género o la percepción del público (70-80 palabras)" }
+      { "icono": "fas fa-fingerprint", "titulo": "Sello de Autor", "texto": "Obsesiones temáticas o visuales recurrentes del director en esta obra (70-80 palabras)" },
+      { "icono": "fas fa-bolt", "titulo": "Impacto Cultural", "texto": "Cómo cambió el género o la percepción del público tras su estreno (70-80 palabras)" }
     ]
   },
   "tecnica": {
     "intro": "El estilo técnico del director en esta obra (2-3 oraciones)",
     "aspectos": [
       { "titulo": "Cromatismo y Lenguaje Visual", "texto": "Uso psicológico del color y la composición de planos (90-100 palabras)" },
-      { "titulo": "Paisaje Sonoro y Música", "texto": "Cómo el sonido manipula la emoción del espectador (90-100 palabras)" },
+      { "titulo": "Paisaje Sonoro y Música", "texto": "Cómo el sonido y la banda sonora manipulan la emoción del espectador (90-100 palabras)" },
       { "titulo": "Estructura y Montaje", "texto": "El ritmo narrativo y qué dice el montaje sobre la historia (90-100 palabras)" }
     ]
   },
@@ -105,9 +109,9 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
     return `${base}
 ${instruccionesGenerales}
 
-ROL: Eres un insider de Hollywood y experto en cultura pop cinematográfica. Conoces todos los secretos del set, los datos de taquilla y las historias detrás de las cámaras que el público general no sabe.
+ROL: Eres un insider de Hollywood y experto en cultura pop cinematográfica. Conoces todos los secretos del set, los datos de taquilla y las historias detrás de las cámaras que el público general no sabe. Usa los datos reales del reparto y producción disponibles para hacer el análisis más específico y creíble.
 
-TONO: Vibrante, dinámico y lleno de energía. Estilo contenido viral de YouTube de curiosidades cinematográficas. Directo, llamativo, con ritmo rápido. Prioriza el factor sorpresa.
+TONO: Vibrante, dinámico y lleno de energía. Estilo contenido viral de YouTube de curiosidades cinematográficas. Directo, llamativo, con ritmo rápido. Prioriza el factor sorpresa y el dato concreto.
 
 OBJETIVO: Que el usuario quiera ver la película de nuevo para encontrar lo que no vio antes.
 
@@ -115,11 +119,11 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
 
 {
   "resumen": {
-    "intro": "Gancho electrizante sobre por qué esta película es especial y su impacto en la cultura pop (3 oraciones)",
+    "intro": "Gancho electrizante sobre por qué esta película es especial y su impacto en la cultura pop (3 oraciones potentes)",
     "puntos": [
-      { "titulo": "Récord o Hazaña:", "texto": "Dato numérico o técnico impresionante sobre la producción" },
-      { "titulo": "El Factor X:", "texto": "Qué la hace única frente a otras películas del mismo género" },
-      { "titulo": "Recepción Brutal:", "texto": "Cómo reaccionó la crítica o el público de forma inesperada" },
+      { "titulo": "Récord o Hazaña:", "texto": "Dato numérico o técnico impresionante sobre la producción o impacto" },
+      { "titulo": "El Factor X:", "texto": "Qué la hace única e irrepetible frente a otras películas del mismo género" },
+      { "titulo": "Recepción Brutal:", "texto": "Cómo reaccionó la crítica o el público de forma inesperada o contradictoria" },
       { "titulo": "Legado Viral:", "texto": "Su impacto en memes, referencias culturales o el cine posterior" }
     ]
   },
@@ -132,10 +136,10 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
   "easter_eggs": [
     { "titulo": "El cameo invisible", "texto": "Quién aparece escondido o qué objeto de otra película aparece de fondo (70-80 palabras)" },
     { "titulo": "El homenaje secreto", "texto": "A qué obra clásica le rinde homenaje de forma que solo los atentos notarían (70-80 palabras)" },
-    { "titulo": "El código visual", "texto": "Un patrón visual repetitivo y qué comunica cada vez que aparece (70-80 palabras)" }
+    { "titulo": "El código visual", "texto": "Un patrón visual repetitivo y qué comunica cada vez que aparece en pantalla (70-80 palabras)" }
   ],
   "curiosidades": [
-    { "icono": "fas fa-mask", "titulo": "Casi ocurre...", "texto": "El actor que rechazó el papel o el final alternativo descartado (70-80 palabras)" },
+    { "icono": "fas fa-mask", "titulo": "Casi ocurre...", "texto": "El actor que rechazó el papel principal o el final alternativo descartado (70-80 palabras)" },
     { "icono": "fas fa-tools", "titulo": "Efectos que sorprenden", "texto": "Algo que parece digital pero se construyó físicamente en el set (70-80 palabras)" },
     { "icono": "fas fa-skull-crossbones", "titulo": "El set maldito", "texto": "Las anécdotas más extrañas o peligrosas durante el rodaje (70-80 palabras)" },
     { "icono": "fas fa-award", "titulo": "Justicia poética", "texto": "El premio inesperado o el dato de taquilla más absurdo (70-80 palabras)" }
@@ -171,7 +175,6 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
     const texto = data.choices[0]?.message?.content || '';
     const tiempo_ms = Date.now() - inicio;
 
-    // Limpiar respuesta antes de parsear
     let jsonLimpio = texto
       .replace(/```json\n?/g, '')
       .replace(/```\n?/g, '')
@@ -179,7 +182,6 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
       .replace(/\/\*[\s\S]*?\*\//g, '')
       .trim();
 
-    // Extraer solo el bloque JSON
     const inicioJson = jsonLimpio.indexOf('{');
     const finJson = jsonLimpio.lastIndexOf('}');
     if (inicioJson !== -1 && finJson !== -1) {
@@ -187,7 +189,6 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
     }
 
     const capas = JSON.parse(jsonLimpio);
-
     return { capas, prompt, tiempo_ms };
   }
 
