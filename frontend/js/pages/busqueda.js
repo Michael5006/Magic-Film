@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Cargar recomendados dinámicos
     try {
-        const res = await fetch('https://magic-film-api.onrender.com/api');
+        const res = await fetch('https://magic-film-api.onrender.com/api/peliculas/populares');
         const data = await res.json();
         if (!data.ok) return;
 
