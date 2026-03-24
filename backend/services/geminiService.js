@@ -147,7 +147,7 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
 }`;
   },
 
-  async generarAnalisis(pelicula, tipo) {
+ async generarAnalisis(pelicula, tipo) {
     const prompt = this.construirPrompt(pelicula, tipo);
     const inicio = Date.now();
 
@@ -159,10 +159,16 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
       },
       body: JSON.stringify({
         model: GROQ_MODEL,
-        messages: [{ role: 'user', content: prompt }],
+        messages: [
+          {
+            role: 'system',
+            content: 'Eres un asistente que responde ÚNICAMENTE con JSON válido y parseable. Nunca uses comillas dentro de los valores de texto. Usa solo comillas dobles para las claves y valores del JSON.'
+          },
+          { role: 'user', content: prompt }
+        ],
         temperature: 0.85,
         top_p: 0.9,
-        max_tokens: 2500
+        max_tokens: 2000
       })
     });
 
@@ -178,8 +184,6 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
     let jsonLimpio = texto
       .replace(/```json\n?/g, '')
       .replace(/```\n?/g, '')
-      .replace(/\/\/.*$/gm, '')
-      .replace(/\/\*[\s\S]*?\*\//g, '')
       .trim();
 
     const inicioJson = jsonLimpio.indexOf('{');
@@ -188,7 +192,24 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
       jsonLimpio = jsonLimpio.substring(inicioJson, finJson + 1);
     }
 
-    const capas = JSON.parse(jsonLimpio);
+    let capas;
+    try {
+      capas = JSON.parse(jsonLimpio);
+    } catch (e) {
+      // Limpiar caracteres problemáticos y reintentar
+      jsonLimpio = jsonLimpio
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+        .replace(/,(\s*[}\]])/g, '$1');
+
+      try {
+        capas = JSON.parse(jsonLimpio);
+      } catch (e2) {
+        console.error('JSON inválido posición:', e2.message);
+        console.error('Fragmento problemático:', jsonLimpio.substring(2700, 2800));
+        throw new Error('Respuesta de IA con formato inválido. Intenta de nuevo.');
+      }
+    }
+
     return { capas, prompt, tiempo_ms };
   }
 
