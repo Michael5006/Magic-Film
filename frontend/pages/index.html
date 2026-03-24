@@ -90,7 +90,7 @@ if (localStorage.getItem('mf_token')) {
 
 async function cargarPeliculasHome() {
     try {
-        const res = await fetch('http://localhost:3000/api/peliculas/populares');
+        const res = await fetch('https://magic-film-api.onrender.com/api/peliculas/populares');
         const data = await res.json();
         if (!data.ok) return;
 
