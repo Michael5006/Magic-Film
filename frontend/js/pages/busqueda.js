@@ -116,7 +116,7 @@ window.quickSearchPorId = async function(genero_id, nombre) {
   document.getElementById('recommendations').style.display = 'none';
 
   try {
-    const res = await fetch(`https://magic-film-api.onrender.com/api/peliculas/populares/${genero_id}`);
+    const res = await fetch(`https://magic-film-api.onrender.com/api/peliculas/genero/${genero_id}`);
     const data = await res.json();
     if (data.ok) mostrarResultados(data.data.peliculas);
   } catch (err) {
