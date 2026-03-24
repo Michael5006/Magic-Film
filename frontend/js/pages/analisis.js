@@ -204,30 +204,30 @@ function mostrarPeliculaProfunda(pelicula, capas) {
         const data = JSON.parse(capa.contenido);
 
         if (capa.nombre_capa === 'narrativa') {
-          document.getElementById('prof-narrativa-content').innerHTML = `
-            <p style="font-size:1.05rem;font-style:italic;color:#f5a623;
-                      margin-bottom:2rem;line-height:1.7;border-left:3px solid #f5a623;
-                      padding-left:1rem;">
-              ${data.intro}
-            </p>
-            ${(data.secciones || []).map(s => `
-              <div style="margin-bottom:2rem;padding:1.5rem;background:rgba(255,255,255,0.03);
-                          border-radius:12px;">
-                <h4 style="color:#fff;font-size:1.05rem;margin:0 0 0.75rem;">${s.titulo}</h4>
-                <p style="color:#bbb;line-height:1.8;margin:0 0 ${s.cita ? '1rem' : '0'};">${s.texto}</p>
-                ${s.cita ? `
-                  <div style="margin-top:1rem;padding:1rem 1.5rem;background:rgba(245,166,35,0.08);
-                              border-left:3px solid #f5a623;border-radius:0 8px 8px 0;">
-                    <i class="fas fa-quote-left" style="color:#f5a623;margin-bottom:0.5rem;display:block;"></i>
-                    <blockquote style="color:#ddd;font-style:italic;margin:0 0 0.5rem;line-height:1.6;">
-                      "${s.cita.texto}"
-                    </blockquote>
-                    <cite style="color:#888;font-size:0.8rem;">— ${s.cita.fuente}</cite>
-                  </div>
-                ` : ''}
-              </div>
-            `).join('')}`;
-        }
+  document.getElementById('prof-narrativa-content').innerHTML = `
+    <p style="font-size:1.05rem;font-style:italic;color:#f5a623;
+              margin-bottom:2rem;line-height:1.7;border-left:3px solid #f5a623;
+              padding-left:1rem;">
+      ${data.intro}
+    </p>
+    ${(data.secciones || []).map(s => `
+      <div style="margin-bottom:2rem;padding:1.5rem;background:rgba(255,255,255,0.03);
+                  border-radius:12px;">
+        <h4 style="color:#fff;font-size:1.05rem;margin:0 0 0.75rem;">${s.titulo}</h4>
+        <p style="color:#bbb;line-height:1.8;margin:0 0 ${s.cita && s.cita.texto && s.cita.texto !== 'undefined' ? '1rem' : '0'};">${s.texto}</p>
+        ${s.cita && s.cita.texto && s.cita.texto !== 'undefined' && s.cita.fuente && s.cita.fuente !== 'undefined' ? `
+          <div style="margin-top:1rem;padding:1rem 1.5rem;background:rgba(245,166,35,0.08);
+                      border-left:3px solid #f5a623;border-radius:0 8px 8px 0;">
+            <i class="fas fa-quote-left" style="color:#f5a623;margin-bottom:0.5rem;display:block;"></i>
+            <blockquote style="color:#ddd;font-style:italic;margin:0 0 0.5rem;line-height:1.6;">
+              "${s.cita.texto}"
+            </blockquote>
+            <cite style="color:#888;font-size:0.8rem;">— ${s.cita.fuente}</cite>
+          </div>
+        ` : ''}
+      </div>
+    `).join('')}`;
+}
         
 
         if (capa.nombre_capa === 'simbolismo') {
