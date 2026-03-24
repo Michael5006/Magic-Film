@@ -14,6 +14,12 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
+// Forzar charset en cada conexión
+pool.on('connection', (connection) => {
+  connection.query("SET NAMES 'utf8mb4'");
+  connection.query("SET CHARACTER SET utf8mb4");
+});
+
 async function testConnection() {
   try {
     const connection = await pool.getConnection();
