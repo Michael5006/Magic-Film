@@ -1,64 +1,129 @@
-# 🎬 Magic Film
+<div align="center">
 
-**Plataforma web de análisis cinematográfico adaptativo con Inteligencia Artificial**
+<img src="https://readme-typing-svg.herokuapp.com?font=Playfair+Display&size=42&duration=3000&pause=1000&color=F5A623&center=true&vCenter=true&width=600&height=80&lines=Magic+Film;Analisis+Cinematografico+con+IA" alt="Magic Film" />
 
-> Versión 0.2 — Marzo 2026  
-> Desarrollado por Michael Hernández · Yennifer Salas · Luis Riascos  
-> Universidad Autónoma de Colombia · Ingeniería de Software II
+<br/>
+
+**Plataforma web de análisis cinematográfico adaptativo impulsado por inteligencia artificial.**  
+*Entiende el Verdadero Significado del Cine*
+
+<br/>
+
+[![Estado](https://img.shields.io/badge/Estado-En%20Desarrollo-f5a623?style=for-the-badge&logo=github)](https://github.com/Michael5006/Magic-Film)
+[![Versión](https://img.shields.io/badge/Versión-0.2%20Backend%20+%20APIs-f5a623?style=for-the-badge)](https://github.com/Michael5006/Magic-Film)
+[![Licencia](https://img.shields.io/badge/Licencia-MIT-2ecc71?style=for-the-badge)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
+[![Groq](https://img.shields.io/badge/Groq_IA-f5a623?style=for-the-badge)](https://console.groq.com)
+<a href="https://magic-film.vercel.app" target="_blank"><img src="https://img.shields.io/badge/Demo-Ver%20en%20Vivo-black?style=for-the-badge&logo=vercel" alt="Demo"></a>
+
+<br/>
+
+📄 **[Ver Documentación Oficial (SRS v0.1)](docs/Documentacion.Magic-Film.pdf)**
+
+<br/>
 
 ---
+
+</div>
 
 ## ¿Qué es Magic Film?
 
-Magic Film es una plataforma web que genera análisis cinematográficos personalizados usando inteligencia artificial. A diferencia de IMDb o Letterboxd, Magic Film no muestra reseñas de otros usuarios — genera su propio análisis adaptado al tipo de cada película.
+Magic Film es una plataforma web que genera **análisis cinematográficos personalizados con inteligencia artificial**. A diferencia de IMDb o Letterboxd —que muestran reseñas escritas por usuarios con calidad inconsistente— Magic Film produce su propio análisis estructurado y adaptado al carácter de cada película.
 
-El sistema clasifica automáticamente cada película en dos modos:
+El sistema detecta automáticamente si una película es de **entretenimiento masivo** o **cine de autor**, y genera un análisis completamente diferente para cada caso. Todo en español, organizado en capas temáticas, y guardado en base de datos para no repetir trabajo.
 
-- **PROFUNDO** — Para cine de autor, con análisis de narrativa, simbolismo, contexto, técnica y conclusión
-- **ENTRETENIMIENTO** — Para cine comercial, con resumen, momentos épicos, easter eggs y curiosidades
+<br/>
 
----
+## ¿Cómo funciona?
+```
+Usuario escribe "Midsommar"
+        ↓
+Frontend envía la búsqueda al backend
+        ↓
+Backend consulta TMDB → obtiene géneros, keywords, datos
+        ↓
+Clasificador interno → PROFUNDO o ENTRETENIMIENTO
+        ↓
+¿Análisis ya existe en BD?
+   ├── SÍ → devuelve el guardado  (rápido, sin costo)
+   └── NO → llama a Groq IA (Llama 3.3) → guarda → devuelve
+        ↓
+Frontend pinta las pantallas con el resultado
+        ↓
+YouTube Data API → muestra videos relacionados en la página
+```
 
-## Stack Tecnológico
+<br/>
+
+## Tipos de análisis
+
+| Modo | Películas objetivo | Contenido generado |
+|------|-------------------|-------------------|
+| **Entretenimiento** | Blockbusters, comedias, series | Resumen · Momentos épicos · Easter eggs · Curiosidades de producción |
+| **Profundo** | Cine de autor, dramas, folk horror | Narrativa · Simbolismo · Contexto cultural · Técnica cinematográfica · Conclusión |
+
+<br/>
+
+## Stack tecnológico
+
+<div align="center">
 
 | Capa | Tecnología |
 |------|-----------|
-| Frontend | HTML5 · CSS3 · JavaScript Vanilla |
-| Backend | Node.js · Express.js |
-| Base de datos | MySQL 8.0 |
-| IA generativa | Groq API (llama-3.3-70b-versatile) |
-| Datos de películas | TMDB API v3 |
-| Videos relacionados | YouTube Data API v3 |
-| Autenticación | JWT + bcryptjs |
+| **Frontend** | HTML5 · CSS3 · JavaScript ES6+ |
+| **Backend** | Node.js · Express.js |
+| **Base de datos** | MySQL 8.0 |
+| **IA generativa** | Groq API — llama-3.3-70b-versatile |
+| **Datos de películas** | TMDB API v3 |
+| **Videos relacionados** | YouTube Data API v3 |
+| **Autenticación** | JWT + bcryptjs |
 
----
+</div>
 
-## Estructura del Proyecto
+<br/>
+
+## Arquitectura del proyecto
+
+El sistema sigue una arquitectura **MVC de 3 capas**. El frontend nunca se comunica directamente con TMDB, Groq ni YouTube — toda llamada pasa por el backend, protegiendo las API Keys.
+```
+Cliente (HTML/CSS/JS)  →  Backend API REST (Node.js/Express)  →  MySQL + APIs externas
+```
 ```
 MagicFilm/
 ├── backend/
-│   ├── config/          ← Conexión BD y variables de entorno
-│   ├── controllers/     ← Lógica de negocio
-│   ├── middlewares/     ← Auth JWT y validaciones
-│   ├── models/          ← Consultas a MySQL
-│   ├── routes/          ← Endpoints de la API
-│   ├── services/        ← TMDB, Groq IA, Clasificador
-│   ├── utils/           ← Helpers de respuesta y errores
-│   └── server.js        ← Punto de entrada
+│   ├── config/          → Configuración de DB y variables de entorno
+│   ├── controllers/     → Lógica de negocio por entidad
+│   ├── models/          → Acceso a la base de datos (consultas SQL)
+│   ├── routes/          → Definición de endpoints REST
+│   ├── middlewares/     → Auth JWT, adminOnly, validación
+│   ├── services/        → Integración con TMDB, Groq IA, clasificador
+│   ├── utils/           → Helpers de respuesta y manejo de errores
+│   └── server.js        → Punto de entrada del servidor
+│
 ├── frontend/
-│   ├── pages/           ← HTML de cada página
-│   ├── css/             ← Estilos por página
+│   ├── pages/           → HTML de cada página separada
+│   ├── css/
+│   │   ├── pages/       → Estilos por página
+│   │   └── components/  → Componentes reutilizables
 │   ├── js/
-│   │   ├── api/         ← Clientes HTTP
-│   │   └── pages/       ← Lógica de cada página
-│   └── assets/          ← Imágenes
+│   │   ├── api/         → Clientes HTTP al backend
+│   │   └── pages/       → Lógica JavaScript por página
+│   └── assets/          → Imágenes y recursos
+│
 ├── database/
-│   ├── schema.sql       ← 12 tablas en MySQL
-│   └── seeds/           ← Datos de prueba
-└── docs/                ← Documentación del proyecto
+│   ├── schema.sql       → 12 tablas en MySQL
+│   ├── seeds/           → Datos de prueba
+│   └── MER/             → Diagrama entidad-relación
+│
+├── docs/
+│   └── Documentacion.Magic-Film.pdf
+│
+├── .env.example
+└── README.md
 ```
 
----
+<br/>
 
 ## Endpoints de la API
 
@@ -82,7 +147,7 @@ MagicFilm/
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
 | GET | `/api/analisis/:pelicula_id` | Obtener análisis existente |
-| POST | `/api/analisis/generar/:pelicula_id` | Generar análisis con IA |
+| POST | `/api/analisis/generar/:pelicula_id` | Generar análisis con Groq IA |
 
 ### Usuarios
 | Método | Endpoint | Descripción |
@@ -91,20 +156,20 @@ MagicFilm/
 | GET | `/api/usuarios/favoritos` | Lista de favoritos |
 | POST | `/api/usuarios/favoritos/:id` | Agregar a favoritos |
 | DELETE | `/api/usuarios/favoritos/:id` | Eliminar de favoritos |
-| POST | `/api/usuarios/onboarding` | Guardar géneros y nivel |
+| POST | `/api/usuarios/onboarding` | Guardar géneros y nivel cinéfilo |
 | GET | `/api/usuarios/generos` | Géneros favoritos del usuario |
 | GET | `/api/usuarios/historial` | Historial de búsquedas |
 
----
+<br/>
 
-## Instalación y Configuración
+## Instalación y configuración
 
 ### Requisitos
 - Node.js v18+
 - MySQL 8.0
-- Cuenta en TMDB (API Key gratuita)
-- Cuenta en Groq (API Key gratuita)
-- Cuenta en Google Cloud (YouTube Data API v3 gratuita)
+- Cuenta en TMDB — themoviedb.org/settings/api (gratuita)
+- Cuenta en Groq — console.groq.com (gratuita)
+- Cuenta en Google Cloud — YouTube Data API v3 (gratuita, 10,000 unidades/día)
 
 ### Pasos
 
@@ -146,10 +211,8 @@ JWT_EXPIRES_IN=7d
 ```
 
 **4. Crear la base de datos**
-```bash
-mysql -u root -p
+```sql
 CREATE DATABASE magic_filmv01 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-exit
 ```
 
 **5. Cargar el schema**
@@ -167,51 +230,83 @@ npm run dev
 
 Abrir `frontend/pages/index.html` con Live Server en VS Code.
 
----
+<br/>
 
-## Flujo de uso
-```
-1. Usuario se registra → onboarding (elige 3 géneros + nivel)
-2. Busca una película por nombre o filtra por género
-3. El sistema consulta TMDB para obtener datos y keywords
-4. El Clasificador analiza keywords → decide PROFUNDO o ENTRETENIMIENTO
-5. Groq IA genera el análisis estructurado en capas
-6. El análisis se guarda en BD (no se repite para el mismo usuario)
-7. Se muestran videos relacionados de YouTube según el tipo
-8. El usuario puede guardar en favoritos
-```
+## Roles de usuario
 
----
+| Rol | Permisos |
+|-----|----------|
+| **Invitado** | Buscar películas · Ver análisis existentes |
+| **Registrado** | Todo lo anterior + Generar análisis · Guardar favoritos · Historial · Perfil personalizado |
+| **Administrador** | Gestión completa de películas · Regenerar análisis · Panel de monitoreo |
 
-## Páginas del Frontend
+<br/>
+
+## Páginas del frontend
 
 | Página | Descripción |
 |--------|-------------|
 | `index.html` | Inicio con películas populares dinámicas desde TMDB |
-| `login.html` | Inicio de sesión con diseño cinematográfico |
-| `registro.html` | Crear cuenta (paso 1 de 2) |
-| `onboarding.html` | Configurar perfil — géneros y nivel cinéfilo |
+| `login.html` | Inicio de sesión con diseño cinematográfico animado |
+| `registro.html` | Crear cuenta — paso 1 de 2 |
+| `onboarding.html` | Configurar perfil — géneros favoritos y nivel cinéfilo |
 | `busqueda.html` | Buscador con filtros por género en tiempo real |
-| `analisis.html` | Análisis generado por IA en modo profundo o entretenimiento |
-| `perfil.html` | Perfil con favoritos, géneros, historial y edición |
+| `analisis.html` | Análisis generado por IA en modo profundo o entretenimiento con videos de YouTube |
+| `perfil.html` | Perfil editable con favoritos, géneros e historial de búsquedas |
+
+<br/>
+
+## Estado del proyecto
+
+| Fase | Descripción | Estado |
+|------|-------------|--------|
+| 1 | Diseño UI/UX completo | ✅ Completado |
+| 2 | Mockup interactivo HTML/CSS/JS | ✅ Completado |
+| 3 | Flujo de registro, login y configuración de perfil | ✅ Completado |
+| 4 | Backend Node.js + Express + MySQL | ✅ Completado |
+| 5 | Integración TMDB API | ✅ Completado |
+| 6 | Integración Groq IA (Llama 3.3) | ✅ Completado |
+| 7 | Base de datos MySQL — 12 tablas | ✅ Completado |
+| 8 | Conexión frontend con backend real | ✅ Completado |
+| 9 | YouTube Data API integrada | ✅ Completado |
+| 10 | Despliegue en producción | ⏳ Pendiente |
+
+<br/>
+
+## Documentación
+
+El proyecto cuenta con una especificación formal de requisitos que incluye objetivos del sistema, requisitos funcionales y no funcionales, historias de usuario y diagrama de casos de uso.
+
+<div align="center">
+
+📄 **[Descargar Documentación SRS v0.1 — Magic Film](docs/Documentacion.Magic-Film.pdf)**
+
+</div>
+
+<br/>
+
+## Equipo
+
+<div align="center">
+
+| | Integrante |
+|--|------------|
+| 👨‍💻 | Luis Enrique Riascos Palacios |
+| 👨‍💻 | Yennifer Salas Ibarra |
+| 👨‍💻 | Michael Camilo Marín Hernández |
+
+**Docente:** Ana María Caviedes  
+**Institución:** Corporación Universitaria Autónoma del Cauca  
+**Programa:** Ingeniería de Software y Computación — Popayán, Cauca
+
+</div>
+
+<br/>
 
 ---
 
-## Versiones
+<div align="center">
 
-| Versión | Fecha | Descripción |
-|---------|-------|-------------|
-| v0.1 | Febrero 2026 | Mockup frontend estático con datos simulados |
-| v0.2 | Marzo 2026 | Backend completo + frontend conectado con APIs reales |
+*Magic Film — Análisis cinematográfico adaptativo · v0.2 · 2026*
 
----
-
-## APIs Externas Utilizadas
-
-- **TMDB** — themoviedb.org/settings/api — Gratuita para uso educativo
-- **Groq** — console.groq.com — Gratuita con límites generosos
-- **YouTube Data API v3** — console.cloud.google.com — Gratuita (10,000 unidades/día)
-
----
-
-*Magic Film — Entiende el verdadero significado del cine*
+</div>
