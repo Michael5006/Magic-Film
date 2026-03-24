@@ -30,19 +30,22 @@ const Analisis = {
     );
   },
 
-  // Guardar capas del análisis
-  async guardarCapas(analisis_id, capas, modo) {
-    const entries = Object.entries(capas);
-    for (let i = 0; i < entries.length; i++) {
-      const [nombre_capa, contenido] = entries[i];
-      await pool.execute(
-        `INSERT INTO capas_analisis 
-         (analisis_id, modo, nombre_capa, contenido, orden)
-         VALUES (?, ?, ?, ?, ?)`,
-        [analisis_id, modo, nombre_capa, contenido, i + 1]
-      );
-    }
-  },
+ async guardarCapas(analisis_id, capas, modo) {
+  const entries = Object.entries(capas);
+  for (let i = 0; i < entries.length; i++) {
+    const [nombre_capa, contenido] = entries[i];
+    const contenidoStr = typeof contenido === 'string'
+      ? contenido
+      : JSON.stringify(contenido);
+
+    await pool.execute(
+      `INSERT INTO capas_analisis 
+       (analisis_id, modo, nombre_capa, contenido, orden)
+       VALUES (?, ?, ?, ?, ?)`,
+      [analisis_id, modo, nombre_capa, contenidoStr, i + 1]
+    );
+  }
+},
 
   // Obtener análisis completo con capas
   async obtenerCompleto(pelicula_id) {
