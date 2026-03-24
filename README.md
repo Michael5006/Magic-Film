@@ -15,7 +15,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
 [![Groq](https://img.shields.io/badge/Groq_IA-f5a623?style=for-the-badge)](https://console.groq.com)
-<a href="https://magic-film.vercel.app" target="_blank"><img src="https://img.shields.io/badge/Demo-Ver%20en%20Vivo-black?style=for-the-badge&logo=vercel" alt="Demo"></a>
+<a href="https://magic-film-frontend.onrender.com/pages/index.html" target="_blank"><img src="https://img.shields.io/badge/Demo-Ver%20en%20Vivo-black?style=for-the-badge&logo=vercel" alt="Demo"></a>
 
 <br/>
 
