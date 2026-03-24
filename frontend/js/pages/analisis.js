@@ -127,7 +127,7 @@ function mostrarPeliculaEntretenimiento(pelicula, capas) {
                                    font-weight:700;background:${colorMap[t.color]||'#f5a623'}22;
                                    color:${colorMap[t.color]||'#f5a623'};">${t.tag}</span>
                     </div>
-                    <h4 style="color:#fff;margin:0 0 0.5rem;font-size:1rem;">${t.titulo}</h4>
+                    <h4 style="color:#fff;margin:0 0 0.5rem;font-size:1rem;">${t.titulo || t.title || 'Momento clave'}</h4>
                     <p style="color:#aaa;margin:0;font-size:0.9rem;line-height:1.6;">${t.texto}</p>
                   </div>
                 </div>
@@ -228,6 +228,7 @@ function mostrarPeliculaProfunda(pelicula, capas) {
               </div>
             `).join('')}`;
         }
+        
 
         if (capa.nombre_capa === 'simbolismo') {
           document.getElementById('prof-simbolismo-content').innerHTML = `
@@ -288,6 +289,32 @@ function mostrarPeliculaProfunda(pelicula, capas) {
               <p style="color:#ddd;line-height:1.9;font-size:1rem;margin:0;">${texto}</p>
             </div>`;
         }
+
+        if (capa.nombre_capa === 'momentos') {
+  const colorMap = {
+    red: '#e74c3c', yellow: '#f1c40f',
+    cyan: '#00bcd4', purple: '#9c27b0', green: '#2ecc71'
+  };
+  document.getElementById('prof-momentos-content').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      ${(Array.isArray(data) ? data : []).map(t => `
+        <div style="display:flex;gap:1rem;align-items:flex-start;">
+          <div style="width:4px;min-height:80px;background:${colorMap[t.color]||'#f5a623'};
+                      border-radius:2px;flex-shrink:0;margin-top:4px;"></div>
+          <div style="flex:1;padding:1rem;background:rgba(255,255,255,0.03);border-radius:8px;">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+              <span style="font-family:monospace;font-size:0.8rem;color:#888;">${t.tiempo}</span>
+              <span style="padding:0.2rem 0.6rem;border-radius:4px;font-size:0.7rem;
+                           font-weight:700;background:${colorMap[t.color]||'#f5a623'}22;
+                           color:${colorMap[t.color]||'#f5a623'};">${t.tag}</span>
+            </div>
+            <h4 style="color:#fff;margin:0 0 0.5rem;font-size:1rem;">${t.titulo || 'Momento clave'}</h4>
+            <p style="color:#aaa;margin:0;font-size:0.9rem;line-height:1.6;">${t.texto}</p>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+}
 
       } catch(e) {
         const el = document.getElementById(`prof-${capa.nombre_capa}-content`);

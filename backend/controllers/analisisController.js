@@ -52,6 +52,14 @@ const analisisController = {
       // Actualizar estado a generando
       await Analisis.actualizarEstado(analisis_id, 'generando');
 
+      // Enriquecer con datos reales de TMDB
+      const tmdbService = require('../services/tmdbService');
+      const datosCompletos = await tmdbService.obtenerDatosCompletos(pelicula.tmdb_id);
+      const peliculaEnriquecida = { ...pelicula, ...datosCompletos };
+
+      // Generar análisis con datos enriquecidos
+      const resultado = await geminiService.generarAnalisis(peliculaEnriquecida, pelicula.tipo_analisis);
+
       // Llamar a Gemini
       const { capas, prompt, tiempo_ms } = await geminiService.generarAnalisis(
         pelicula,

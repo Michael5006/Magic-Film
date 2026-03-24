@@ -44,7 +44,57 @@ const tmdbService = {
       keywords,
       generos: data.genres?.map(g => g.name) || []
     };
+  },
+
+  async obtenerDatosCompletos(tmdb_id) {
+  try {
+    const apiKey = env.TMDB_API_KEY;
+    const base = env.TMDB_BASE_URL;
+
+    const [detalles, creditos, keywords, similar] = await Promise.all([
+      fetch(`${base}/movie/${tmdb_id}?api_key=${apiKey}&language=es-ES`).then(r => r.json()),
+      fetch(`${base}/movie/${tmdb_id}/credits?api_key=${apiKey}&language=es-ES`).then(r => r.json()),
+      fetch(`${base}/movie/${tmdb_id}/keywords?api_key=${apiKey}`).then(r => r.json()),
+      fetch(`${base}/movie/${tmdb_id}/similar?api_key=${apiKey}&language=es-ES`).then(r => r.json())
+    ]);
+
+    // Reparto principal (top 5)
+    const reparto = (creditos.cast || []).slice(0, 5).map(a => `${a.name} como ${a.character}`).join(', ');
+
+    // Equipo técnico
+    const crew = creditos.crew || [];
+    const dp = crew.find(c => c.job === 'Director of Photography')?.name || null;
+    const compositor = crew.find(c => c.job === 'Original Music Composer')?.name || null;
+    const guionista = crew.find(c => c.department === 'Writing')?.name || null;
+
+    // Keywords
+    const kw = (keywords.keywords || []).map(k => k.name).join(', ');
+
+    // Películas similares
+    const similares = (similar.results || []).slice(0, 4).map(p => p.title).join(', ');
+
+    // Datos financieros
+    const presupuesto = detalles.budget ? `$${(detalles.budget / 1000000).toFixed(1)}M` : null;
+    const recaudacion = detalles.revenue ? `$${(detalles.revenue / 1000000).toFixed(1)}M` : null;
+
+    return {
+      reparto,
+      dp,
+      compositor,
+      guionista,
+      keywords: kw,
+      similares,
+      presupuesto,
+      recaudacion,
+      duracion: detalles.runtime ? `${detalles.runtime} min` : null,
+      paises: (detalles.production_countries || []).map(p => p.name).join(', '),
+      productoras: (detalles.production_companies || []).slice(0, 3).map(p => p.name).join(', ')
+    };
+  } catch (err) {
+    console.error('Error obteniendo datos completos TMDB:', err.message);
+    return {};
   }
+}
 
 };
 

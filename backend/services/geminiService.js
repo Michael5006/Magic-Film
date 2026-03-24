@@ -11,11 +11,21 @@ const geminiService = {
       ? pelicula.keywords.join(', ')
       : JSON.parse(pelicula.keywords || '[]').join(', ');
 
-    const base = `Película: "${pelicula.titulo}" (${pelicula.anio})
+const base = `Película: "${pelicula.titulo}" (${pelicula.anio})
 Director: ${pelicula.director}
+${pelicula.guionista ? `Guionista: ${pelicula.guionista}` : ''}
+${pelicula.dp ? `Director de Fotografía: ${pelicula.dp}` : ''}
+${pelicula.compositor ? `Compositor: ${pelicula.compositor}` : ''}
 Sinopsis: ${pelicula.sinopsis}
-Calificación: ${pelicula.calificacion}/10
-Keywords: ${keywords}`;
+Calificación TMDB: ${pelicula.calificacion}/10
+${pelicula.duracion ? `Duración: ${pelicula.duracion}` : ''}
+${pelicula.presupuesto ? `Presupuesto: ${pelicula.presupuesto}` : ''}
+${pelicula.recaudacion ? `Recaudación mundial: ${pelicula.recaudacion}` : ''}
+${pelicula.reparto ? `Reparto principal: ${pelicula.reparto}` : ''}
+${pelicula.paises ? `Países de producción: ${pelicula.paises}` : ''}
+${pelicula.productoras ? `Productoras: ${pelicula.productoras}` : ''}
+${pelicula.similares ? `Películas similares: ${pelicula.similares}` : ''}
+Keywords: ${pelicula.keywords || keywords}`;
 
     const instruccionesGenerales = `
 INSTRUCCIONES GENERALES (OBLIGATORIAS):
@@ -66,6 +76,11 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
     { "icono": "fas fa-ghost", "titulo": "Símbolo del trauma", "texto": "Cómo se manifiesta el conflicto interior en elementos físicos (70-80 palabras)" },
     { "icono": "fas fa-door-open", "titulo": "Símbolo espacial", "texto": "Los escenarios como extensiones del estado mental de los personajes (70-80 palabras)" },
     { "icono": "fas fa-skull", "titulo": "Símbolo de la mortalidad", "texto": "El tratamiento de la finitud o el miedo en la obra (70-80 palabras)" }
+  ],
+  "momentos": [
+    { "tiempo": "Apertura", "color": "red", "tag": "Inicio", "titulo": "El primer golpe narrativo", "texto": "El elemento en los primeros minutos que establece el tono filosófico de toda la obra (70-80 palabras)" },
+    { "tiempo": "Punto de inflexión", "color": "yellow", "tag": "Giro", "titulo": "El momento que lo cambia todo", "texto": "La escena donde el protagonista cruza el punto de no retorno (70-80 palabras)" },
+    { "tiempo": "Clímax", "color": "purple", "tag": "Cumbre", "titulo": "La revelación final", "texto": "El momento donde toda la simbología y el subtexto convergen (70-80 palabras)" }
   ],
   "contexto": {
     "intro": "La obra en su corriente artística y momento histórico (2-3 oraciones)",
