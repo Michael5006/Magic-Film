@@ -150,36 +150,54 @@ async porGenero(req, res) {
   }
 },
 
-// GET /api/peliculas/youtube/:tmdb_id
 async youtube(req, res) {
   try {
     const { tmdb_id } = req.params;
     const { tipo, titulo } = req.query;
 
-    let query;
+    // Queries específicas según el tipo
+    let queries;
     if (tipo === 'profundo') {
-      query = `${titulo} explicación análisis final explicado español`;
+      queries = [
+        `${titulo} análisis profundo explicación español`,
+        `${titulo} significado simbolismo explicado`,
+        `${titulo} final explicado teorías español`
+      ];
     } else {
-      query = `${titulo} curiosidades detrás de cámaras datos que no sabías español`;
+      queries = [
+        `${titulo} curiosidades datos que no sabías español`,
+        `${titulo} detrás de cámaras making of español`,
+        `${titulo} easter eggs referencias ocultas`
+      ];
     }
 
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=3&relevanceLanguage=es&key=${env.YOUTUBE_API_KEY}`;
+    // Buscar con la query más específica primero
+    const allVideos = [];
 
-    const response = await fetch(url);
-    const data = await response.json();
+    for (const query of queries) {
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=2&relevanceLanguage=es&regionCode=MX&key=${env.YOUTUBE_API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
 
-    if (!data.items || data.items.length === 0) {
-      return success(res, { videos: [] });
+      if (data.items) {
+        const videos = data.items.map(v => ({
+          id: v.id.videoId,
+          titulo: v.snippet.title,
+          canal: v.snippet.channelTitle,
+          thumbnail: v.snippet.thumbnails.medium.url
+        }));
+        allVideos.push(...videos);
+      }
+
+      // Si ya tenemos 3 videos únicos paramos
+      const unicos = [...new Map(allVideos.map(v => [v.id, v])).values()];
+      if (unicos.length >= 3) break;
     }
 
-    const videos = data.items.map(v => ({
-      id: v.id.videoId,
-      titulo: v.snippet.title,
-      canal: v.snippet.channelTitle,
-      thumbnail: v.snippet.thumbnails.medium.url
-    }));
+    // Deduplicar y devolver máximo 3
+    const videosUnicos = [...new Map(allVideos.map(v => [v.id, v])).values()].slice(0, 3);
 
-    return success(res, { videos });
+    return success(res, { videos: videosUnicos });
   } catch (err) {
     console.error('Error buscando YouTube:', err.message);
     return error(res, 'Error al buscar videos', 500);
