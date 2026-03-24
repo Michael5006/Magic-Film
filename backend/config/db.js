@@ -21,6 +21,7 @@ async function testConnection() {
     connection.release();
   } catch (error) {
     console.error('❌ Error conectando a MySQL:', error.message);
+    console.error('❌ Error completo:', JSON.stringify(error, null, 2));
     process.exit(1);
   }
 }
