@@ -8,8 +8,8 @@
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS magic_filmv01
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
 
 USE magic_filmv01;
 
