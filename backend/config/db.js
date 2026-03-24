@@ -8,13 +8,10 @@ const pool = mysql.createPool({
   password: env.DB_PASSWORD,
   database: env.DB_NAME,
   charset: 'utf8mb4',
+  ssl: { rejectUnauthorized: false },
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0,
-  timezone: '+00:00',
-  decimalNumbers: true,
-  supportBigNumbers: true,
-  bigNumberStrings: true
+  queueLimit: 0
 });
 
 async function testConnection() {
