@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Magic Film</title>
+    <link rel="stylesheet" href="../css/pages/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="logo">Magic Film</a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Inicio</a></li>
+            <li><a href="busqueda.html" class="nav-link">Explorar</a></li>
+            <li><a href="perfil.html" class="nav-link active">Mi perfil</a></li>
+        </ul>
+        <div class="nav-actions">
+            <div class="avatar">
+                <img id="nav-avatar-img" src="../assets/images/Profile.jpg" alt="User">
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section id="user-profile" class="page active">
+    <div class="user-profile-bg"></div>
+    <div class="user-profile-container">
+
+        <!-- HEADER DEL PERFIL -->
+        <div class="profile-header">
+            <div style="position:relative; display:inline-block;">
+    <div class="profile-avatar-large" onclick="cambiarFoto()" style="cursor:pointer;">
+        <img src="../assets/images/Profile.jpg" alt="User" id="profile-avatar">
+    </div>
+    <div onclick="cambiarFoto()" 
+         style="position:absolute;bottom:4px;right:4px;background:#f5a623;border-radius:50%;
+                width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+                box-shadow:0 2px 8px rgba(0,0,0,0.5);cursor:pointer;z-index:10;">
+        <i class="fas fa-camera" style="font-size:0.65rem;color:#000;pointer-events:none;"></i>
+    </div>
+</div>
+            <div class="profile-info">
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <h2 id="profile-username">Cargando...</h2>
+                    <button onclick="editarPerfil()" style="background:none;border:1px solid rgba(255,255,255,0.2);
+                            border-radius:6px;padding:0.3rem 0.6rem;color:rgba(255,255,255,0.5);
+                            cursor:pointer;font-size:0.75rem;transition:all 0.3s;"
+                            onmouseover="this.style.borderColor='#f5a623';this.style.color='#f5a623'"
+                            onmouseout="this.style.borderColor='rgba(255,255,255,0.2)';this.style.color='rgba(255,255,255,0.5)'">
+                        <i class="fas fa-pen"></i> Editar
+                    </button>
+                </div>
+                <span class="profile-level">
+                    <i class="fas fa-film"></i>
+                    Nivel: <span id="profile-nivel">-</span>
+                </span>
+                <p id="profile-bio" style="color:rgba(255,255,255,0.5);font-style:italic;
+                   font-size:0.9rem;margin-top:0.5rem;max-width:400px;"></p>
+                <div class="profile-stats" style="margin-top:0.75rem;">
+                    <div class="stat">
+                        <span class="stat-number" id="stat-favoritos">0</span>
+                        <span class="stat-label">Guardadas</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="stat-busquedas">0</span>
+                        <span class="stat-label">Búsquedas</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-secondary" id="btn-logout" style="margin-left:auto;">
+                <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+            </button>
+        </div>
+
+        <div class="profile-sections">
+
+            <!-- GÉNEROS (se inserta dinámicamente) -->
+
+            <!-- PELÍCULAS GUARDADAS -->
+            <div class="profile-section">
+                <h3><i class="fas fa-bookmark"></i> Películas Guardadas</h3>
+                <div class="saved-movies" id="saved-movies">
+                    <p style="color:#666;">Cargando favoritos...</p>
+                </div>
+            </div>
+
+            <!-- HISTORIAL DE BÚSQUEDAS -->
+            <div class="profile-section" id="section-historial" style="display:none;">
+                <h3><i class="fas fa-history"></i> Historial de Búsquedas</h3>
+                <div class="search-history" id="search-history"></div>
+            </div>
+
+            <div class="profile-actions">
+                <button class="btn btn-primary" onclick="window.location.href='busqueda.html'">
+                    <i class="fas fa-search"></i> Buscar Películas
+                </button>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- INPUT OCULTO PARA FOTO -->
+<input type="file" id="input-foto" accept="image/*" style="display:none;" onchange="previewFoto(this)">
+
+<script src="../js/pages/perfil.js"></script>
+</body>
+</html>

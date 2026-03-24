@@ -8,6 +8,8 @@ router.use(authMiddleware);
 
 router.get('/perfil',                    usuariosController.perfil);
 router.get('/favoritos',                 usuariosController.favoritos);
+router.get('/generos', usuariosController.generos);
+router.get('/historial', usuariosController.historial);
 router.post('/favoritos/:pelicula_id',   usuariosController.agregarFavorito);
 router.delete('/favoritos/:pelicula_id', usuariosController.eliminarFavorito);
 router.post('/onboarding',               usuariosController.completarOnboarding);

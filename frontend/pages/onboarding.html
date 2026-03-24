@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configura tu perfil - Magic Film</title>
+    <link rel="stylesheet" href="../css/pages/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="logo">Magic Film</a>
+    </div>
+</nav>
+
+<section id="setup-profile" class="page active">
+    <div class="profile-bg-gradient"></div>
+    <div class="profile-container">
+        <div class="step-indicator">
+            <span class="step-text">Paso 2 de 2</span>
+        </div>
+        <h2 class="profile-title">¿Qué tipo de cinéfilo eres?</h2>
+        <p class="profile-subtitle">Selecciona al menos 3 géneros que te apasionen para personalizar tu experiencia</p>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+
+        <div class="profile-card">
+            <h3>Crea tu perfil cinematográfico</h3>
+            <p class="card-description">Selecciona tu nivel de experiencia y personaliza tu análisis de películas</p>
+            <div class="popcorn-icon"><i class="fas fa-popcorn"></i></div>
+
+            <div class="form-group">
+                <label>Tu nivel de cinéfilo</label>
+                <div class="level-options">
+                    <div class="level-card" onclick="selectLevel(this, 'explorador')">
+                        <i class="fas fa-couch"></i>
+                        <span class="level-name">Explorador</span>
+                        <span class="level-desc">Recién Comienzo</span>
+                    </div>
+                    <div class="level-card active" onclick="selectLevel(this, 'entusiasta')">
+                        <i class="fas fa-film"></i>
+                        <span class="level-name">Entusiasta</span>
+                        <span class="level-desc">Veo Regularmente</span>
+                    </div>
+                    <div class="level-card" onclick="selectLevel(this, 'experto')">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span class="level-name">Experto del cine</span>
+                        <span class="level-desc">Vivo El Cine</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>¿Cuáles son tus géneros favoritos?</label>
+                <span class="hint">Selecciona exactamente 3</span>
+                <div class="genre-tags" id="setupGenreTags">
+                    <span class="genre-tag" data-id="1" onclick="toggleGenre(this)">Acción</span>
+                    <span class="genre-tag" data-id="2" onclick="toggleGenre(this)">Drama</span>
+                    <span class="genre-tag" data-id="3" onclick="toggleGenre(this)">Comedia</span>
+                    <span class="genre-tag" data-id="4" onclick="toggleGenre(this)">Terror</span>
+                    <span class="genre-tag" data-id="5" onclick="toggleGenre(this)">Ciencia Ficción</span>
+                    <span class="genre-tag" data-id="6" onclick="toggleGenre(this)">Thriller</span>
+                    <span class="genre-tag" data-id="7" onclick="toggleGenre(this)">Romance</span>
+                    <span class="genre-tag" data-id="8" onclick="toggleGenre(this)">Psicológico</span>
+                </div>
+            </div>
+
+            <div id="onb-error" style="color:#e74c3c;font-size:0.85rem;margin-bottom:0.5rem;display:none;"></div>
+
+            <button class="btn btn-primary btn-full" id="btn-onboarding">
+                COMENZAR MI VIAJE CINEMATOGRÁFICO
+            </button>
+        </div>
+    </div>
+</section>
+
+<script src="../js/pages/onboarding.js"></script>
+</body>
+</html>

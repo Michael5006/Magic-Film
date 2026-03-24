@@ -17,8 +17,10 @@ module.exports = {
 
   // APIs externas
   TMDB_API_KEY: process.env.TMDB_API_KEY || '',
+  TMDB_BASE_URL: process.env.TMDB_BASE_URL || 'https://api.themoviedb.org/3',
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
   GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
   GROQ_API_KEY: process.env.GROQ_API_KEY || '',
   GROQ_MODEL: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+  YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY || '',
 };

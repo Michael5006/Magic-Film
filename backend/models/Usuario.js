@@ -46,7 +46,27 @@ const Usuario = {
       'UPDATE usuarios SET onboarding_completo = TRUE WHERE id = ?',
       [id]
     );
-  }
+  },
+
+  // Obtener géneros del usuario
+  async obtenerGeneros(usuario_id) {
+    const [rows] = await pool.execute(
+      `SELECT g.id, g.nombre 
+       FROM usuario_generos ug
+       JOIN generos g ON ug.genero_id = g.id
+       WHERE ug.usuario_id = ?`,
+      [usuario_id]
+    );
+    return rows;
+  },
+
+  async actualizarNivel(id, nivel_cinefilo) {
+  await pool.execute(
+    'UPDATE usuarios SET nivel_cinefilo = ? WHERE id = ?',
+    [nivel_cinefilo, id]
+  );
+},
+
 
 };
 

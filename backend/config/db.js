@@ -7,9 +7,14 @@ const pool = mysql.createPool({
   user: env.DB_USER,
   password: env.DB_PASSWORD,
   database: env.DB_NAME,
+  charset: 'utf8mb4',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  timezone: '+00:00',
+  decimalNumbers: true,
+  supportBigNumbers: true,
+  bigNumberStrings: true
 });
 
 async function testConnection() {

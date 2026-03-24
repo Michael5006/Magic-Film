@@ -6,6 +6,17 @@ const { success, error } = require('../utils/responseHelper');
 
 const usuariosController = {
 
+    // GET /api/usuarios/generos
+  async generos(req, res) {
+    try {
+      const generos = await Usuario.obtenerGeneros(req.usuario.id);
+      return success(res, { generos });
+    } catch (err) {
+      console.error('Error en generos:', err.message);
+      return error(res, 'Error al obtener géneros', 500);
+    }
+  },
+
   // GET /api/usuarios/perfil
   async perfil(req, res) {
     try {
@@ -63,33 +74,53 @@ const usuariosController = {
   },
 
   // POST /api/usuarios/onboarding
-  async completarOnboarding(req, res) {
-    try {
-      const { generos } = req.body;
+ async completarOnboarding(req, res) {
+  try {
+    const { generos, nivel_cinefilo } = req.body;
 
-      if (!generos || generos.length !== 3) {
-        return error(res, 'Debes seleccionar exactamente 3 géneros', 400);
-      }
-
-      // Guardar géneros del usuario
-      for (const genero_id of generos) {
-        await pool.execute(
-          `INSERT IGNORE INTO usuario_generos (usuario_id, genero_id) 
-           VALUES (?, ?)`,
-          [req.usuario.id, genero_id]
-        );
-      }
-
-      // Marcar onboarding como completo
-      await Usuario.completarOnboarding(req.usuario.id);
-
-      return success(res, { mensaje: 'Onboarding completado correctamente' });
-
-    } catch (err) {
-      console.error('Error en onboarding:', err.message);
-      return error(res, 'Error al completar onboarding', 500);
+    if (!generos || generos.length !== 3) {
+      return error(res, 'Debes seleccionar exactamente 3 géneros', 400);
     }
+
+    for (const genero_id of generos) {
+      await pool.execute(
+        `INSERT IGNORE INTO usuario_generos (usuario_id, genero_id) 
+         VALUES (?, ?)`,
+        [req.usuario.id, genero_id]
+      );
+    }
+
+    await Usuario.completarOnboarding(req.usuario.id);
+
+    if (nivel_cinefilo) {
+      await Usuario.actualizarNivel(req.usuario.id, nivel_cinefilo);
+    }
+
+    return success(res, { mensaje: 'Onboarding completado correctamente' });
+
+  } catch (err) {
+    console.error('Error en onboarding:', err.message);
+    return error(res, 'Error al completar onboarding', 500);
   }
+},
+
+async historial(req, res) {
+  try {
+    const [rows] = await pool.execute(
+      `SELECT h.termino_buscado, h.buscado_en, p.tmdb_id
+       FROM historial_busquedas h
+       LEFT JOIN peliculas p ON h.pelicula_id = p.id
+       WHERE h.usuario_id = ?
+       ORDER BY h.buscado_en DESC
+       LIMIT 20`,
+      [req.usuario.id]
+    );
+    return success(res, { historial: rows });
+  } catch (err) {
+    console.error('Error en historial:', err.message);
+    return error(res, 'Error al obtener historial', 500);
+  }
+}
 
 };
 

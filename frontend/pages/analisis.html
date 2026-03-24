@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis - Magic Film</title>
+    <link rel="stylesheet" href="../css/pages/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="logo">Magic Film</a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Inicio</a></li>
+            <li><a href="busqueda.html" class="nav-link">Explorar</a></li>
+            <li><a href="perfil.html" class="nav-link">Mi perfil</a></li>
+        </ul>
+        <div class="nav-actions">
+            <div class="avatar" onclick="window.location.href='perfil.html'" style="cursor:pointer;">
+                <img src="../assets/images/Profile.jpg" alt="User">
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== MODO ENTRETENIMIENTO ===== -->
+<section id="movie-detail-entertainment" class="page" style="display:none;">
+    <div class="movie-hero">
+        <div class="hero-background">
+            <img id="ent-hero-img" src="" alt="Movie Background">
+            <div class="hero-gradient"></div>
+        </div>
+        <div class="movie-info-container">
+            <div class="movie-poster-large">
+                <img id="ent-poster-img" src="" alt="Movie Poster">
+            </div>
+            <div class="movie-details">
+                <div class="movie-type-badge entertainment">ANÁLISIS DE ENTRETENIMIENTO</div>
+                <div class="movie-meta">
+                    <span class="meta-tag genre" id="ent-genre"></span>
+                    <span class="meta-tag year" id="ent-year"></span>
+                    <span class="meta-tag duration" id="ent-duration"></span>
+                </div>
+                <h1 class="movie-title" id="ent-title"></h1>
+                <p class="movie-synopsis" id="ent-synopsis"></p>
+                <div class="movie-stats">
+                    <span class="stat-box rating"><i class="fas fa-star"></i> <span id="ent-rating"></span></span>
+                </div>
+                <button class="btn btn-primary" id="btn-guardar-ent" style="margin-top:1rem;">
+                    <i class="fas fa-bookmark"></i> Guardar en favoritos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="movie-content">
+        <div class="content-tabs">
+            <button class="tab active" onclick="showTab('ent-resumen')" data-tab="ent-resumen">
+                <i class="fas fa-bolt"></i> Análisis
+            </button>
+            <button class="tab" onclick="showTab('ent-momentos')" data-tab="ent-momentos">
+                <i class="far fa-clock"></i> Momentos
+            </button>
+            <button class="tab" onclick="showTab('ent-easter_eggs')" data-tab="ent-easter_eggs">
+                <i class="fas fa-egg"></i> Easter Eggs
+            </button>
+            <button class="tab" onclick="showTab('ent-curiosidades')" data-tab="ent-curiosidades">
+                <i class="fas fa-lightbulb"></i> Curiosidades
+            </button>
+        </div>
+
+        <div id="ent-resumen" class="tab-content active">
+            <div class="analysis-box entertainment-analysis">
+                <h4><i class="fas fa-bolt"></i> Análisis de Entretenimiento</h4>
+                <div class="analysis-content" id="ent-resumen-content">Cargando análisis...</div>
+            </div>
+        </div>
+        <div id="ent-momentos" class="tab-content">
+            <div class="analysis-box entertainment-analysis">
+                <h4><i class="far fa-clock"></i> Momentos Épicos</h4>
+                <div class="analysis-content" id="ent-momentos-content">Cargando...</div>
+            </div>
+        </div>
+        <div id="ent-easter_eggs" class="tab-content">
+            <div class="analysis-box entertainment-analysis">
+                <h4><i class="fas fa-egg"></i> Easter Eggs</h4>
+                <div class="analysis-content" id="ent-easter_eggs-content">Cargando...</div>
+            </div>
+        </div>
+        <div id="ent-curiosidades" class="tab-content">
+            <div class="analysis-box entertainment-analysis">
+                <h4><i class="fas fa-lightbulb"></i> Curiosidades</h4>
+                <div class="analysis-content" id="ent-curiosidades-content">Cargando...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="movie-content">
+        <div id="ent-youtube-section"></div>
+    </div>
+</section>
+
+<!-- ===== MODO PROFUNDO ===== -->
+<section id="movie-detail-profound" class="page" style="display:none;">
+    <div class="movie-hero profound-hero">
+        <div class="hero-background">
+            <img id="prof-hero-img" src="" alt="Movie Background">
+            <div class="hero-gradient"></div>
+        </div>
+        <div class="movie-info-container">
+            <div class="movie-poster-large">
+                <img id="prof-poster-img" src="" alt="Movie Poster">
+            </div>
+            <div class="movie-details">
+                <div class="movie-type-badge profundo">ANÁLISIS PROFUNDO</div>
+                <div class="movie-meta">
+                    <span class="meta-tag genre" id="prof-genre"></span>
+                    <span class="meta-tag year" id="prof-year"></span>
+                    <span class="meta-tag duration" id="prof-duration"></span>
+                </div>
+                <h1 class="movie-title" id="prof-title"></h1>
+                <p class="movie-synopsis" id="prof-synopsis"></p>
+                <div class="movie-stats">
+                    <span class="stat-box rating"><i class="fas fa-star"></i> <span id="prof-rating"></span></span>
+                </div>
+                <button class="btn btn-primary" id="btn-guardar-prof" style="margin-top:1rem;">
+                    <i class="fas fa-bookmark"></i> Guardar en favoritos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="movie-content">
+        <div class="content-tabs">
+            <button class="tab active" onclick="showTab('prof-narrativa')" data-tab="prof-narrativa">
+                <i class="fas fa-book-open"></i> Narrativa
+            </button>
+            <button class="tab" onclick="showTab('prof-simbolismo')" data-tab="prof-simbolismo">
+                <i class="fas fa-puzzle-piece"></i> Simbolismo
+            </button>
+            <button class="tab" onclick="showTab('prof-contexto')" data-tab="prof-contexto">
+                <i class="fas fa-globe"></i> Contexto
+            </button>
+            <button class="tab" onclick="showTab('prof-tecnica')" data-tab="prof-tecnica">
+                <i class="fas fa-video"></i> Técnica
+            </button>
+            <button class="tab" onclick="showTab('prof-conclusion')" data-tab="prof-conclusion">
+                <i class="fas fa-flag"></i> Conclusión
+            </button>
+        </div>
+
+        <div id="prof-narrativa" class="tab-content active">
+            <div class="analysis-box profound-analysis">
+                <h4><i class="fas fa-book-open"></i> Análisis Narrativo</h4>
+                <div class="analysis-content" id="prof-narrativa-content">Cargando análisis...</div>
+            </div>
+        </div>
+        <div id="prof-simbolismo" class="tab-content">
+            <div class="analysis-box profound-analysis">
+                <h4><i class="fas fa-puzzle-piece"></i> Simbolismo y Metáforas</h4>
+                <div class="analysis-content" id="prof-simbolismo-content">Cargando...</div>
+            </div>
+        </div>
+        <div id="prof-contexto" class="tab-content">
+            <div class="analysis-box profound-analysis">
+                <h4><i class="fas fa-globe"></i> Contexto Cultural e Histórico</h4>
+                <div class="analysis-content" id="prof-contexto-content">Cargando...</div>
+            </div>
+        </div>
+        <div id="prof-tecnica" class="tab-content">
+            <div class="analysis-box profound-analysis">
+                <h4><i class="fas fa-video"></i> Análisis Técnico</h4>
+                <div class="analysis-content" id="prof-tecnica-content">Cargando...</div>
+            </div>
+        </div>
+        <div id="prof-conclusion" class="tab-content">
+            <div class="analysis-box profound-analysis">
+                <h4><i class="fas fa-flag"></i> Conclusión</h4>
+                <div class="analysis-content" id="prof-conclusion-content">Cargando...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="movie-content">
+        <div id="prof-youtube-section"></div>
+    </div>
+</section>
+
+<!-- ESTADO DE CARGA -->
+<div id="loading-screen" style="display:flex; align-items:center; justify-content:center; min-height:80vh;">
+    <div style="text-align:center;">
+        <i class="fas fa-film" style="font-size:3rem; color:#f5a623; margin-bottom:1rem;"></i>
+        <p style="color:#a0a0a0; font-size:1.1rem;">Generando análisis cinematográfico...</p>
+    </div>
+</div>
+
+<script src="../js/pages/analisis.js"></script>
+</body>
+</html>

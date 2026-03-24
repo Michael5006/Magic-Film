@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Magic Film</title>
+    <link rel="stylesheet" href="../css/pages/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="logo">Magic Film</a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Inicio</a></li>
+            <li><a href="busqueda.html" class="nav-link">Explorar</a></li>
+        </ul>
+    </div>
+</nav>
+
+<section id="register" class="page active">
+    <div class="register-bg-gradient"></div>
+    <div class="register-container">
+        <p class="register-logo">Magic Film</p>
+        <div class="step-indicator" style="margin-bottom:1rem;">
+            <span class="step-text">Paso 1 de 2 — Crear cuenta</span>
+        </div>
+        <div class="progress-bar" style="margin:0 auto 1.5rem;">
+            <div class="progress-fill" style="width:50%;"></div>
+        </div>
+        <h2 class="register-title">Únete a Magic Film</h2>
+        <p class="register-subtitle">Crea tu cuenta y descubre el cine como nunca antes</p>
+
+        <div class="register-card">
+            <div class="form-group">
+                <label>Nombre completo</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="reg-name" placeholder="Ej. Ana María">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Nombre de usuario</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-at"></i>
+                    <input type="text" id="reg-username" placeholder="Ej. anacinefila">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Correo electrónico</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="reg-email" placeholder="tucorreo@ejemplo.com">
+                </div>
+            </div>
+            <div class="form-group">
+    <label>Contraseña</label>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <div class="input-icon-wrapper" style="flex:1;">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" oninput="checkPasswordStrength(this.value)">
+        </div>
+        <button type="button" onclick="togglePassword('reg-password')"
+            style="background:none;border:1px solid #333;border-radius:8px;color:#666;cursor:pointer;padding:0.6rem 0.8rem;flex-shrink:0;">
+            <i class="fas fa-eye" id="eye-reg-password"></i>
+        </button>
+    </div>
+    <div class="password-strength" style="margin-top:0.5rem;">
+        <div class="password-strength-bar" id="strength-bar"></div>
+    </div>
+</div>
+
+<div class="form-group">
+    <label>Confirmar contraseña</label>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <div class="input-icon-wrapper" style="flex:1;">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="reg-confirm" placeholder="Repite tu contraseña">
+        </div>
+        <button type="button" onclick="togglePassword('reg-confirm')"
+            style="background:none;border:1px solid #333;border-radius:8px;color:#666;cursor:pointer;padding:0.6rem 0.8rem;flex-shrink:0;">
+            <i class="fas fa-eye" id="eye-reg-confirm"></i>
+        </button>
+    </div>
+</div>
+
+            <div id="reg-error" style="color:#e74c3c;font-size:0.85rem;margin-bottom:0.5rem;display:none;"></div>
+
+            <button class="btn btn-primary btn-full" id="btn-registro" style="margin-top:0.5rem;">
+                CONTINUAR <i class="fas fa-arrow-right"></i>
+            </button>
+
+            <p class="terms-text">
+                Al continuar aceptas nuestros <a>Términos de Servicio</a> y <a>Política de Privacidad</a>
+            </p>
+        </div>
+
+        <div class="register-footer">
+            ¿Ya tienes cuenta? <a href="login.html">Iniciar sesión</a>
+        </div>
+    </div>
+</section>
+
+<script src="../js/pages/auth.js"></script>
+</body>
+</html>

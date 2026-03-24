@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Magic Film</title>
+    <link rel="stylesheet" href="../css/pages/login.css">
+    <link rel="stylesheet" href="../css/pages/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- FONDO CINEMATOGRÁFICO -->
+<div class="cinema-bg">
+    <div class="film-strip">
+        <img src="../assets/images/Midsommar.jpg" alt="">
+        <img src="../assets/images/Nun.jpg" alt="">
+        <img src="../assets/images/Scary.jpg" alt="">
+        <img src="../assets/images/Loki.jpg" alt="">
+        <img src="../assets/images/Midsommar.jpg" alt="">
+        <img src="../assets/images/Nun.jpg" alt="">
+    </div>
+    <div class="film-strip">
+        <img src="../assets/images/Scary.jpg" alt="">
+        <img src="../assets/images/Loki.jpg" alt="">
+        <img src="../assets/images/Midsommar.jpg" alt="">
+        <img src="../assets/images/Nun.jpg" alt="">
+        <img src="../assets/images/Scary.jpg" alt="">
+        <img src="../assets/images/Loki.jpg" alt="">
+    </div>
+    <div class="film-strip">
+        <img src="../assets/images/Nun.jpg" alt="">
+        <img src="../assets/images/Midsommar.jpg" alt="">
+        <img src="../assets/images/Loki.jpg" alt="">
+        <img src="../assets/images/Scary.jpg" alt="">
+        <img src="../assets/images/Nun.jpg" alt="">
+        <img src="../assets/images/Midsommar.jpg" alt="">
+    </div>
+    <div class="film-strip">
+        <img src="../assets/images/Loki.jpg" alt="">
+        <img src="../assets/images/Scary.jpg" alt="">
+        <img src="../assets/images/Nun.jpg" alt="">
+        <img src="../assets/images/Midsommar.jpg" alt="">
+        <img src="../assets/images/Loki.jpg" alt="">
+        <img src="../assets/images/Scary.jpg" alt="">
+    </div>
+</div>
+<div class="cinema-overlay"></div>
+<div class="grain"></div>
+
+<!-- NAVBAR -->
+<nav class="login-nav">
+    <a href="index.html" class="login-nav-logo">Magic Film</a>
+    <div class="login-nav-links">
+        <a href="index.html">Inicio</a>
+        <a href="busqueda.html">Explorar</a>
+    </div>
+</nav>
+
+<!-- DECORATIVO IZQUIERDO -->
+<div class="frame-counter">
+    <span>MAGIC FILM</span>
+    <div class="frame-line"></div>
+    <span>2026</span>
+</div>
+
+<!-- CITA CINEMATOGRÁFICA -->
+<div class="cinema-quote">
+    <blockquote>
+        "El cine es un espejo que refleja lo que no podemos decir con palabras."
+    </blockquote>
+    <cite>— Magic Film</cite>
+</div>
+
+<!-- FORMULARIO -->
+<div class="login-wrapper">
+    <div class="login-panel">
+
+        <div class="panel-accent">
+            <div class="panel-accent-line"></div>
+            <div class="panel-accent-dot"></div>
+        </div>
+
+        <h1 class="panel-title">Bienvenido<br>de nuevo</h1>
+        <p class="panel-subtitle">Continúa tu viaje cinematográfico</p>
+
+        <!-- EMAIL -->
+        <div class="field-group">
+            <label class="field-label">Correo electrónico</label>
+            <div class="field-wrapper">
+                <i class="fas fa-envelope field-icon"></i>
+                <input type="email" id="login-email" class="field-input" placeholder="tucorreo@ejemplo.com">
+            </div>
+        </div>
+
+        <!-- CONTRASEÑA -->
+        <div class="field-group">
+            <label class="field-label">Contraseña</label>
+            <div class="field-wrapper">
+                <i class="fas fa-lock field-icon"></i>
+                <input type="password" id="login-password" class="field-input" 
+                       placeholder="Tu contraseña" style="padding-right:2.8rem;">
+                <span onclick="togglePassword('login-password')"
+                    style="position:absolute;right:0.9rem;top:50%;transform:translateY(-50%);
+                           color:rgba(255,255,255,0.25);cursor:pointer;font-size:0.8rem;z-index:10;">
+                    <i class="fas fa-eye" id="eye-login-password"></i>
+                </span>
+            </div>
+            <div class="field-forgot">
+                <a>¿Olvidaste tu contraseña?</a>
+            </div>
+        </div>
+
+        <div id="login-error" class="login-error"></div>
+
+        <button class="btn-cinema" id="btn-login">
+            Iniciar Sesión &nbsp;<i class="fas fa-arrow-right"></i>
+        </button>
+
+        <div class="divider"><span>o</span></div>
+
+        <button class="btn-google">
+            <i class="fab fa-google"></i> Continuar con Google
+        </button>
+
+        <p class="register-prompt">
+            ¿No tienes cuenta? <a href="registro.html">Crear cuenta gratis</a>
+        </p>
+
+    </div>
+</div>
+
+<script src="../js/pages/auth.js"></script>
+</body>
+</html>

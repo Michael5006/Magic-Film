@@ -17,12 +17,21 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ── Servir frontend estático ────────────────
+app.use(express.static('../frontend'));
+
+
 // ── Rutas ───────────────────────────────────
 app.use('/api/auth',      authRoutes);
 app.use('/api/peliculas', peliculasRoutes);
 app.use('/api/analisis',  analisisRoutes);
 app.use('/api/usuarios',  usuariosRoutes);
 app.use('/api/admin',     adminRoutes);
+
+// ── Ruta raíz ───────────────────────────────
+app.get('/', (req, res) => {
+  res.sendFile('pages/index.html', { root: '../frontend' });
+});
 
 // ── Ruta de salud ───────────────────────────
 app.get('/api/health', (req, res) => {
