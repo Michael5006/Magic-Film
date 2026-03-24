@@ -168,7 +168,8 @@ Responde SOLO con este JSON sin comentarios ni texto adicional:
         ],
         temperature: 0.85,
         top_p: 0.9,
-        max_tokens: 2000
+        max_tokens: 2000,
+        response_format: { type: "json_object" }
       })
     });
 
