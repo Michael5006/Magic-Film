@@ -4,3 +4,6 @@ node_modules/
 .DS_Store
 backend/.env
 .env example
+.atl/
+CLAUDE.md
+agent-teams-lite/

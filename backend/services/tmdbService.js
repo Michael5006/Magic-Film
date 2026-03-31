@@ -46,6 +46,33 @@ const tmdbService = {
     };
   },
 
+  // Obtener videos oficiales de una película desde TMDB
+  async obtenerVideos(tmdb_id) {
+    let url = `${TMDB_BASE_URL}/movie/${tmdb_id}/videos?api_key=${TMDB_API_KEY}&language=es-ES`;
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Error al obtener videos de TMDB');
+    let data = await response.json();
+
+    // Retry sin filtro de idioma si no hay resultados en español
+    if (!data.results || data.results.length === 0) {
+      url = `${TMDB_BASE_URL}/movie/${tmdb_id}/videos?api_key=${TMDB_API_KEY}`;
+      response = await fetch(url);
+      if (!response.ok) throw new Error('Error al obtener videos de TMDB');
+      data = await response.json();
+    }
+
+    const videos = (data.results || []).filter(v => v.site === 'YouTube');
+
+    // Ordenar: official=true primero, luego Trailer antes que Teaser y otros
+    const typeOrder = { 'Trailer': 0, 'Teaser': 1, 'Featurette': 2, 'Behind the Scenes': 3, 'Clip': 4 };
+    videos.sort((a, b) => {
+      if (a.official !== b.official) return a.official ? -1 : 1;
+      return (typeOrder[a.type] ?? 99) - (typeOrder[b.type] ?? 99);
+    });
+
+    return videos;
+  },
+
   async obtenerDatosCompletos(tmdb_id) {
   try {
     const apiKey = env.TMDB_API_KEY;

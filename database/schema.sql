@@ -69,6 +69,8 @@ CREATE TABLE peliculas (
   keywords JSON,
   tipo_analisis ENUM('entretenimiento','profundo') NOT NULL DEFAULT 'entretenimiento',
   tipo_forzado BOOLEAN NOT NULL DEFAULT FALSE,
+  youtube_videos JSON DEFAULT NULL,
+  youtube_videos_updated_at DATETIME DEFAULT NULL,
   activa BOOLEAN NOT NULL DEFAULT TRUE,
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

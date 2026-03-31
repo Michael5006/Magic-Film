@@ -154,53 +154,90 @@ async youtube(req, res) {
   try {
     const { tmdb_id } = req.params;
     const { tipo, titulo } = req.query;
+    const TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 días
 
-    // Queries específicas según el tipo
+    // Paso 1: Cache check
+    const cache = await Pelicula.obtenerYoutubeVideos(tmdb_id);
+    if (cache && cache.videos[tipo] && cache.videos[tipo].length > 0) {
+      const edad = Date.now() - new Date(cache.updated_at).getTime();
+      if (edad < TTL_MS) {
+        return success(res, { videos: cache.videos[tipo] });
+      }
+    }
+
+    // Paso 2: TMDB-first
+    const tiposFiltro = {
+      profundo: ['Trailer', 'Featurette', 'Behind the Scenes'],
+      entretenimiento: ['Trailer', 'Teaser', 'Clip']
+    };
+    const tiposPermitidos = tiposFiltro[tipo] || tiposFiltro.entretenimiento;
+
+    const tmdbVideos = await tmdbService.obtenerVideos(tmdb_id);
+    const tmdbFiltrados = tmdbVideos.filter(v => tiposPermitidos.includes(v.type));
+
+    if (tmdbFiltrados.length > 0) {
+      const videos = tmdbFiltrados.slice(0, 3).map(v => ({
+        id: v.key,
+        titulo: v.name,
+        canal: 'TMDB Official',
+        thumbnail: `https://i.ytimg.com/vi/${v.key}/mqdefault.jpg`
+      }));
+      await Pelicula.actualizarYoutubeVideos(tmdb_id, tipo, videos);
+      return success(res, { videos });
+    }
+
+    // Paso 3: Fallback YouTube con queries mejoradas
+    const pelicula = await Pelicula.buscarPorTmdbId(tmdb_id);
+    const tituloOriginal = pelicula?.titulo_original || titulo;
+    const anio = pelicula?.anio || '';
+
     let queries;
     if (tipo === 'profundo') {
       queries = [
-        `${titulo} análisis profundo explicación español`,
-        `${titulo} significado simbolismo explicado`,
-        `${titulo} final explicado teorías español`
+        `"${tituloOriginal}" ${anio} análisis profundo explicación`,
+        `"${tituloOriginal}" ${anio} analysis explained`
       ];
     } else {
       queries = [
-        `${titulo} curiosidades datos que no sabías español`,
-        `${titulo} detrás de cámaras making of español`,
-        `${titulo} easter eggs referencias ocultas`
+        `"${tituloOriginal}" ${anio} curiosidades detrás de cámaras`,
+        `"${tituloOriginal}" ${anio} behind the scenes facts`
       ];
     }
 
-    // Buscar con la query más específica primero
     const allVideos = [];
-
     for (const query of queries) {
       const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=2&relevanceLanguage=es&regionCode=MX&key=${env.YOUTUBE_API_KEY}`;
       const response = await fetch(url);
       const data = await response.json();
 
       if (data.items) {
-        const videos = data.items.map(v => ({
+        allVideos.push(...data.items.map(v => ({
           id: v.id.videoId,
           titulo: v.snippet.title,
           canal: v.snippet.channelTitle,
           thumbnail: v.snippet.thumbnails.medium.url
-        }));
-        allVideos.push(...videos);
+        })));
       }
 
-      // Si ya tenemos 3 videos únicos paramos
       const unicos = [...new Map(allVideos.map(v => [v.id, v])).values()];
       if (unicos.length >= 3) break;
     }
 
-    // Deduplicar y devolver máximo 3
     const videosUnicos = [...new Map(allVideos.map(v => [v.id, v])).values()].slice(0, 3);
 
-    return success(res, { videos: videosUnicos });
+    if (videosUnicos.length > 0) {
+      await Pelicula.actualizarYoutubeVideos(tmdb_id, tipo, videosUnicos);
+    }
+
+    // Paso 4: Degradación elegante
+    return success(res, {
+      videos: videosUnicos,
+      ...(videosUnicos.length === 0 && { mensaje: 'No se encontraron videos para esta película' })
+    });
+
   } catch (err) {
     console.error('Error buscando YouTube:', err.message);
-    return error(res, 'Error al buscar videos', 500);
+    return success(res, { videos: [] });
   }
 },
 

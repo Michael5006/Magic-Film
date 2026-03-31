@@ -59,6 +59,33 @@ const Pelicula = {
       'UPDATE peliculas SET tipo_analisis = ?, tipo_forzado = ? WHERE id = ?',
       [tipo_analisis, tipo_forzado, id]
     );
+  },
+
+  // Obtener videos de YouTube cacheados
+  async obtenerYoutubeVideos(tmdb_id) {
+    const [rows] = await pool.execute(
+      'SELECT youtube_videos, youtube_videos_updated_at FROM peliculas WHERE tmdb_id = ?',
+      [tmdb_id]
+    );
+    const row = rows[0];
+    if (!row || !row.youtube_videos) return null;
+    return {
+      videos: JSON.parse(row.youtube_videos),
+      updated_at: row.youtube_videos_updated_at
+    };
+  },
+
+  // Actualizar caché de videos de YouTube (merge por tipo)
+  async actualizarYoutubeVideos(tmdb_id, tipo, videos) {
+    const cache = await this.obtenerYoutubeVideos(tmdb_id);
+    const existing = (cache && cache.videos) ? cache.videos : {};
+    existing[tipo] = videos;
+    const [result] = await pool.execute(
+      'UPDATE peliculas SET youtube_videos = ?, youtube_videos_updated_at = NOW() WHERE tmdb_id = ?',
+      [JSON.stringify(existing), tmdb_id]
+    );
+    // Si no existe la película en BD, simplemente no actualiza (affectedRows = 0)
+    return result;
   }
 
 };
