@@ -158,83 +158,70 @@ async youtube(req, res) {
 
     // Paso 1: Cache check
     const cache = await Pelicula.obtenerYoutubeVideos(tmdb_id);
-    if (cache && cache.videos[tipo] && cache.videos[tipo].length > 0) {
+    if (cache && cache.videos[tipo]?.length > 0) {
       const edad = Date.now() - new Date(cache.updated_at).getTime();
-      if (edad < TTL_MS) {
-        return success(res, { videos: cache.videos[tipo] });
-      }
+      if (edad < TTL_MS) return success(res, { videos: cache.videos[tipo] });
     }
 
-    // Paso 2: TMDB-first — sin trailers oficiales
-    const tiposFiltro = {
-      profundo: ['Featurette', 'Behind the Scenes'],
-      entretenimiento: ['Clip', 'Behind the Scenes', 'Featurette']
-    };
-    const tiposPermitidos = tiposFiltro[tipo] || tiposFiltro.entretenimiento;
-
-    const tmdbVideos = await tmdbService.obtenerVideos(tmdb_id);
-    const tmdbFiltrados = tmdbVideos.filter(v => tiposPermitidos.includes(v.type));
-
-    if (tmdbFiltrados.length > 0) {
-      const videos = tmdbFiltrados.slice(0, 3).map(v => ({
-        id: v.key,
-        titulo: v.name,
-        canal: 'TMDB Official',
-        thumbnail: `https://i.ytimg.com/vi/${v.key}/mqdefault.jpg`
-      }));
-      await Pelicula.actualizarYoutubeVideos(tmdb_id, tipo, videos);
-      return success(res, { videos });
-    }
-
-    // Paso 3: Fallback YouTube con queries mejoradas
+    // Paso 2: Datos de la película
     const pelicula = await Pelicula.buscarPorTmdbId(tmdb_id);
-    const tituloOriginal = pelicula?.titulo_original || titulo;
-    const anio = pelicula?.anio || '';
+    const tituloOriginal = pelicula?.titulo_original || titulo || '';
+    const tituloES      = pelicula?.titulo          || titulo || '';
+    const anio          = pelicula?.anio            || '';
 
+    // Paso 3: Queries específicas por tipo — solo en español, sin trailers
     let queries;
     if (tipo === 'profundo') {
       queries = [
-        `"${tituloOriginal}" análisis profundo explicación final español`,
-        `"${tituloOriginal}" ${anio} simbolismo explicado español`,
-        `"${tituloOriginal}" análisis cinematográfico`
+        `"${tituloES}" análisis explicación final en español`,
+        `"${tituloOriginal}" análisis profundo simbolismo español`,
+        `"${tituloES}" final explicado significado`,
+        `"${tituloOriginal}" ${anio} análisis cinematográfico español`,
       ];
     } else {
       queries = [
-        `"${tituloOriginal}" curiosidades easter eggs español`,
-        `"${tituloOriginal}" ${anio} detrás de cámaras español`,
-        `"${tituloOriginal}" making of datos curiosos`
+        `"${tituloES}" curiosidades datos interesantes español`,
+        `"${tituloOriginal}" easter eggs curiosidades español`,
+        `"${tituloES}" detrás de cámaras making of`,
+        `"${tituloOriginal}" ${anio} datos curiosos producción`,
       ];
     }
 
+    // Paso 4: Búsqueda en YouTube
+    // videoDuration=medium (4-20 min) en modo profundo filtra clips cortos de productoras
+    const duracionParam = tipo === 'profundo' ? '&videoDuration=medium' : '';
     const allVideos = [];
+
     for (const query of queries) {
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=2&relevanceLanguage=es&regionCode=MX&key=${env.YOUTUBE_API_KEY}`;
+      if (allVideos.length >= 4) break;
+
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=3${duracionParam}&relevanceLanguage=es&key=${env.YOUTUBE_API_KEY}`;
       const response = await fetch(url);
       const data = await response.json();
 
       if (data.items) {
-        allVideos.push(...data.items.map(v => ({
-          id: v.id.videoId,
-          titulo: v.snippet.title,
-          canal: v.snippet.channelTitle,
-          thumbnail: v.snippet.thumbnails.medium.url
-        })));
+        for (const v of data.items) {
+          if (!allVideos.some(e => e.id === v.id.videoId)) {
+            allVideos.push({
+              id:        v.id.videoId,
+              titulo:    v.snippet.title,
+              canal:     v.snippet.channelTitle,
+              thumbnail: v.snippet.thumbnails.medium.url
+            });
+          }
+        }
       }
-
-      const unicos = [...new Map(allVideos.map(v => [v.id, v])).values()];
-      if (unicos.length >= 3) break;
     }
 
-    const videosUnicos = [...new Map(allVideos.map(v => [v.id, v])).values()].slice(0, 3);
+    const videos = allVideos.slice(0, 4);
 
-    if (videosUnicos.length > 0) {
-      await Pelicula.actualizarYoutubeVideos(tmdb_id, tipo, videosUnicos);
+    if (videos.length > 0) {
+      await Pelicula.actualizarYoutubeVideos(tmdb_id, tipo, videos);
     }
 
-    // Paso 4: Degradación elegante
     return success(res, {
-      videos: videosUnicos,
-      ...(videosUnicos.length === 0 && { mensaje: 'No se encontraron videos para esta película' })
+      videos,
+      ...(videos.length === 0 && { mensaje: 'No se encontraron videos para esta película' })
     });
 
   } catch (err) {
