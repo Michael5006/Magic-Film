@@ -1,6 +1,10 @@
 const API_URL = 'https://magic-film-api.onrender.com/api';
 
-function getToken() { return localStorage.getItem('mf_token'); }
+function getToken() {
+  const token = localStorage.getItem('mf_token');
+  if (!token || token === 'null' || token === 'undefined') return null;
+  return token;
+}
 
 // ── TABS ──────────────────────────────────────
 function showTab(tabId) {
@@ -420,6 +424,19 @@ async function cargarAnalisis(tmdb_id) {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${getToken()}` }
       });
+
+      if (resGenerar.status === 401) {
+        localStorage.removeItem('mf_token');
+        document.getElementById('loading-screen').innerHTML = `
+          <div style="text-align:center;">
+            <i class="fas fa-lock" style="font-size:3rem;color:#f5a623;margin-bottom:1rem;"></i>
+            <p style="color:#a0a0a0;margin-bottom:1rem;">Tu sesión expiró. Inicia sesión para continuar.</p>
+            <a href="login.html" class="btn btn-primary">Iniciar sesión</a>
+          </div>
+        `;
+        return;
+      }
+
       const dataGenerar = await resGenerar.json();
 
       if (dataGenerar.ok) {
