@@ -165,10 +165,10 @@ async youtube(req, res) {
       }
     }
 
-    // Paso 2: TMDB-first
+    // Paso 2: TMDB-first — sin trailers oficiales
     const tiposFiltro = {
-      profundo: ['Trailer', 'Featurette', 'Behind the Scenes'],
-      entretenimiento: ['Trailer', 'Teaser', 'Clip']
+      profundo: ['Featurette', 'Behind the Scenes'],
+      entretenimiento: ['Clip', 'Behind the Scenes', 'Featurette']
     };
     const tiposPermitidos = tiposFiltro[tipo] || tiposFiltro.entretenimiento;
 
@@ -194,13 +194,15 @@ async youtube(req, res) {
     let queries;
     if (tipo === 'profundo') {
       queries = [
-        `"${tituloOriginal}" ${anio} análisis profundo explicación`,
-        `"${tituloOriginal}" ${anio} analysis explained`
+        `"${tituloOriginal}" análisis profundo explicación final español`,
+        `"${tituloOriginal}" ${anio} simbolismo explicado español`,
+        `"${tituloOriginal}" análisis cinematográfico`
       ];
     } else {
       queries = [
-        `"${tituloOriginal}" ${anio} curiosidades detrás de cámaras`,
-        `"${tituloOriginal}" ${anio} behind the scenes facts`
+        `"${tituloOriginal}" curiosidades easter eggs español`,
+        `"${tituloOriginal}" ${anio} detrás de cámaras español`,
+        `"${tituloOriginal}" making of datos curiosos`
       ];
     }
 
