@@ -164,18 +164,19 @@ const peliculasController = {
       const anio = pelicula?.anio || '';
 
       // Queries ordenadas de más a menos específica; se usan hasta tener 4 videos
+      // El año se incluye para desambiguar películas recientes o con títulos comunes
       const queries = tipo === 'profundo'
         ? [
+            `"${tituloES}" ${anio} análisis explicación español`,
             `"${tituloES}" análisis explicación español`,
-            `"${tituloES}" explicación final significado`,
+            `"${tituloOriginal}" ${anio} análisis explicado español`,
             `"${tituloOriginal}" análisis explicado español`,
-            `análisis "${tituloES}" ${anio} español`,
           ]
         : [
+            `"${tituloES}" ${anio} curiosidades datos español`,
             `"${tituloES}" curiosidades datos español`,
-            `"${tituloES}" easter eggs curiosidades`,
+            `"${tituloOriginal}" ${anio} curiosidades español`,
             `"${tituloOriginal}" curiosidades español`,
-            `curiosidades "${tituloES}" ${anio}`,
           ];
 
       const allVideos = [];
@@ -199,14 +200,25 @@ const peliculasController = {
         return !lang || lang.startsWith('es');
       }
 
-      // Requiere al menos 1 palabra significativa (>3 chars) del título en el video
+      // El video es relevante si su TÍTULO contiene la frase exacta de la película,
+      // o si contiene TODAS las palabras significativas (>3 chars) del título.
+      // Se revisa solo el título del video (no la descripción) para evitar falsos positivos
+      // como "Lethal Weapon 4" apareciendo para "Pretty Lethal".
       function esRelevante(v, tituloES, tituloOriginal) {
-        const text = (
-          v.snippet.title + ' ' + v.snippet.description + ' ' + v.snippet.channelTitle
-        ).toLowerCase();
+        const videoTitulo = v.snippet.title.toLowerCase();
+
+        // Coincidencia de frase exacta en el título del video (caso ideal)
+        if (tituloES && videoTitulo.includes(tituloES.toLowerCase())) return true;
+        if (tituloOriginal && videoTitulo.includes(tituloOriginal.toLowerCase())) return true;
+
+        // Para títulos con 2+ palabras significativas: todas deben aparecer en el título del video
         const palabrasES   = tituloES.toLowerCase().split(/\s+/).filter(p => p.length > 3);
         const palabrasOrig = tituloOriginal.toLowerCase().split(/\s+/).filter(p => p.length > 3);
-        return palabrasES.some(p => text.includes(p)) || palabrasOrig.some(p => text.includes(p));
+
+        if (palabrasES.length >= 2 && palabrasES.every(p => videoTitulo.includes(p))) return true;
+        if (palabrasOrig.length >= 2 && palabrasOrig.every(p => videoTitulo.includes(p))) return true;
+
+        return false;
       }
 
       for (const query of queries) {
