@@ -2,7 +2,16 @@ const env = require('../config/env');
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_API_KEY = env.GROQ_API_KEY;
-const GROQ_MODEL = env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+
+// Cadena de fallback: si el modelo principal llega al límite de tokens,
+// se intenta con el siguiente automáticamente.
+const MODELOS_FALLBACK = [
+  env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+  'llama-3.1-70b-versatile',
+  'mixtral-8x7b-32768',
+  'llama3-8b-8192',
+  'llama-3.1-8b-instant',
+];
 
 const geminiService = {
 
@@ -148,72 +157,92 @@ JSON Schema:
   async generarAnalisis(pelicula, tipo) {
     const prompt = this.construirPrompt(pelicula, tipo);
     const inicio = Date.now();
-
-    // Ajuste dinámico de temperatura según el modo
     const temp = tipo === 'profundo' ? 0.7 : 0.85;
 
-    try {
-      const response = await fetch(GROQ_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GROQ_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: GROQ_MODEL,
-          messages: [
-            {
-              role: 'system',
-              content: 'Eres un experto analista cinematográfico. Responde EXCLUSIVAMENTE con el objeto JSON solicitado.'
-            },
-            { role: 'user', content: prompt }
-          ],
-          temperature: temp,
-          top_p: 0.9,
-          max_tokens: 3000, // Aumentado para evitar cortes en conclusiones largas
-          response_format: { type: "json_object" }
-        })
-      });
+    let ultimoError;
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(`Error Groq: ${err.error?.message || 'Error desconocido'}`);
-      }
-
-      const data = await response.json();
-      const texto = data.choices[0]?.message?.content || '';
-      const tiempo_ms = Date.now() - inicio;
-
-      // Limpieza robusta del JSON
-      let jsonLimpio = texto
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
-        .trim();
-
-      const inicioJson = jsonLimpio.indexOf('{');
-      const finJson = jsonLimpio.lastIndexOf('}');
-      if (inicioJson !== -1 && finJson !== -1) {
-        jsonLimpio = jsonLimpio.substring(inicioJson, finJson + 1);
-      }
-
-      let capas;
+    for (const modelo of MODELOS_FALLBACK) {
       try {
-        capas = JSON.parse(jsonLimpio);
-      } catch (e) {
-        // Segundo intento: Limpieza de caracteres de control y comas finales
-        jsonLimpio = jsonLimpio
-          .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
-          .replace(/,(\s*[}\]])/g, '$1');
-        
-        capas = JSON.parse(jsonLimpio);
+        console.log(`Intentando con modelo: ${modelo}`);
+
+        const response = await fetch(GROQ_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${GROQ_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: modelo,
+            messages: [
+              {
+                role: 'system',
+                content: 'Eres un experto analista cinematográfico. Responde EXCLUSIVAMENTE con el objeto JSON solicitado.'
+              },
+              { role: 'user', content: prompt }
+            ],
+            temperature: temp,
+            top_p: 0.9,
+            max_tokens: 3000,
+            response_format: { type: 'json_object' }
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          const msg = data.error?.message || 'Error desconocido';
+          // Rate limit → intentar con el siguiente modelo
+          if (response.status === 429) {
+            console.warn(`Rate limit en ${modelo}, probando siguiente...`);
+            ultimoError = new Error(`Error Groq: ${msg}`);
+            continue;
+          }
+          throw new Error(`Error Groq: ${msg}`);
+        }
+
+        const texto = data.choices[0]?.message?.content || '';
+        const tiempo_ms = Date.now() - inicio;
+
+        // Limpieza robusta del JSON
+        let jsonLimpio = texto
+          .replace(/```json\n?/g, '')
+          .replace(/```\n?/g, '')
+          .trim();
+
+        const inicioJson = jsonLimpio.indexOf('{');
+        const finJson = jsonLimpio.lastIndexOf('}');
+        if (inicioJson !== -1 && finJson !== -1) {
+          jsonLimpio = jsonLimpio.substring(inicioJson, finJson + 1);
+        }
+
+        let capas;
+        try {
+          capas = JSON.parse(jsonLimpio);
+        } catch (e) {
+          jsonLimpio = jsonLimpio
+            .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+            .replace(/,(\s*[}\]])/g, '$1');
+          capas = JSON.parse(jsonLimpio);
+        }
+
+        console.log(`Análisis generado exitosamente con modelo: ${modelo}`);
+        return { capas, prompt, tiempo_ms };
+
+      } catch (err) {
+        // Solo continúa al siguiente modelo si es rate limit; cualquier otro error es fatal
+        if (err.message?.includes('Rate limit') || err.message?.includes('rate_limit')) {
+          console.warn(`Rate limit en ${modelo}, probando siguiente...`);
+          ultimoError = err;
+          continue;
+        }
+        console.error('Error en generarAnalisis:', err.message);
+        throw err;
       }
-
-      return { capas, prompt, tiempo_ms };
-
-    } catch (error) {
-      console.error('Error en generarAnalisis:', error.message);
-      throw error;
     }
+
+    // Todos los modelos agotaron su límite
+    console.error('Todos los modelos de Groq alcanzaron el rate limit.');
+    throw ultimoError || new Error('Todos los modelos de Groq están agotados por hoy. Intenta mañana.');
   }
 
 };
