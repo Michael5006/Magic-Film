@@ -36,7 +36,7 @@ const analisisController = {
       return error(res, 'Película no encontrada', 404);
     }
 
-    // Verificar si ya existe un análisis completo
+    // Verificar si ya existe un análisis
     const existente = await Analisis.buscarPorPelicula(pelicula_id);
     if (existente && existente.estado === 'completo') {
       const completo = await Analisis.obtenerCompleto(pelicula_id);
@@ -46,8 +46,15 @@ const analisisController = {
       });
     }
 
-    // Crear registro en estado pendiente
-    const analisis_id = await Analisis.crear(pelicula_id, pelicula.tipo_analisis, env.GROQ_MODEL);
+    // Si existe un intento anterior fallido, reutilizarlo (evita duplicado en DB)
+    // Si no existe, crear uno nuevo
+    let analisis_id;
+    if (existente) {
+      analisis_id = existente.id;
+      await Analisis.eliminarCapas(analisis_id); // limpiar capas parciales
+    } else {
+      analisis_id = await Analisis.crear(pelicula_id, pelicula.tipo_analisis, env.GROQ_MODEL);
+    }
     await Analisis.actualizarEstado(analisis_id, 'generando');
 
     // Enriquecer con datos reales de TMDB
@@ -76,8 +83,8 @@ const analisisController = {
     }, 201);
 
   } catch (err) {
-    console.error('Error generando análisis:', err.message);
-    return error(res, 'Error al generar análisis', 500);
+    console.error('Error generando análisis:', err.message, err.stack);
+    return error(res, `Error al generar análisis: ${err.message}`, 500);
   }
 }
 
