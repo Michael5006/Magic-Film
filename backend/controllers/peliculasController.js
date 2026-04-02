@@ -224,9 +224,9 @@ const peliculasController = {
       for (const query of queries) {
         if (allVideos.length >= 4) break;
 
-        // videoDuration=medium → 4-20 min (elimina Shorts a nivel de API)
         // regionCode=MX + relevanceLanguage=es → prioriza contenido en español
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&relevanceLanguage=es&regionCode=MX&videoDuration=medium&videoEmbeddable=true&key=${env.YOUTUBE_API_KEY}`;
+        // No se usa videoDuration porque los análisis profundos pueden durar >20 min
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&relevanceLanguage=es&regionCode=MX&videoEmbeddable=true&key=${env.YOUTUBE_API_KEY}`;
         const response = await fetch(url);
         const data = await response.json();
 
