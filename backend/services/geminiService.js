@@ -5,10 +5,12 @@ const GROQ_API_KEY = env.GROQ_API_KEY;
 
 // Cadena de fallback: si el modelo principal llega al límite de tokens,
 // se intenta con el siguiente automáticamente.
+// Modelos activos en Groq (2026) con cuotas de tokens independientes.
 const MODELOS_FALLBACK = [
-  env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-  'llama3-70b-8192',
-  'llama-3.1-8b-instant',
+  env.GROQ_MODEL || 'llama-3.3-70b-versatile', // Llama 3.3 70B — mejor calidad, 100K TPD
+  'llama3-70b-8192',                            // Llama 3 70B — cuota separada
+  'gemma2-9b-it',                               // Google Gemma 2 9B — cuota independiente
+  'llama-3.1-8b-instant',                       // Llama 3.1 8B — más rápido, ~500K TPD
 ];
 
 const geminiService = {
