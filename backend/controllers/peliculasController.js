@@ -163,59 +163,76 @@ const peliculasController = {
       const tituloES = pelicula?.titulo || titulo || '';
       const anio = pelicula?.anio || '';
 
-      let queries = tipo === 'profundo'
+      // Queries ordenadas de más a menos específica; se usan hasta tener 4 videos
+      const queries = tipo === 'profundo'
         ? [
-            `"${tituloES}" análisis explicación final español -trailer -clip -shorts`,
-            `"${tituloOriginal}" análisis profundo simbolismo español -trailer`,
+            `"${tituloES}" análisis explicación español`,
+            `"${tituloES}" explicación final significado`,
+            `"${tituloOriginal}" análisis explicado español`,
+            `análisis "${tituloES}" ${anio} español`,
           ]
         : [
-            `"${tituloES}" curiosidades datos interesantes español -trailer -clip -shorts`,
-            `"${tituloOriginal}" easter eggs curiosidades español -trailer`,
+            `"${tituloES}" curiosidades datos español`,
+            `"${tituloES}" easter eggs curiosidades`,
+            `"${tituloOriginal}" curiosidades español`,
+            `curiosidades "${tituloES}" ${anio}`,
           ];
 
       const allVideos = [];
+      const seenIds = new Set();
 
-      function esShort(duration) {
-        const match = duration.match(/PT(\d+M)?(\d+S)?/);
-        const minutos = match && match[1] ? parseInt(match[1]) : 0;
-        return minutos < 3;
+      // Detecta shorts por duración (<3 min) o hashtag en título/descripción
+      function esShort(duration, title, description) {
+        const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+        const horas   = match?.[1] ? parseInt(match[1]) : 0;
+        const minutos = match?.[2] ? parseInt(match[2]) : 0;
+        const segundos = match?.[3] ? parseInt(match[3]) : 0;
+        const totalSeg = horas * 3600 + minutos * 60 + segundos;
+        if (totalSeg < 180) return true;
+        const combined = (title + ' ' + description).toLowerCase();
+        return combined.includes('#shorts') || combined.includes('#short');
       }
 
-      function esRelevante(video, titulo) {
-        const text = (
-          video.snippet.title +
-          ' ' +
-          video.snippet.description +
-          ' ' +
-          video.snippet.channelTitle
-        ).toLowerCase();
+      // Acepta video si no tiene idioma declarado o si es español
+      function esEnEspanol(v) {
+        const lang = v.snippet.defaultAudioLanguage || v.snippet.defaultLanguage || '';
+        return !lang || lang.startsWith('es');
+      }
 
-        const palabras = titulo.toLowerCase().split(' ');
-        return palabras.filter(p => text.includes(p)).length >= 2;
+      // Requiere al menos 1 palabra significativa (>3 chars) del título en el video
+      function esRelevante(v, tituloES, tituloOriginal) {
+        const text = (
+          v.snippet.title + ' ' + v.snippet.description + ' ' + v.snippet.channelTitle
+        ).toLowerCase();
+        const palabrasES   = tituloES.toLowerCase().split(/\s+/).filter(p => p.length > 3);
+        const palabrasOrig = tituloOriginal.toLowerCase().split(/\s+/).filter(p => p.length > 3);
+        return palabrasES.some(p => text.includes(p)) || palabrasOrig.some(p => text.includes(p));
       }
 
       for (const query of queries) {
         if (allVideos.length >= 4) break;
 
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=5&relevanceLanguage=es&videoEmbeddable=true&key=${env.YOUTUBE_API_KEY}`;
+        // videoDuration=medium → 4-20 min (elimina Shorts a nivel de API)
+        // regionCode=MX + relevanceLanguage=es → prioriza contenido en español
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&relevanceLanguage=es&regionCode=MX&videoDuration=medium&videoEmbeddable=true&key=${env.YOUTUBE_API_KEY}`;
         const response = await fetch(url);
         const data = await response.json();
 
-        if (!data.items) continue;
+        if (!data.items?.length) continue;
 
         const ids = data.items.map(v => v.id.videoId).join(',');
-
         const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet&id=${ids}&key=${env.YOUTUBE_API_KEY}`;
         const detailsRes = await fetch(detailsUrl);
         const detailsData = await detailsRes.json();
 
         for (const v of detailsData.items || []) {
           if (allVideos.length >= 4) break;
+          if (seenIds.has(v.id)) continue;
+          if (esShort(v.contentDetails.duration, v.snippet.title, v.snippet.description)) continue;
+          if (!esEnEspanol(v)) continue;
+          if (!esRelevante(v, tituloES, tituloOriginal)) continue;
 
-          if (esShort(v.contentDetails.duration)) continue;
-          if (!esRelevante(v, tituloES || tituloOriginal)) continue;
-          if (allVideos.some(e => e.id === v.id)) continue;
-
+          seenIds.add(v.id);
           allVideos.push({
             id: v.id,
             titulo: v.snippet.title,
