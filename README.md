@@ -323,8 +323,8 @@ Abrir http://localhost:3000 en el navegador.
 <div align="center">
 
 📄 **[Documentación SRS v1.0 — Magic Film](docs/Documentacion.Magic-Film.pdf)**  
-📄 **[Manual Técnico v1.0 — Magic Film](docs/Manual_Tecnico_Magic_Film.docx)**
-📄 **[Manual Usuario v1.0 — Magic Film](docs/Manual_De_Usuario_Magic_Film.docx)**
+📄 **[Manual Técnico v1.0 — Magic Film](docs/Manual_Tecnico_Magic_Film.pdf)**
+📄 **[Manual Usuario v1.0 — Magic Film](docs/Manual_De_Usuario_Magic_Film.pdf)**
 
 </div>
 
