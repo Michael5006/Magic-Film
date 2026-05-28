@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('mf_theme')||'dark');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - Magic Film</title>
+    <link rel="stylesheet" href="../css/pages/styles.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="logo">Magic Film</a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Inicio</a></li>
+            <li><a href="busqueda.html" class="nav-link">Explorar</a></li>
+            <li><a href="perfil.html" class="nav-link">Mi perfil</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="search-btn" onclick="window.location.href='busqueda.html'">
+                <i class="fas fa-search"></i>
+            </button>
+            <div class="avatar" onclick="window.location.href='perfil.html'" style="cursor:pointer;">
+                <img src="" alt="">
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="static-page">
+    <div class="static-container">
+
+        <div class="static-header">
+            <div class="badge">
+                <i class="fas fa-paper-plane"></i>
+                <span>Hablemos de cine</span>
+            </div>
+            <h1>Contáctanos</h1>
+            <p class="subtitle">¿Tienes una idea, encontraste un bug, o solo quieres contarnos qué película te marcó este año? Estamos a un mensaje de distancia.</p>
+        </div>
+
+        <div class="contact-grid">
+
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-item-icon"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <h4>Email general</h4>
+                        <a href="mailto:magicfilm001@gmail.com">magicfilm001@gmail.com</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-item-icon"><i class="fas fa-life-ring"></i></div>
+                    <div>
+                        <h4>Soporte técnico</h4>
+                        <a href="mailto:magicfilm001@gmail.com">magicfilm001@gmail.com</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-item-icon"><i class="fas fa-shield-halved"></i></div>
+                    <div>
+                        <h4>Privacidad y datos</h4>
+                        <a href="mailto:magicfilm001@gmail.com">magicfilm001@gmail.com</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-item-icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <h4>Tiempo de respuesta</h4>
+                        <p>Lunes a viernes, dentro de 24–48h hábiles.</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-item-icon"><i class="fab fa-instagram"></i></div>
+                    <div>
+                        <h4>Síguenos</h4>
+                        <p><a href="#">@magicfilm</a> en Instagram, Twitter/X y GitHub.</p>
+                    </div>
+                </div>
+            </div>
+
+            <form class="contact-form" id="contact-form" onsubmit="return enviarContacto(event)">
+                <div class="form-group">
+                    <label for="c-nombre">Nombre</label>
+                    <input type="text" id="c-nombre" name="nombre" required placeholder="¿Cómo te llamas?">
+                </div>
+                <div class="form-group">
+                    <label for="c-email">Email</label>
+                    <input type="email" id="c-email" name="email" required placeholder="tu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="c-asunto">Asunto</label>
+                    <input type="text" id="c-asunto" name="asunto" required placeholder="Sugerencia, bug, consulta…">
+                </div>
+                <div class="form-group">
+                    <label for="c-mensaje">Mensaje</label>
+                    <textarea id="c-mensaje" name="mensaje" required placeholder="Cuéntanos todo."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <span>Enviar mensaje</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                <div class="form-status" id="form-status">
+                    <i class="fas fa-circle-check"></i> ¡Mensaje enviado! Te responderemos dentro de 24–48h.
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+</section>
+
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-col footer-brand">
+            <a href="index.html" class="logo">Magic Film</a>
+            <p>Descifrando el significado detrás de cada historia. Explora el cine como nunca antes.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Explorar</h4>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="busqueda.html">Películas</a></li>
+                <li><a href="perfil.html">Mi perfil</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Comunidad</h4>
+            <ul>
+                <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                <li><a href="#"><i class="fab fa-x-twitter"></i> Twitter / X</a></li>
+                <li><a href="#"><i class="fab fa-github"></i> GitHub</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Magic Film</h4>
+            <ul>
+                <li><a href="sobre-nosotros.html">Sobre nosotros</a></li>
+                <li><a href="privacidad.html">Privacidad</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Magic Film · Todos los derechos reservados</p>
+        <span class="footer-tag"><i class="fas fa-film"></i> Análisis cinematográfico adaptativo</span>
+    </div>
+</footer>
+
+<script>
+    async function enviarContacto(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        const status = document.getElementById('form-status');
+        const form = document.getElementById('contact-form');
+
+        const nombre  = document.getElementById('c-nombre').value.trim();
+        const email   = document.getElementById('c-email').value.trim();
+        const asunto  = document.getElementById('c-asunto').value.trim();
+        const mensaje = document.getElementById('c-mensaje').value.trim();
+
+        if (!nombre || !email || !asunto || !mensaje) return false;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span>Enviando...</span> <i class="fas fa-circle-notch fa-spin"></i>';
+
+        try {
+            const res = await fetch('/api/contacto', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, email, asunto, mensaje })
+            });
+            const data = await res.json();
+
+            if (data.ok) {
+                status.className = 'form-status visible';
+                status.innerHTML = '<i class="fas fa-circle-check"></i> ¡Mensaje enviado! Te responderemos dentro de 24-48h.';
+                form.querySelectorAll('input, textarea').forEach(el => el.value = '');
+                setTimeout(() => status.classList.remove('visible'), 6000);
+            } else {
+                status.className = 'form-status visible';
+                status.style.color = '#d94040';
+                status.innerHTML = '<i class="fas fa-circle-xmark"></i> ' + (data.error || 'Error al enviar el mensaje.');
+                setTimeout(() => { status.classList.remove('visible'); status.style.color = ''; }, 5000);
+            }
+        } catch (err) {
+            status.className = 'form-status visible';
+            status.style.color = '#d94040';
+            status.innerHTML = '<i class="fas fa-circle-xmark"></i> Error de conexión. Intenta de nuevo.';
+            setTimeout(() => { status.classList.remove('visible'); status.style.color = ''; }, 5000);
+        }
+
+        btn.disabled = false;
+        btn.innerHTML = '<span>Enviar mensaje</span> <i class="fas fa-paper-plane"></i>';
+        return false;
+    }
+</script>
+
+</body>
+</html>

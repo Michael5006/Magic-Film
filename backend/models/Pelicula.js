@@ -3,55 +3,72 @@ const { pool } = require('../config/db');
 const Pelicula = {
 
   // Buscar por título
-  async buscarPorTitulo(titulo) {
+async buscarPorTitulo(titulo) {
     const [rows] = await pool.execute(
-      `SELECT id, tmdb_id, titulo, anio, director, sinopsis, 
-              poster_url, tipo_analisis, calificacion
-       FROM peliculas 
-       WHERE titulo LIKE ? AND activa = TRUE
-       LIMIT 10`,
-      [`%${titulo}%`]
+        `SELECT id, tmdb_id, titulo, anio, director, sinopsis, 
+                poster_url, backdrop_url, tipo_analisis, calificacion, media_type
+         FROM peliculas 
+         WHERE titulo LIKE ? AND activa = TRUE
+         LIMIT 10`,
+        [`%${titulo}%`]
     );
     return rows;
-  },
+},
 
-  // Buscar por id
-  async buscarPorId(id) {
+async buscarPorId(id) {
     const [rows] = await pool.execute(
-      'SELECT * FROM peliculas WHERE id = ? AND activa = TRUE',
-      [id]
+        'SELECT * FROM peliculas WHERE id = ? AND activa = TRUE',
+        [id]
     );
-    return rows[0] || null;
-  },
+    const pelicula = rows[0] || null;
+    if (pelicula && pelicula.reparto) {
+        try { pelicula.reparto = JSON.parse(pelicula.reparto); } catch { pelicula.reparto = []; }
+    }
+    return pelicula;
+},
 
   // Buscar por tmdb_id
   async buscarPorTmdbId(tmdb_id) {
     const [rows] = await pool.execute(
-      'SELECT * FROM peliculas WHERE tmdb_id = ?',
-      [tmdb_id]
+        'SELECT * FROM peliculas WHERE tmdb_id = ?',
+        [tmdb_id]
     );
-    return rows[0] || null;
-  },
+    const pelicula = rows[0] || null;
+    if (pelicula) {
+        if (pelicula.reparto) {
+            try { pelicula.reparto = JSON.parse(pelicula.reparto); } catch { pelicula.reparto = []; }
+        }
+        if (pelicula.similares) {
+            try { pelicula.similares = JSON.parse(pelicula.similares); } catch { pelicula.similares = []; }
+        }
+    }
+    return pelicula;
+},
 
   // Crear película
-  async crear(datos) {
+async crear(datos) {
     const {
-      tmdb_id, titulo, titulo_original, anio, director,
-      duracion_min, sinopsis, calificacion, poster_url,
-      keywords, tipo_analisis
+        tmdb_id, titulo, titulo_original, anio, director,
+        duracion_min, sinopsis, calificacion, poster_url,
+        keywords, tipo_analisis, reparto,
+        media_type = 'movie',
+        backdrop_url = null  
     } = datos;
 
     const [result] = await pool.execute(
-      `INSERT INTO peliculas 
-       (tmdb_id, titulo, titulo_original, anio, director, duracion_min, 
-        sinopsis, calificacion, poster_url, keywords, tipo_analisis)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [tmdb_id, titulo, titulo_original, anio, director, duracion_min,
-       sinopsis, calificacion, poster_url,
-       JSON.stringify(keywords), tipo_analisis]
+        `INSERT INTO peliculas 
+         (tmdb_id, titulo, titulo_original, anio, director, duracion_min, 
+          sinopsis, calificacion, poster_url, backdrop_url, keywords, tipo_analisis, reparto, media_type)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [tmdb_id, titulo, titulo_original, anio, director, duracion_min,
+         sinopsis, calificacion, poster_url,
+         backdrop_url,           
+         JSON.stringify(keywords), tipo_analisis,
+         reparto ? JSON.stringify(reparto) : null,
+         media_type]
     );
     return result.insertId;
-  },
+},
 
   // Actualizar tipo de análisis
   async actualizarTipo(id, tipo_analisis, tipo_forzado = false) {

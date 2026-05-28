@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('mf_theme')||'dark');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de privacidad - Magic Film</title>
+    <link rel="stylesheet" href="../css/pages/styles.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="logo">Magic Film</a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Inicio</a></li>
+            <li><a href="busqueda.html" class="nav-link">Explorar</a></li>
+            <li><a href="perfil.html" class="nav-link">Mi perfil</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="search-btn" onclick="window.location.href='busqueda.html'">
+                <i class="fas fa-search"></i>
+            </button>
+            <div class="avatar" onclick="window.location.href='perfil.html'" style="cursor:pointer;">
+                <img src="" alt="">
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="static-page">
+    <div class="static-container">
+
+        <div class="static-header">
+            <div class="badge">
+                <i class="fas fa-shield-halved"></i>
+                <span>Tus datos, tus reglas</span>
+            </div>
+            <h1>Política de <span class="highlight">privacidad</span></h1>
+            <p class="subtitle">Explicamos qué datos recopilamos, por qué y qué puedes hacer para controlarlos. Sin letra chica.</p>
+            <p class="static-meta">Última actualización: 20 de abril de 2026</p>
+        </div>
+
+        <div class="static-section">
+            <h2><i class="fas fa-circle-info"></i> Resumen</h2>
+            <p>Magic Film recopila únicamente los datos necesarios para que la plataforma funcione: tu cuenta, tus preferencias cinematográficas y tu historial de análisis. No vendemos información personal a terceros, nunca.</p>
+        </div>
+
+        <div class="static-section">
+            <h2><i class="fas fa-database"></i> Qué datos recopilamos</h2>
+            <ul>
+                <li><strong>Datos de cuenta:</strong> nombre de usuario, email y contraseña cifrada (o token OAuth si entras con Google).</li>
+                <li><strong>Preferencias:</strong> géneros favoritos, películas guardadas, nivel de análisis preferido.</li>
+                <li><strong>Historial:</strong> análisis que has solicitado y películas que has explorado.</li>
+                <li><strong>Datos técnicos:</strong> dirección IP, navegador, idioma y resolución — usados para prevenir abuso y mejorar la experiencia.</li>
+            </ul>
+        </div>
+
+        <div class="static-section">
+            <h2><i class="fas fa-gears"></i> Cómo los usamos</h2>
+            <p>Los datos se utilizan exclusivamente para:</p>
+            <ul>
+                <li>Autenticarte de forma segura en la plataforma.</li>
+                <li>Personalizar recomendaciones y análisis según tus gustos.</li>
+                <li>Mantener tu historial accesible desde cualquier dispositivo.</li>
+                <li>Detectar y prevenir uso indebido o abuso del servicio.</li>
+                <li>Comunicarte cambios importantes (cambios en el servicio, seguridad).</li>
+            </ul>
+        </div>
+
+        <div class="static-section">
+            <h2><i class="fas fa-cookie-bite"></i> Cookies y almacenamiento local</h2>
+            <p>Usamos <strong>localStorage</strong> para guardar preferencias (tema claro/oscuro, token de sesión) y cookies únicamente para autenticación. No usamos cookies de terceros con fines publicitarios ni tracking cross-site.</p>
+        </div>
+
+        <div class="static-section">
+            <h2><i class="fas fa-handshake"></i> Terceros</h2>
+            <p>Integramos servicios externos que procesan información limitada:</p>
+            <ul>
+                <li><strong>TMDB</strong> — información de películas (nosotros consultamos sus APIs, no compartimos tus datos).</li>
+                <li><strong>Google OAuth</strong> — si eliges entrar con Google, recibimos tu email y nombre público.</li>
+                <li><strong>Proveedores de IA</strong> — procesan las consultas de análisis de forma anónima; no reciben tu identidad personal.</li>
+            </ul>
+        </div>
+
+        <div class="static-section">
+            <h2><i class="fas fa-user-shield"></i> Tus derechos</h2>
+            <ul>
+                <li><strong>Acceso:</strong> puedes ver todos los datos asociados a tu cuenta desde tu perfil.</li>
+                <li><strong>Modificación:</strong> edita o corrige tu información cuando quieras.</li>
+                <li><strong>Eliminación:</strong> puedes borrar tu cuenta y todos sus datos de forma permanente desde la configuración.</li>
+                <li><strong>Portabilidad:</strong> exportamos tu historial a JSON si lo solicitas.</li>
+            </ul>
+        </div>
+
+        <div class="static-section">
+            <h2><i class="fas fa-lock"></i> Seguridad</h2>
+            <p>Las contraseñas se almacenan con hashing seguro (bcrypt). Las comunicaciones se cifran con HTTPS. Los tokens de sesión expiran y pueden invalidarse desde tu perfil.</p>
+        </div>
+
+        <div class="static-section">
+            <h2><i class="fas fa-pen-to-square"></i> Cambios en esta política</h2>
+            <p>Si modificamos algo importante, te avisamos por email antes de aplicar el cambio. La fecha arriba siempre refleja la última actualización.</p>
+        </div>
+
+        <div class="static-section">
+            <h2><i class="fas fa-envelope"></i> Contacto</h2>
+            <p>Si tienes dudas sobre tu privacidad, escríbenos a <a href="mailto:magicfilm001@gmail.com" style="color:var(--accent-gold);">magicfilm001@gmail.com</a> o desde la <a href="contacto.html" style="color:var(--accent-gold);">página de contacto</a>.</p>
+        </div>
+
+    </div>
+</section>
+
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-col footer-brand">
+            <a href="index.html" class="logo">Magic Film</a>
+            <p>Descifrando el significado detrás de cada historia. Explora el cine como nunca antes.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Explorar</h4>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="busqueda.html">Películas</a></li>
+                <li><a href="perfil.html">Mi perfil</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Comunidad</h4>
+            <ul>
+                <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                <li><a href="#"><i class="fab fa-x-twitter"></i> Twitter / X</a></li>
+                <li><a href="#"><i class="fab fa-github"></i> GitHub</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Magic Film</h4>
+            <ul>
+                <li><a href="sobre-nosotros.html">Sobre nosotros</a></li>
+                <li><a href="privacidad.html">Privacidad</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Magic Film · Todos los derechos reservados</p>
+        <span class="footer-tag"><i class="fas fa-film"></i> Análisis cinematográfico adaptativo</span>
+    </div>
+</footer>
+
+</body>
+</html>

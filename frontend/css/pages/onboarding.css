@@ -1,0 +1,190 @@
+/* ═══════════════════════════════════════
+   MAGIC FILM — Onboarding
+═══════════════════════════════════════ */
+
+.onb-panel {
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.onb-panel::-webkit-scrollbar { display: none; }
+
+/* ── NIVELES ── */
+.onb-levels {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+}
+
+.onb-level {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.9rem 0.5rem;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: center;
+}
+
+.onb-level i {
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.3);
+    transition: color 0.25s;
+}
+
+.onb-level-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    transition: color 0.25s;
+}
+
+.onb-level-desc {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.2);
+    transition: color 0.25s;
+}
+
+.onb-level:hover {
+    border-color: rgba(245,166,35,0.3);
+    background: rgba(245,166,35,0.04);
+}
+
+.onb-level.active {
+    border-color: rgba(245,166,35,0.5);
+    background: rgba(245,166,35,0.08);
+    box-shadow: 0 0 0 1px rgba(245,166,35,0.15);
+}
+
+.onb-level.active i,
+.onb-level.active .onb-level-name {
+    color: #f5a623;
+}
+
+.onb-level.active .onb-level-desc {
+    color: rgba(245,166,35,0.6);
+}
+
+/* ── GÉNEROS ── */
+.onb-genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    justify-content: center;
+}
+
+.onb-genre {
+    padding: 0.45rem 1rem;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.45);
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.onb-genre:hover {
+    border-color: rgba(245,166,35,0.3);
+    color: rgba(255,255,255,0.8);
+}
+
+.onb-genre.active {
+    border-color: #f5a623;
+    background: rgba(245,166,35,0.12);
+    color: #f5a623;
+    font-weight: 500;
+}
+
+.reg-step-text {
+    color: rgba(255,255,255,0.25);
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════
+   LIGHT MODE — Onboarding (Cinema Ámbar)
+═══════════════════════════════════════════ */
+[data-theme="light"] .onb-level {
+    border-color: #e6d9cc;
+    background: #fdf3e7;
+}
+[data-theme="light"] .onb-level i {
+    color: #9c8b7a;
+}
+[data-theme="light"] .onb-level-name {
+    color: #5a4a38;
+}
+[data-theme="light"] .onb-level-desc {
+    color: #9c8b7a;
+}
+[data-theme="light"] .onb-level:hover {
+    border-color: rgba(245,166,35,0.4);
+    background: rgba(245,166,35,0.06);
+}
+[data-theme="light"] .onb-level.active {
+    border-color: rgba(245,166,35,0.6);
+    background: rgba(245,166,35,0.1);
+}
+[data-theme="light"] .onb-level.active i,
+[data-theme="light"] .onb-level.active .onb-level-name {
+    color: #c47a0a;
+}
+[data-theme="light"] .onb-genre {
+    border-color: #e6d9cc;
+    background: #fdf3e7;
+    color: #5a4a38;
+}
+[data-theme="light"] .onb-genre:hover {
+    border-color: rgba(245,166,35,0.45);
+    background: rgba(245,166,35,0.08);
+    color: #1a1108;
+}
+[data-theme="light"] .onb-genre.active {
+    border-color: #f5a623;
+    background: rgba(245,166,35,0.14);
+    color: #c47a0a;
+}
+[data-theme="light"] .reg-step-text {
+    color: #9c8b7a;
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE — Onboarding
+══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .onb-panel { max-width: 95%; padding: 2rem 1.5rem; }
+    .onb-levels { gap: 0.5rem; }
+    .onb-level  { padding: 0.75rem 0.4rem; }
+    .onb-level-name { font-size: 0.72rem; }
+    .onb-level-desc { font-size: 0.6rem; }
+}
+
+@media (max-width: 480px) {
+    .onb-panel {
+        max-width: 100%;
+        width: 100%;
+        min-height: 100svh;
+        border-radius: 0;
+        padding: 4.5rem 1.25rem 2rem;
+        max-height: none;
+        overflow-y: auto;
+    }
+    .onb-levels { gap: 0.4rem; }
+    .onb-level  { padding: 0.65rem 0.3rem; border-radius: 6px; }
+    .onb-level i { font-size: 1rem; }
+    .onb-level-name { font-size: 0.68rem; }
+    .onb-level-desc { font-size: 0.58rem; display: none; }
+    .onb-genres { gap: 0.4rem; }
+    .onb-genre  { font-size: 0.72rem; padding: 0.35rem 0.75rem; }
+}

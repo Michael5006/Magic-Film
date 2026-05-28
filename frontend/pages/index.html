@@ -3,11 +3,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('mf_theme')||'dark');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magic Film - Análisis Cinematográfico Adaptativo</title>
     <link rel="stylesheet" href="../css/pages/styles.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
@@ -24,14 +26,19 @@
                 <i class="fas fa-search"></i>
             </button>
             <div class="avatar" onclick="window.location.href='perfil.html'" style="cursor:pointer;">
-                <img src="../assets/images/Profile.jpg" alt="User">
+                <img src="" alt="">
             </div>
         </div>
     </div>
 </nav>
 
 <section id="home" class="page active">
-    <div class="home-bg-gradient"></div>
+    <div class="home-bg-gradient">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <canvas class="dust-particles"></canvas>
+    </div>
     <div class="home-container">
         <div class="home-content">
             <div class="badge">
@@ -45,7 +52,7 @@
                 Cine
             </h1>
             <p class="home-description">
-                Explora curiosidades, análisis profundos, líneas de tiempo interactivas y el detrás de cámaras de tus películas favoritas.
+                Explora el universo de tus películas y series favoritas. Desde el entretenimiento más puro hasta los significados más profundos, desciframos cada historia para ti.
             </p>
             <div class="home-buttons">
                 <button class="btn btn-primary" onclick="window.location.href='registro.html'">
@@ -57,78 +64,41 @@
                 </button>
             </div>
             <div class="users-stats">
-                <div class="avatars-group">
-                    <img src="../assets/images/Profile.jpg" alt="User 1">
-                    <img src="../assets/images/Profile2.jpg" alt="User 2">
-                    <img src="../assets/images/Profile3.jpg" alt="User 3">
+                <div class="avatars-group" id="home-avatars">
+                    <img src="" alt="">
+                    <img src="" alt="">
+                    <img src="" alt="">
                 </div>
-                <p><strong>+10,000</strong> cinéfilos ya exploran el significado detrás del cine</p>
+                <p><strong id="home-user-count"></strong> cinéfilos ya exploran el significado detrás del cine</p>
             </div>
         </div>
 
         <div class="home-visual">
-            <div class="movie-cards" id="movie-cards-home">
-                <!-- Se cargan dinámicamente -->
+            <div class="cards-panel">
+                <div class="cards-panel-header">
+                    <span class="cards-panel-label" id="cards-panel-label">
+                        <i class="fas fa-fire"></i> Populares esta semana
+                    </span>
+                    <div class="cards-panel-nav">
+                        <button class="cards-nav-btn" id="cards-nav-prev" onclick="switchCardsManual(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span class="cards-dot active" data-index="0"></span>
+                        <span class="cards-dot" data-index="1"></span>
+                        <button class="cards-nav-btn" id="cards-nav-next" onclick="switchCardsManual(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="movie-cards" id="movie-cards-home">
+                    <!-- Se cargan dinámicamente -->
+                </div>
             </div>
         </div>
 
     </div>
 </section>
-
-<script>
-if (localStorage.getItem('mf_token')) {
-    document.querySelector('.home-buttons').innerHTML = `
-        <button class="btn btn-primary" onclick="window.location.href='busqueda.html'">
-            <span>Explorar Películas</span>
-            <i class="fas fa-search"></i>
-        </button>
-        <button class="btn btn-secondary" onclick="window.location.href='perfil.html'">
-            Mi Perfil
-        </button>
-    `;
-}
-
-async function cargarPeliculasHome() {
-    try {
-        const res = await fetch('https://magic-film-api.onrender.com/api/peliculas/populares');
-        const data = await res.json();
-        if (!data.ok) return;
-
-        const badges = ['profundo', 'entertainment', 'profundo', 'entertainment'];
-        const badgeLabels = ['PROFUNDO', 'ENTRETENIMIENTO', 'PROFUNDO', 'ENTRETENIMIENTO'];
-        const badgeIcons = ['fa-brain', 'fa-bolt', 'fa-brain', 'fa-bolt'];
-
-        const cards = data.data.peliculas.slice(0, 4);
-        const container = document.getElementById('movie-cards-home');
-
-        container.innerHTML = cards.map((p, i) => `
-    <div class="movie-card card-${i+1}" onclick="window.location.href='analisis.html?tmdb_id=${p.tmdb_id}'" style="cursor:pointer;">
-        <img src="${p.poster_url || ''}" alt="${p.titulo}">
-        <div class="card-grain"></div>
-        <div class="card-overlay">
-            <span class="card-badge ${p.tipo_analisis === 'profundo' ? 'profundo' : 'entertainment'}">
-                <i class="fas ${p.tipo_analisis === 'profundo' ? 'fa-brain' : 'fa-bolt'}"></i>
-                ${p.tipo_analisis === 'profundo' ? 'PROFUNDO' : 'ENTRETENIMIENTO'}
-            </span>
-            <div class="card-info">
-                <div class="card-meta-row">
-                    <span class="card-year">${p.anio || ''}</span>
-                </div>
-                <h4 class="card-movie-title">${p.titulo}</h4>
-                <div class="card-bottom-row">
-                    <div class="card-score"><i class="fas fa-star"></i> ${p.calificacion ? parseFloat(p.calificacion).toFixed(1) : '-'}</div>
-                    <div class="card-cta">Ver análisis <i class="fas fa-arrow-right"></i></div>
-                </div>
-            </div>
-        </div>
-    </div>
-`).join('');
-    } catch (err) {
-        console.error('Error cargando películas home:', err);
-    }
-}
-
-cargarPeliculasHome();
-</script>
+<script src="../js/pages/app.js"></script>
+<script src="../js/pages/index.js"></script>
 </body>
 </html>

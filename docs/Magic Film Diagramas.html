@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magic Film — Diagramas UML</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ══ ESTILOS DIAGRAMA CLASES ══ -->
+<style>
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+
+/* ── SWITCHER BAR ── */
+#switcher{
+  position:fixed;top:0;left:0;right:0;height:50px;
+  z-index:900;display:flex;align-items:center;
+  justify-content:space-between;padding:0 22px;
+}
+.sw-logo{font-size:15px;font-weight:700;letter-spacing:-0.02em;}
+.sw-tabs{display:flex;gap:4px;border-radius:8px;padding:4px;}
+.sw-tab{
+  padding:6px 18px;border-radius:5px;border:none;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all 0.22s ease;white-space:nowrap;
+}
+.sw-badge{font-size:10px;letter-spacing:0.08em;}
+
+/* ── WRAPPERS ── */
+.diagram-wrap{position:fixed;inset:50px 0 0 0;display:none;}
+.diagram-wrap.active{display:block;}
+
+/* ── VIEWPORT / CANVAS ── */
+.viewport{position:absolute;inset:0;z-index:1;cursor:default;}
+.viewport.pannable{cursor:grab;}
+.viewport.panning{cursor:grabbing;}
+.canvas{position:absolute;width:2000px;height:1200px;transform-origin:0 0;}
+.svg-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;}
+
+/* ── CLASS BOX — BASE ── */
+.class-box{
+  position:absolute;width:210px;
+  border-radius:7px;overflow:hidden;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.42s ease,border-color 0.42s ease,box-shadow 0.42s ease;
+}
+.class-box.visible{opacity:1;pointer-events:auto;}
+.class-box.revealed{opacity:0.38;}
+.class-name{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;}
+.class-box.abstract .class-name{font-style:italic;}
+.class-stereotype{
+  display:block;font-family:'IBM Plex Mono',monospace;
+  font-size:8px;opacity:0.7;letter-spacing:0.07em;margin-bottom:3px;
+}
+.class-section{padding:7px 13px;border-bottom-width:1px;border-bottom-style:solid;}
+.class-section:last-child{border-bottom:none;}
+.class-member{font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.9;}
+
+/* ── PANEL BASE ── */
+.panel{
+  position:absolute;top:16px;left:16px;width:345px;
+  border-radius:11px;z-index:200;
+  max-height:calc(100vh - 120px);overflow-y:auto;
+  transition:transform 0.48s cubic-bezier(0.16,1,0.3,1),opacity 0.38s;
+}
+.panel.hidden{transform:translateX(-385px);opacity:0;pointer-events:none;}
+.panel::-webkit-scrollbar{width:3px;}
+.panel-topbar{height:3px;border-radius:11px 11px 0 0;}
+.panel-body{padding:20px 22px 22px;}
+.panel-meta{display:flex;align-items:center;gap:11px;margin-bottom:15px;}
+.panel-num{
+  width:34px;height:34px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;flex-shrink:0;
+}
+.panel-concept{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-top:2px;}
+.panel-step-of{font-size:10px;margin-top:2px;}
+.panel-title{font-size:20px;font-weight:800;margin-bottom:9px;line-height:1.15;letter-spacing:-0.025em;}
+.panel-desc{font-size:12.5px;line-height:1.75;margin-bottom:15px;}
+.panel-section-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;margin-bottom:8px;}
+.panel-points{list-style:none;margin-bottom:15px;}
+.panel-points li{font-size:12px;padding:5px 0 5px 15px;position:relative;line-height:1.55;border-bottom-width:1px;border-bottom-style:solid;}
+.panel-points li:last-child{border-bottom:none;}
+.panel-points li::before{content:'';position:absolute;left:0;top:11px;width:5px;height:5px;border-radius:50%;opacity:0.55;}
+.panel-relations-area{padding-top:13px;border-top-width:1px;border-top-style:solid;}
+.rel-chip{display:inline-block;padding:3px 9px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:10px;margin:3px 3px 3px 0;}
+.panel-kbd{margin-top:15px;padding-top:11px;border-top-width:1px;border-top-style:solid;font-size:10px;display:flex;gap:13px;}
+.kbd-key{display:inline-block;padding:1px 6px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:9px;margin-right:3px;}
+
+/* ── CONTROLS ── */
+.controls{
+  position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:13px;
+  border-radius:100px;padding:9px 18px;z-index:200;
+}
+.ctrl-btn{
+  width:36px;height:36px;border-radius:50%;background:transparent;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:14px;transition:all 0.2s;
+}
+.ctrl-btn:disabled{opacity:0.14;cursor:not-allowed;}
+.ctrl-info{text-align:center;min-width:128px;}
+.ctrl-count{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.05em;}
+.ctrl-name{font-size:11px;margin-top:2px;}
+.ctrl-bar{width:108px;height:3px;border-radius:3px;overflow:hidden;}
+.ctrl-bar-fill{height:100%;border-radius:3px;transition:width 0.44s cubic-bezier(0.16,1,0.3,1);}
+
+/* ── TOP BUTTONS ── */
+.top-btns{position:absolute;top:16px;right:16px;display:flex;gap:7px;z-index:200;}
+.top-btn{
+  padding:8px 15px;border-radius:7px;
+  font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;
+}
+
+/* ── LEGEND ── */
+.legend{
+  position:absolute;bottom:18px;right:16px;
+  border-radius:10px;padding:13px 16px;z-index:200;min-width:185px;
+}
+.legend-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;margin-bottom:10px;}
+.legend-item{display:flex;align-items:center;gap:9px;margin-bottom:7px;}
+.legend-item:last-child{margin-bottom:0;}
+.legend-item span:last-child{font-size:10.5px;font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+.legend-item svg{flex-shrink:0;}
+
+@keyframes panelReveal{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
+.panel-anim{animation:panelReveal 0.32s ease forwards;}
+
+/* ══════════════════════════════════════════════
+   TEMA E-COMMERCE — azul oscuro/violeta (original)
+══════════════════════════════════════════════ */
+#wrap-ec{
+  background:#0b0b15;
+  font-family:'Syne',sans-serif;
+}
+#wrap-ec::before{
+  content:'';position:absolute;inset:0;
+  background-image:radial-gradient(circle,rgba(120,120,200,0.07) 1px,transparent 1px);
+  background-size:26px 26px;pointer-events:none;
+}
+#sw-ec .sw-logo{color:#c49a38;font-family:'Syne',sans-serif;}
+#sw-ec .sw-tabs{background:rgba(19,19,32,0.97);border:1px solid #22223a;}
+#sw-ec .sw-tab{color:#7a7a9a;background:transparent;border:none;font-family:'Syne',sans-serif;}
+#sw-ec .sw-tab:hover{color:#c49a38;}
+#sw-ec .sw-tab.active{background:rgba(196,154,56,0.10);color:#c49a38;border:1px solid rgba(196,154,56,0.4);}
+#sw-ec .sw-badge{color:#44445a;font-family:'IBM Plex Mono',monospace;}
+
+/* Cajas E-Commerce */
+#wrap-ec .class-box{background:#131320;border:1.5px solid #22223a;}
+#wrap-ec .class-box.active{border-color:#c49a38;box-shadow:0 0 0 1px #c49a38,0 0 28px rgba(196,154,56,0.35),0 6px 24px rgba(0,0,0,0.65);}
+#wrap-ec .class-header{padding:10px 13px 9px;background:rgba(196,154,56,0.10);border-bottom:1px solid #22223a;}
+#wrap-ec .class-box.active .class-header{background:rgba(196,154,56,0.14);}
+#wrap-ec .class-stereotype{color:#c49a38;}
+#wrap-ec .class-name{color:#e2e2f0;}
+#wrap-ec .class-section{border-bottom-color:rgba(34,34,58,0.55);}
+#wrap-ec .class-member{color:#7a7a9a;}
+#wrap-ec .class-member.is-method{color:rgba(196,154,56,0.75);}
+
+/* Panel E-Commerce */
+#panel-ec{background:rgba(19,19,32,0.97);border:1px solid #22223a;box-shadow:0 24px 60px rgba(0,0,0,0.65);backdrop-filter:blur(18px);}
+#panel-ec .panel-topbar{background:linear-gradient(90deg,#c49a38,rgba(196,154,56,0.2));}
+#panel-ec .panel-num{background:rgba(196,154,56,0.10);border:1px solid rgba(196,154,56,0.45);color:#c49a38;}
+#panel-ec .panel-logo{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#c49a38;}
+#panel-ec .panel-concept{color:#44445a;}
+#panel-ec .panel-step-of{color:#44445a;}
+#panel-ec .panel-title{color:#e2e2f0;}
+#panel-ec .panel-desc{color:#7a7a9a;}
+#panel-ec .panel-section-label{color:#44445a;}
+#panel-ec .panel-points li{color:#7a7a9a;border-bottom-color:rgba(34,34,58,0.5);}
+#panel-ec .panel-points li::before{background:#c49a38;}
+#panel-ec .panel-relations-area{border-top-color:#22223a;}
+#panel-ec .rel-chip{background:rgba(124,111,224,0.15);border:1px solid rgba(124,111,224,0.35);color:#7c6fe0;}
+#panel-ec .panel-kbd{border-top-color:#22223a;color:#44445a;}
+#panel-ec .kbd-key{background:#1a1a2c;border:1px solid #22223a;color:#7a7a9a;}
+#panel-ec::-webkit-scrollbar-thumb{background:#22223a;}
+
+/* Controls E-Commerce */
+#ctrl-ec{background:rgba(19,19,32,0.97);border:1px solid #22223a;box-shadow:0 10px 40px rgba(0,0,0,0.55);backdrop-filter:blur(18px);}
+#ctrl-ec .ctrl-btn{border:1px solid #22223a;color:#7a7a9a;}
+#ctrl-ec .ctrl-btn:hover:not(:disabled){border-color:#c49a38;color:#c49a38;background:rgba(196,154,56,0.10);}
+#ctrl-ec .ctrl-count{color:#c49a38;}
+#ctrl-ec .ctrl-name{color:#7a7a9a;}
+#ctrl-ec .ctrl-bar{background:#22223a;}
+#ctrl-ec .ctrl-bar-fill{background:#c49a38;}
+
+/* Top buttons E-Commerce */
+#wrap-ec .top-btns .top-btn{background:rgba(19,19,32,0.97);border:1px solid #22223a;color:#7a7a9a;font-family:'Syne',sans-serif;backdrop-filter:blur(12px);}
+#wrap-ec .top-btns .top-btn:hover{border-color:#c49a38;color:#c49a38;}
+#wrap-ec .top-btns .top-btn.on{border-color:#c49a38;color:#c49a38;background:rgba(196,154,56,0.10);}
+
+/* Legend E-Commerce */
+#legend-ec{background:rgba(19,19,32,0.97);border:1px solid #22223a;box-shadow:0 10px 40px rgba(0,0,0,0.55);backdrop-filter:blur(18px);}
+#legend-ec .legend-title{color:#44445a;}
+#legend-ec .legend-item span:last-child{color:#7a7a9a;}
+
+/* ══════════════════════════════════════════════
+   TEMA MAGIC FILM — negro/dorado
+══════════════════════════════════════════════ */
+#wrap-mf{
+  background:#0a0a0a;
+  font-family:'Inter',-apple-system,sans-serif;
+}
+#wrap-mf::before{
+  content:'';position:absolute;inset:0;
+  background-image:radial-gradient(circle,rgba(245,166,35,0.04) 1px,transparent 1px);
+  background-size:28px 28px;pointer-events:none;
+}
+#wrap-mf::after{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 10% 60%,rgba(245,166,35,0.06) 0%,transparent 45%),
+    radial-gradient(ellipse at 90% 15%,rgba(155,89,182,0.05) 0%,transparent 40%);
+  pointer-events:none;
+}
+#sw-mf .sw-logo{color:#f5a623;font-family:'Playfair Display',serif;font-weight:700;}
+#sw-mf .sw-tabs{background:rgba(17,17,17,0.97);border:1px solid #333;}
+#sw-mf .sw-tab{color:#666;background:transparent;border:none;font-family:'Inter',sans-serif;}
+#sw-mf .sw-tab:hover{color:#a0a0a0;}
+#sw-mf .sw-tab.active{background:rgba(245,166,35,0.09);color:#f5a623;border:1px solid rgba(245,166,35,0.3);}
+#sw-mf .sw-badge{color:#555;font-family:'IBM Plex Mono',monospace;}
+
+/* Cajas Magic Film */
+#wrap-mf .class-box{background:#111;border:1.5px solid #333;}
+#wrap-mf .class-box.active{border-color:#f5a623;box-shadow:0 0 0 1px #f5a623,0 0 32px rgba(245,166,35,0.28),0 8px 30px rgba(0,0,0,0.7);}
+#wrap-mf .class-box.service{border-left:3px solid #9b59b6;}
+#wrap-mf .class-box.service.active{border-color:#9b59b6;box-shadow:0 0 0 1px #9b59b6,0 0 28px rgba(155,89,182,0.3),0 8px 30px rgba(0,0,0,0.7);}
+#wrap-mf .class-header{padding:11px 14px 10px;background:rgba(245,166,35,0.08);border-bottom:1px solid #333;}
+#wrap-mf .class-box.active .class-header{background:rgba(245,166,35,0.13);}
+#wrap-mf .class-box.service .class-header{background:rgba(155,89,182,0.12);}
+#wrap-mf .class-box.service.active .class-header{background:rgba(155,89,182,0.18);}
+#wrap-mf .class-stereotype{color:#f5a623;}
+#wrap-mf .class-box.service .class-stereotype{color:#9b59b6;}
+#wrap-mf .class-name{color:#fff;}
+#wrap-mf .class-section{border-bottom-color:rgba(51,51,51,0.5);}
+#wrap-mf .class-member{color:#a0a0a0;}
+#wrap-mf .class-member.is-method{color:rgba(245,166,35,0.85);}
+
+/* Panel Magic Film */
+#panel-mf{background:rgba(10,10,10,0.97);border:1px solid #333;box-shadow:0 24px 70px rgba(0,0,0,0.75);backdrop-filter:blur(20px);}
+#panel-mf .panel-topbar{background:linear-gradient(90deg,#f5a623,rgba(245,166,35,0.1));}
+#panel-mf .panel-num{background:rgba(245,166,35,0.09);border:1px solid rgba(245,166,35,0.38);color:#f5a623;}
+#panel-mf .panel-logo{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:#f5a623;}
+#panel-mf .panel-concept{color:#555;}
+#panel-mf .panel-step-of{color:#555;}
+#panel-mf .panel-title{font-family:'Playfair Display',serif;color:#fff;}
+#panel-mf .panel-desc{color:#a0a0a0;}
+#panel-mf .panel-section-label{color:#555;}
+#panel-mf .panel-points li{color:#a0a0a0;border-bottom-color:rgba(51,51,51,0.5);}
+#panel-mf .panel-points li::before{background:#f5a623;}
+#panel-mf .panel-relations-area{border-top-color:#333;}
+#panel-mf .rel-chip{background:rgba(155,89,182,0.13);border:1px solid rgba(155,89,182,0.32);color:#9b59b6;}
+#panel-mf .panel-kbd{border-top-color:#333;color:#555;}
+#panel-mf .kbd-key{background:#1a1a1a;border:1px solid #333;color:#777;}
+#panel-mf::-webkit-scrollbar-thumb{background:#333;}
+
+/* Controls Magic Film */
+#ctrl-mf{background:rgba(10,10,10,0.97);border:1px solid #333;box-shadow:0 10px 40px rgba(0,0,0,0.6);backdrop-filter:blur(20px);}
+#ctrl-mf .ctrl-btn{border:1px solid #333;color:#777;}
+#ctrl-mf .ctrl-btn:hover:not(:disabled){border-color:#f5a623;color:#f5a623;background:rgba(245,166,35,0.09);}
+#ctrl-mf .ctrl-count{color:#f5a623;}
+#ctrl-mf .ctrl-name{color:#a0a0a0;}
+#ctrl-mf .ctrl-bar{background:#333;}
+#ctrl-mf .ctrl-bar-fill{background:linear-gradient(90deg,#f5a623,rgba(245,166,35,0.5));}
+
+/* Top buttons Magic Film */
+#wrap-mf .top-btns .top-btn{background:rgba(10,10,10,0.97);border:1px solid #333;color:#777;font-family:'Inter',sans-serif;backdrop-filter:blur(12px);}
+#wrap-mf .top-btns .top-btn:hover{border-color:#f5a623;color:#f5a623;}
+#wrap-mf .top-btns .top-btn.on{border-color:#f5a623;color:#f5a623;background:rgba(245,166,35,0.09);}
+
+/* Legend Magic Film */
+#legend-mf{background:rgba(10,10,10,0.97);border:1px solid #333;box-shadow:0 10px 40px rgba(0,0,0,0.6);backdrop-filter:blur(20px);}
+#legend-mf .legend-title{color:#555;}
+#legend-mf .legend-item span:last-child{color:#a0a0a0;}
+.leg-box-service{
+  width:58px;border:1px solid #9b59b6;border-left:3px solid #9b59b6;
+  border-radius:3px;background:rgba(155,89,182,0.13);
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;flex-shrink:0;
+  font-family:'IBM Plex Mono',monospace;padding:3px 4px;gap:2px;
+}
+.leg-stereo{font-size:7px;color:#9b59b6;opacity:0.8;white-space:nowrap;}
+.leg-classname{font-size:9px;color:#a0a0a0;white-space:nowrap;}
+
+</style>
+
+<!-- ══ ESTILOS DIAGRAMA COMPONENTES ══ -->
+<style>
+/* Scope componentes — todo dentro de #comp-wrapper */
+#comp-wrapper {
+  position: fixed;
+  top: 50px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  overflow-y: scroll;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#comp-wrapper.active {
+  display: block;
+}
+/* Estilos originales del diagrama de componentes */
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif}
+:root{
+  --dark:#0d0d14;--dark2:#12121e;--dark3:#1a1a2e;
+  --gold:#D4AF37;--gold-dim:#8B6914;--gold-pale:rgba(212,175,55,0.08);
+  --blue:#4a7cc7;--blue-pale:rgba(74,124,199,0.08);
+  --border-b:#2a3060;--border-g:#2a2a10;
+  --txt:#c8c8e0;--txt2:#7070a0;--txt3:#505070;
+  --card:#161625;--ext-card:#1a1408;
+}
+#wrap{background:var(--dark);border-radius:10px;overflow:hidden;min-height:400px}
+#hdr{background:var(--dark2);border-bottom:2px solid var(--gold-dim);padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:17px;font-weight:700;letter-spacing:3px;color:var(--gold)}
+.sub{font-size:10px;color:var(--txt2);letter-spacing:2px;margin-top:2px}
+#main{display:flex;gap:0;min-height:500px}
+#canvas-col{flex:1;overflow-x:auto;padding:16px; display:flex; justify-content:center}
+#detail-col{width:0;overflow:hidden;transition:width .35s cubic-bezier(.4,0,.2,1);border-left:1px solid transparent;background:var(--dark2)}
+#detail-col.open{width:310px;border-left-color:var(--gold-dim)}
+#detail-inner{width:310px;padding:0}
+#detail-header{padding:14px 16px 10px;border-bottom:1px solid rgba(212,175,55,0.15);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+#detail-title{font-size:15px;font-weight:700;color:var(--gold);line-height:1.2}
+#detail-pkg{font-size:10px;color:var(--txt2);letter-spacing:1px;margin-top:3px}
+#close-btn{background:none;border:1px solid var(--border-b);color:var(--txt2);border-radius:4px;cursor:pointer;font-size:12px;padding:3px 8px;flex-shrink:0;transition:border-color .2s}
+#close-btn:hover{border-color:var(--gold);color:var(--gold)}
+#detail-body{padding:14px 16px;max-height:600px;overflow-y:auto}
+.detail-section{margin-bottom:14px}
+.ds-label{font-size:9.5px;font-weight:700;letter-spacing:2px;color:var(--txt2);text-transform:uppercase;margin-bottom:6px}
+.ds-desc{font-size:12px;color:var(--txt);line-height:1.6;margin-bottom:8px}
+.file-list{display:flex;flex-direction:column;gap:4px}
+.file-tag{font-size:10.5px;font-family:'Courier New',monospace;color:#82d9a8;background:rgba(130,217,168,0.08);border:1px solid rgba(130,217,168,0.2);border-radius:4px;padding:3px 8px}
+.note-tag{font-size:10.5px;color:#ffcc60;background:rgba(255,200,80,0.07);border:1px solid rgba(255,200,80,0.2);border-radius:4px;padding:3px 8px;font-family:'Courier New',monospace}
+.iface-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin:2px 2px 2px 0}
+.ib-gold{color:var(--gold);background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3)}
+.ib-blue{color:#6aa0e8;background:rgba(74,124,199,0.1);border:1px solid rgba(74,124,199,0.3)}
+svg .comp{cursor:pointer;transition:opacity .15s}
+svg .comp:hover .cbg{filter:brightness(1.45)}
+svg .comp:hover .cname{fill:#fff}
+svg .comp.active .cbg{filter:brightness(1.6)}
+svg .comp.active .cbg{stroke-width:2px}
+#hint{text-align:center;padding:6px 0 2px;font-size:10px;color:var(--txt3);letter-spacing:1px}
+#legend-bar{background:var(--dark2);border-top:1px solid rgba(212,175,55,0.12);padding:10px 18px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center}
+.li{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--txt2)}
+.pkg-b{display:inline-block;width:24px;height:10px;border:1.5px dashed var(--blue);border-radius:2px;border-top:1.5px solid var(--blue)}
+.pkg-g{display:inline-block;width:24px;height:10px;border:1.5px dashed var(--gold);border-radius:2px;border-top:1.5px solid var(--gold)}
+
+
+/* Override contenedor componentes */
+#comp-wrapper #wrap {
+  border-radius: 0;
+  min-height: 970px;
+  height: auto;
+  width: 100%;
+}
+#comp-wrapper #hdr {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+#comp-wrapper #main {
+  height: auto;
+  min-height: 870px;
+}
+#comp-wrapper #canvas-col {
+  overflow: visible;
+  padding-bottom: 40px;
+  height: auto;
+}
+#comp-wrapper #legend-bar {
+  position: relative;
+}
+#comp-wrapper svg#svg {
+  display: block;
+  overflow: visible;
+}
+</style>
+
+<!-- ══ ESTILOS BARRA NAVEGACIÓN UNIFICADA ══ -->
+<style>
+#main-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 50px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  background: rgba(10,10,10,0.98);
+  border-bottom: 1px solid #2a2a2a;
+  backdrop-filter: blur(18px);
+  font-family: 'Inter', sans-serif;
+}
+#main-nav .nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #f5a623;
+  letter-spacing: 0.02em;
+}
+#main-nav .nav-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(20,20,20,0.97);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 4px;
+}
+#main-nav .nav-tab {
+  padding: 6px 20px;
+  border-radius: 5px;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+  background: transparent;
+  color: #555;
+}
+#main-nav .nav-tab:hover { color: #a0a0a0; }
+#main-nav .nav-tab.active {
+  background: rgba(245,166,35,0.10);
+  color: #f5a623;
+  border: 1px solid rgba(245,166,35,0.35);
+}
+#main-nav .nav-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #444;
+  letter-spacing: 0.08em;
+}
+
+/* Ocultar la switcher bar original del diagrama de clases ya que usamos #main-nav */
+#sw-ec, #sw-mf { display: none !important; }
+
+/* Los wrappers de clases quedan con inset desde top:50px gracias al CSS de clases */
+</style>
+</head>
+<body>
+
+<!-- ══ BARRA DE NAVEGACIÓN UNIFICADA ══ -->
+<div id="main-nav">
+  <span class="nav-logo">✦ Magic Film</span>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="nav-clases"    onclick="showDiagram('clases')">Diagrama de Clases</button>
+    <button class="nav-tab"        id="nav-componentes" onclick="showDiagram('componentes')">Diagrama de Componentes</button>
+  </div>
+  <span class="nav-badge">Diagramas UML V0.1</span>
+</div>
+
+<!-- ══ DIAGRAMA DE CLASES (wrap-ec + wrap-mf originales) ══ -->
+<div id="clases-wrapper">
+
+
+<!-- ══ SWITCHER (se reemplaza segun diagrama activo) ══ -->
+<div id="sw-ec" id="switcher" style="position:fixed;top:0;left:0;right:0;height:50px;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:rgba(11,11,21,0.98);border-bottom:1px solid #22223a;backdrop-filter:blur(18px);">
+  <span class="sw-logo" style="color:#c49a38;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;"></span>
+  <div class="sw-tabs" style="display:flex;gap:4px;background:rgba(19,19,32,0.97);border:1px solid #22223a;border-radius:8px;padding:4px;">
+    <button class="sw-tab active" id="tab-ec" onclick="switchTo('ec')" style="padding:6px 18px;border-radius:5px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;background:rgba(196,154,56,0.10);color:#c49a38;border:1px solid rgba(196,154,56,0.4);">E-Commerce</button>
+    <button class="sw-tab"       id="tab-mf" onclick="switchTo('mf')"  style="padding:6px 18px;border-radius:5px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;background:transparent;color:#44445a;">Magic Film</button>
+  </div>
+  <span class="sw-badge" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#44445a;letter-spacing:0.08em;">Diagramas UML V0.1</span>
+</div>
+
+<!-- ══ DIAGRAMA 1: E-COMMERCE ══ -->
+<div id="wrap-ec" class="diagram-wrap active">
+  <div class="viewport" id="vp-ec">
+    <div class="canvas" id="cv-ec">
+      <svg class="svg-layer" id="svg-ec">
+        <defs>
+          <marker id="ec-arr"  markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 z" fill="#c49a38"/></marker>
+          <marker id="ec-inh"  markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L12,5 L0,10 z" fill="none" stroke="#c49a38" stroke-width="1.5"/></marker>
+          <marker id="ec-dia"  markerWidth="14" markerHeight="10" refX="1" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#c49a38"/></marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+  <div class="panel" id="panel-ec">
+    <div class="panel-topbar"></div>
+    <div class="panel-body">
+      <div class="panel-meta">
+        <div class="panel-num" id="ec-num">01</div>
+        <div><div class="panel-logo">E-Commerce</div><div class="panel-concept" id="ec-concept">-</div><div class="panel-step-of" id="ec-stepof">Paso 1 de 11</div></div>
+      </div>
+      <div id="ec-pc" class="panel-content">
+        <div class="panel-title" id="ec-title">-</div>
+        <div class="panel-desc"  id="ec-desc">-</div>
+        <div class="panel-section-label">Puntos clave</div>
+        <ul class="panel-points" id="ec-points"></ul>
+        <div class="panel-relations-area" id="ec-relarea">
+          <div class="panel-section-label" style="margin-bottom:8px">Relaciones</div>
+          <div id="ec-relchips"></div>
+        </div>
+      </div>
+      <div class="panel-kbd"><span><span class="kbd-key">&#8592;</span><span class="kbd-key">&#8594;</span> navegar</span><span><span class="kbd-key">Esc</span> vista libre</span></div>
+    </div>
+  </div>
+  <div class="controls" id="ctrl-ec">
+    <button class="ctrl-btn" id="ec-prev" onclick="ecE.prev()" disabled>&#8592;</button>
+    <div class="ctrl-info"><div class="ctrl-count" id="ec-count">01 / 11</div><div class="ctrl-name" id="ec-cname">-</div></div>
+    <div class="ctrl-bar"><div class="ctrl-bar-fill" id="ec-fill" style="width:9%"></div></div>
+    <button class="ctrl-btn" id="ec-next" onclick="ecE.next()">&#8594;</button>
+  </div>
+  <div class="top-btns">
+    <button class="top-btn on" id="ec-bpres" onclick="ecE.setMode('presentation')">Presentacion</button>
+    <button class="top-btn"   id="ec-bfree" onclick="ecE.setMode('free')">Vista libre</button>
+    <button class="top-btn"   onclick="ecE.reset()" title="Restablecer posiciones originales" style="font-size:11px;">Restablecer</button>
+  </div>
+  <div class="legend" id="legend-ec">
+    <div class="legend-title">Leyenda</div>
+    <div class="legend-item"><svg width="36" height="14" viewBox="0 0 36 14"><defs><marker id="la1" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 z" fill="#c49a38"/></marker></defs><line x1="2" y1="7" x2="28" y2="7" stroke="#c49a38" stroke-width="1.5" marker-end="url(#la1)"/></svg><span>Asociacion</span></div>
+    <div class="legend-item"><svg width="36" height="14" viewBox="0 0 36 14"><defs><marker id="li1" markerWidth="13" markerHeight="10" refX="12" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L12,5 L0,10 z" fill="none" stroke="#c49a38" stroke-width="1.5"/></marker></defs><line x1="2" y1="7" x2="28" y2="7" stroke="#c49a38" stroke-width="1.5" marker-end="url(#li1)"/></svg><span>Herencia</span></div>
+    <div class="legend-item"><svg width="36" height="14" viewBox="0 0 36 14"><defs><marker id="ld1" markerWidth="14" markerHeight="10" refX="1" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#c49a38"/></marker><marker id="la1b" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 z" fill="#c49a38"/></marker></defs><line x1="4" y1="7" x2="30" y2="7" stroke="#c49a38" stroke-width="1.5" marker-start="url(#ld1)" marker-end="url(#la1b)"/></svg><span>Composicion</span></div>
+    <div class="legend-item"><svg width="36" height="14" viewBox="0 0 36 14"><line x1="2" y1="7" x2="34" y2="7" stroke="#c49a38" stroke-width="1.5" stroke-dasharray="4 3"/></svg><span>Asociacion N:M</span></div>
+  </div>
+</div>
+
+<!-- ══ DIAGRAMA 2: MAGIC FILM ══ -->
+<div id="wrap-mf" class="diagram-wrap">
+  <div class="viewport" id="vp-mf">
+    <div class="canvas" id="cv-mf">
+      <svg class="svg-layer" id="svg-mf">
+        <defs>
+          <marker id="mf-arr"  markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 z" fill="#f5a623"/></marker>
+          <marker id="mf-dia"  markerWidth="14" markerHeight="10" refX="1" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#f5a623"/></marker>
+          <marker id="mf-pur"  markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 z" fill="#9b59b6"/></marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+  <div class="panel" id="panel-mf">
+    <div class="panel-topbar"></div>
+    <div class="panel-body">
+      <div class="panel-meta">
+        <div class="panel-num" id="mf-num">01</div>
+        <div><div class="panel-logo">Magic Film</div><div class="panel-concept" id="mf-concept">-</div><div class="panel-step-of" id="mf-stepof">Paso 1 de 12</div></div>
+      </div>
+      <div id="mf-pc" class="panel-content">
+        <div class="panel-title" id="mf-title">-</div>
+        <div class="panel-desc"  id="mf-desc">-</div>
+        <div class="panel-section-label">Puntos clave</div>
+        <ul class="panel-points" id="mf-points"></ul>
+        <div class="panel-relations-area" id="mf-relarea">
+          <div class="panel-section-label" style="margin-bottom:8px">Relaciones</div>
+          <div id="mf-relchips"></div>
+        </div>
+      </div>
+      <div class="panel-kbd"><span><span class="kbd-key">&#8592;</span><span class="kbd-key">&#8594;</span> navegar</span><span><span class="kbd-key">Esc</span> vista libre</span></div>
+    </div>
+  </div>
+  <div class="controls" id="ctrl-mf">
+    <button class="ctrl-btn" id="mf-prev" onclick="mfE.prev()" disabled>&#8592;</button>
+    <div class="ctrl-info"><div class="ctrl-count" id="mf-count">01 / 12</div><div class="ctrl-name" id="mf-cname">-</div></div>
+    <div class="ctrl-bar"><div class="ctrl-bar-fill" id="mf-fill" style="width:8%"></div></div>
+    <button class="ctrl-btn" id="mf-next" onclick="mfE.next()">&#8594;</button>
+  </div>
+  <div class="top-btns">
+    <button class="top-btn on" id="mf-bpres" onclick="mfE.setMode('presentation')">Presentacion</button>
+    <button class="top-btn"   id="mf-bfree" onclick="mfE.setMode('free')">Vista libre</button>
+    <button class="top-btn"   onclick="mfE.reset()" title="Restablecer posiciones originales" style="font-size:11px;">Restablecer</button>
+  </div>
+  <div class="legend" id="legend-mf">
+    <div class="legend-title">Leyenda</div>
+    <div class="legend-item"><svg width="36" height="14" viewBox="0 0 36 14"><defs><marker id="la2" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 z" fill="#f5a623"/></marker></defs><line x1="2" y1="7" x2="28" y2="7" stroke="#f5a623" stroke-width="1.5" marker-end="url(#la2)"/></svg><span>Asociacion</span></div>
+    <div class="legend-item"><svg width="36" height="14" viewBox="0 0 36 14"><defs><marker id="ld2" markerWidth="14" markerHeight="10" refX="1" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#f5a623"/></marker><marker id="la2b" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 z" fill="#f5a623"/></marker></defs><line x1="4" y1="7" x2="30" y2="7" stroke="#f5a623" stroke-width="1.5" marker-start="url(#ld2)" marker-end="url(#la2b)"/></svg><span>Composicion</span></div>
+    <div class="legend-item"><svg width="36" height="14" viewBox="0 0 36 14"><line x1="2" y1="7" x2="34" y2="7" stroke="#f5a623" stroke-width="1.5" stroke-dasharray="4 3"/></svg><span>Asociacion N:M</span></div>
+    <div class="legend-item"><svg width="36" height="14" viewBox="0 0 36 14"><defs><marker id="lp2" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 z" fill="#9b59b6"/></marker></defs><line x1="2" y1="7" x2="28" y2="7" stroke="#9b59b6" stroke-width="1.5" marker-end="url(#lp2)"/></svg><span>Servicio externo</span></div>
+    <div class="legend-item"><div class="leg-box-service"><span class="leg-stereo">&laquo;service&raquo;</span><span class="leg-classname">Servicio</span></div><span>Clase de servicio</span></div>
+  </div>
+</div>
+
+
+
+</div>
+
+<!-- ══ DIAGRAMA DE COMPONENTES ══ -->
+<div id="comp-wrapper">
+
+<div id="wrap">
+<div id="hdr">
+  <div>
+    <div class="logo">MAGIC FILM</div>
+    <div class="sub">DIAGRAMA DE COMPONENTES</div>
+  </div>
+</div>
+
+<div id="main">
+<div id="canvas-col">
+<svg id="svg" width="1000" height="820" style="display:block">
+<defs>
+  <marker id="da" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 2L9 5L1 8" fill="none" stroke="#4a7cc7" stroke-width="1.6" stroke-linecap="round"/>
+  </marker>
+  <marker id="ea" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 2L9 5L1 8" fill="none" stroke="#D4AF37" stroke-width="1.6" stroke-linecap="round"/>
+  </marker>
+</defs>
+<rect width="1000" height="820" fill="#0d0d14"/>
+<g opacity="0.05">
+  <line x1="0" y1="225" x2="1000" y2="225" stroke="#D4AF37" stroke-width="0.8"/>
+  <line x1="0" y1="615" x2="1000" y2="615" stroke="#D4AF37" stroke-width="0.8"/>
+</g>
+
+<rect x="10" y="10" width="120" height="20" rx="3" fill="#1a1a2e" stroke="#4a7cc7" stroke-width="1.1"/>
+<text x="70" y="23" text-anchor="middle" font-size="10" font-weight="bold" fill="#6aa0e8">Presentación</text>
+<rect x="10" y="28" width="960" height="168" rx="3" fill="rgba(26,30,60,0.35)" stroke="#4a7cc7" stroke-width="1.1" stroke-dasharray="7,3"/>
+
+<g class="comp" id="c-ui" onclick="open_('c-ui')">
+  <rect class="cbg" x="30" y="45" width="200" height="135" rx="4" fill="#161625" stroke="#4a7cc7" stroke-width="1.1"/>
+  <rect x="213" y="49" width="11" height="7" rx="1" fill="#161625" stroke="#6aa0e8" stroke-width="0.9"/>
+  <rect x="217" y="53" width="11" height="7" rx="1" fill="#161625" stroke="#6aa0e8" stroke-width="0.9"/>
+  <text x="130" y="70" text-anchor="middle" font-size="8" fill="#4a7cc7" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="130" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="#D4AF37">UI Pages</text>
+  <line x1="30" y1="98" x2="230" y2="98" stroke="#252535" stroke-width="0.9"/>
+  <text x="130" y="125" text-anchor="middle" font-size="8" fill="#404060" font-style="italic">vistas HTML</text>
+</g>
+
+<g class="comp" id="c-js" onclick="open_('c-js')">
+  <rect class="cbg" x="260" y="45" width="200" height="135" rx="4" fill="#161625" stroke="#4a7cc7" stroke-width="1.1"/>
+  <rect x="443" y="49" width="11" height="7" rx="1" fill="#161625" stroke="#6aa0e8" stroke-width="0.9"/>
+  <rect x="447" y="53" width="11" height="7" rx="1" fill="#161625" stroke="#6aa0e8" stroke-width="0.9"/>
+  <text x="360" y="70" text-anchor="middle" font-size="8" fill="#4a7cc7" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="360" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="#D4AF37">Módulos JS</text>
+  <line x1="260" y1="98" x2="460" y2="98" stroke="#252535" stroke-width="0.9"/>
+  <text x="360" y="125" text-anchor="middle" font-size="8" fill="#404060" font-style="italic">lógica por pantalla</text>
+</g>
+
+<g class="comp" id="c-api" onclick="open_('c-api')">
+  <rect class="cbg" x="490" y="45" width="200" height="135" rx="4" fill="#161625" stroke="#4a7cc7" stroke-width="1.1"/>
+  <rect x="673" y="49" width="11" height="7" rx="1" fill="#161625" stroke="#6aa0e8" stroke-width="0.9"/>
+  <rect x="677" y="53" width="11" height="7" rx="1" fill="#161625" stroke="#6aa0e8" stroke-width="0.9"/>
+  <text x="590" y="70" text-anchor="middle" font-size="8" fill="#4a7cc7" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="590" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="#D4AF37">Cliente API</text>
+  <line x1="490" y1="98" x2="690" y2="98" stroke="#252535" stroke-width="0.9"/>
+  <text x="590" y="125" text-anchor="middle" font-size="8" fill="#404060" font-style="italic">fetch + JWT bearer</text>
+</g>
+
+<g class="comp" id="c-css" onclick="open_('c-css')">
+  <rect class="cbg" x="720" y="45" width="200" height="135" rx="4" fill="#161625" stroke="#4a7cc7" stroke-width="1.1"/>
+  <rect x="903" y="49" width="11" height="7" rx="1" fill="#161625" stroke="#6aa0e8" stroke-width="0.9"/>
+  <rect x="907" y="53" width="11" height="7" rx="1" fill="#161625" stroke="#6aa0e8" stroke-width="0.9"/>
+  <text x="820" y="70" text-anchor="middle" font-size="8" fill="#4a7cc7" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="820" y="89" text-anchor="middle" font-size="13" font-weight="bold" fill="#D4AF37">Estilos CSS</text>
+  <line x1="720" y1="98" x2="920" y2="98" stroke="#252535" stroke-width="0.9"/>
+  <text x="820" y="125" text-anchor="middle" font-size="8" fill="#404060" font-style="italic">paleta dorada</text>
+</g>
+
+<line x1="590" y1="180" x2="590" y2="200" stroke="#D4AF37" stroke-width="1.5"/>
+<path d="M581,200 A9,9 0 0,1 599,200" fill="none" stroke="#D4AF37" stroke-width="1.5"/>
+<line x1="590" y1="210" x2="590" y2="215" stroke="#D4AF37" stroke-width="1.2" stroke-dasharray="4,3"/>
+<circle cx="590" cy="225" r="10" fill="#12121e" stroke="#D4AF37" stroke-width="1.5"/>
+<text x="590" y="229" text-anchor="middle" font-size="7.5" fill="#D4AF37" font-weight="bold">↕</text>
+<line x1="130" y1="270" x2="130" y2="225" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="4,3"/>
+<line x1="130" y1="225" x2="580" y2="225" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="4,3"/>
+<rect x="605" y="205" width="68" height="24" rx="3" fill="#12121e" stroke="#8B6914" stroke-width="0.9"/>
+<text x="639" y="215" text-anchor="middle" font-size="9" font-weight="bold" fill="#D4AF37">IRestAPI</text>
+<text x="639" y="225" text-anchor="middle" font-size="7.5" fill="#806040">HTTP/JSON</text>
+
+
+<rect x="10" y="244" width="198" height="20" rx="3" fill="#1a1a2e" stroke="#D4AF37" stroke-width="1.1"/>
+<text x="109" y="257" text-anchor="middle" font-size="10" font-weight="bold" fill="#D4AF37">Lógica de Negocio (Backend)</text>
+<rect x="10" y="262" width="960" height="340" rx="3" fill="rgba(22,16,8,0.45)" stroke="#D4AF37" stroke-width="1.2" stroke-dasharray="7,3"/>
+
+<g class="comp" id="c-rut" onclick="open_('c-rut')">
+  <rect class="cbg" x="30" y="280" width="200" height="110" rx="4" fill="#16162a" stroke="#D4AF37" stroke-width="1.1"/>
+  <rect x="213" y="284" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <rect x="217" y="288" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <text x="130" y="305" text-anchor="middle" font-size="8" fill="#8B6914" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="130" y="324" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#D4AF37">Rutas REST</text>
+  <line x1="30" y1="333" x2="230" y2="333" stroke="#252515" stroke-width="0.9"/>
+  <text x="130" y="360" text-anchor="middle" font-size="8" fill="#404030" font-style="italic">Express Router</text>
+</g>
+
+<g class="comp" id="c-mid" onclick="open_('c-mid')">
+  <rect class="cbg" x="260" y="280" width="200" height="110" rx="4" fill="#16162a" stroke="#D4AF37" stroke-width="1.1"/>
+  <rect x="443" y="284" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <rect x="447" y="288" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <text x="360" y="305" text-anchor="middle" font-size="8" fill="#8B6914" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="360" y="324" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#D4AF37">Middlewares</text>
+  <line x1="260" y1="333" x2="460" y2="333" stroke="#252515" stroke-width="0.9"/>
+  <text x="360" y="360" text-anchor="middle" font-size="8" fill="#404030" font-style="italic">JWT · validación</text>
+</g>
+
+<g class="comp" id="c-ctrl" onclick="open_('c-ctrl')">
+  <rect class="cbg" x="490" y="280" width="200" height="110" rx="4" fill="#16162a" stroke="#D4AF37" stroke-width="1.1"/>
+  <rect x="673" y="284" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <rect x="677" y="288" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <text x="590" y="305" text-anchor="middle" font-size="8" fill="#8B6914" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="590" y="324" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#D4AF37">Controladores</text>
+  <line x1="490" y1="333" x2="690" y2="333" stroke="#252515" stroke-width="0.9"/>
+  <text x="590" y="360" text-anchor="middle" font-size="8" fill="#404030" font-style="italic">lógica de negocio</text>
+</g>
+
+<g class="comp" id="c-cfg" onclick="open_('c-cfg')">
+  <rect class="cbg" x="720" y="280" width="200" height="110" rx="4" fill="#16162a" stroke="#D4AF37" stroke-width="1.1"/>
+  <rect x="903" y="284" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <rect x="907" y="288" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <text x="820" y="305" text-anchor="middle" font-size="8" fill="#8B6914" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="820" y="324" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#D4AF37">Config &amp; Utils</text>
+  <line x1="720" y1="333" x2="920" y2="333" stroke="#252515" stroke-width="0.9"/>
+  <text x="820" y="360" text-anchor="middle" font-size="8" fill="#404030" font-style="italic">env · CORS · server</text>
+</g>
+
+<line x1="230" y1="335" x2="260" y2="335" stroke="#4a7cc7" stroke-width="1.1" stroke-dasharray="4,2" marker-end="url(#da)"/>
+<line x1="460" y1="335" x2="490" y2="335" stroke="#4a7cc7" stroke-width="1.1" stroke-dasharray="4,2" marker-end="url(#da)"/>
+<line x1="690" y1="335" x2="720" y2="335" stroke="#4a7cc7" stroke-width="1.1" stroke-dasharray="4,2" marker-end="url(#da)"/>
+
+
+<g class="comp" id="c-mod" onclick="open_('c-mod')">
+  <rect class="cbg" x="30" y="440" width="160" height="130" rx="4" fill="#16162a" stroke="#D4AF37" stroke-width="1.1"/>
+  <rect x="173" y="444" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <rect x="177" y="448" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <text x="110" y="465" text-anchor="middle" font-size="8" fill="#8B6914" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="110" y="484" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#D4AF37">Modelos de Datos</text>
+  <line x1="30" y1="493" x2="190" y2="493" stroke="#252515" stroke-width="0.9"/>
+  <text x="110" y="540" text-anchor="middle" font-size="8" fill="#404030" font-style="italic">ORM propio</text>
+</g>
+
+<g class="comp" id="c-pool" onclick="open_('c-pool')">
+  <rect class="cbg" x="220" y="440" width="160" height="130" rx="4" fill="#161625" stroke="#4a7cc7" stroke-width="1.1"/>
+  <rect x="363" y="444" width="11" height="7" rx="1" fill="#161625" stroke="#6aa0e8" stroke-width="0.9"/>
+  <rect x="367" y="448" width="11" height="7" rx="1" fill="#161625" stroke="#6aa0e8" stroke-width="0.9"/>
+  <text x="300" y="465" text-anchor="middle" font-size="8" fill="#4a7cc7" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="300" y="484" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#6aa0e8">Pool Conexiones</text>
+  <line x1="220" y1="493" x2="380" y2="493" stroke="#252535" stroke-width="0.9"/>
+  <text x="300" y="540" text-anchor="middle" font-size="8" fill="#404055" font-style="italic">mysql2/promise</text>
+</g>
+<line x1="190" y1="505" x2="220" y2="505" stroke="#4a7cc7" stroke-width="1.1" stroke-dasharray="4,2" marker-end="url(#da)"/>
+
+<g class="comp" id="c-ia" onclick="open_('c-ia')">
+  <rect class="cbg" x="410" y="440" width="160" height="130" rx="4" fill="#16162a" stroke="#D4AF37" stroke-width="1.1"/>
+  <rect x="553" y="444" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <rect x="557" y="448" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <text x="490" y="465" text-anchor="middle" font-size="8" fill="#8B6914" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="490" y="484" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#D4AF37">Motor Análisis IA</text>
+  <line x1="410" y1="493" x2="570" y2="493" stroke="#252515" stroke-width="0.9"/>
+  <text x="490" y="540" text-anchor="middle" font-size="8" fill="#404030" font-style="italic">Groq Llama 3</text>
+</g>
+
+<g class="comp" id="c-tmdb" onclick="open_('c-tmdb')">
+  <rect class="cbg" x="600" y="440" width="160" height="130" rx="4" fill="#16162a" stroke="#D4AF37" stroke-width="1.1"/>
+  <rect x="743" y="444" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <rect x="747" y="448" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <text x="680" y="465" text-anchor="middle" font-size="8" fill="#8B6914" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="680" y="484" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#D4AF37">Conector TMDB</text>
+  <line x1="600" y1="493" x2="760" y2="493" stroke="#252515" stroke-width="0.9"/>
+  <text x="680" y="540" text-anchor="middle" font-size="8" fill="#404030" font-style="italic">tmdbService.js</text>
+</g>
+
+<g class="comp" id="c-yt" onclick="open_('c-yt')">
+  <rect class="cbg" x="790" y="440" width="160" height="130" rx="4" fill="#16162a" stroke="#D4AF37" stroke-width="1.1"/>
+  <rect x="933" y="444" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <rect x="937" y="448" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <text x="870" y="465" text-anchor="middle" font-size="8" fill="#8B6914" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="870" y="484" text-anchor="middle" font-size="11" font-weight="bold" fill="#D4AF37">Conector YouTube</text>
+  <line x1="790" y1="493" x2="950" y2="493" stroke="#252515" stroke-width="0.9"/>
+  <text x="870" y="540" text-anchor="middle" font-size="8" fill="#404030" font-style="italic">youtubeService.js</text>
+</g>
+
+<line x1="590" y1="390" x2="110" y2="440" stroke="#4a7cc7" stroke-width="1.1" stroke-dasharray="4,2" marker-end="url(#da)"/>
+<line x1="590" y1="390" x2="490" y2="440" stroke="#4a7cc7" stroke-width="1.1" stroke-dasharray="4,2" marker-end="url(#da)"/>
+<line x1="590" y1="390" x2="680" y2="440" stroke="#4a7cc7" stroke-width="1.1" stroke-dasharray="4,2" marker-end="url(#da)"/>
+<line x1="590" y1="390" x2="870" y2="440" stroke="#4a7cc7" stroke-width="1.1" stroke-dasharray="4,2" marker-end="url(#da)"/>
+
+
+<line x1="300" y1="570" x2="300" y2="582" stroke="#4a7cc7" stroke-width="1.4"/>
+<path d="M291,582 A9,9 0 0,1 309,582" fill="none" stroke="#4a7cc7" stroke-width="1.4"/>
+<line x1="300" y1="592" x2="300" y2="606" stroke="#4a7cc7" stroke-width="1.2" stroke-dasharray="4,3"/>
+<circle cx="300" cy="615" r="9" fill="#12121e" stroke="#4a7cc7" stroke-width="1.4"/>
+<text x="300" y="619" text-anchor="middle" font-size="7" fill="#4a7cc7" font-weight="bold">SQL</text>
+<line x1="300" y1="624" x2="300" y2="670" stroke="#4a7cc7" stroke-width="1.1" stroke-dasharray="5,3" marker-end="url(#da)"/>
+<text x="317" y="603" font-size="8.5" font-weight="bold" fill="#4a7cc7">ISQL</text>
+
+<line x1="490" y1="570" x2="490" y2="582" stroke="#D4AF37" stroke-width="1.4"/>
+<path d="M481,582 A9,9 0 0,1 499,582" fill="none" stroke="#D4AF37" stroke-width="1.4"/>
+<line x1="490" y1="592" x2="490" y2="606" stroke="#D4AF37" stroke-width="1.2" stroke-dasharray="4,3"/>
+<circle cx="490" cy="615" r="9" fill="#12121e" stroke="#D4AF37" stroke-width="1.4"/>
+<text x="490" y="619" text-anchor="middle" font-size="7" fill="#D4AF37" font-weight="bold">IA</text>
+<line x1="490" y1="624" x2="490" y2="670" stroke="#D4AF37" stroke-width="1.1" stroke-dasharray="5,3" marker-end="url(#ea)"/>
+<text x="507" y="603" font-size="8.5" font-weight="bold" fill="#D4AF37">IGroq</text>
+
+<line x1="680" y1="570" x2="680" y2="582" stroke="#D4AF37" stroke-width="1.4"/>
+<path d="M671,582 A9,9 0 0,1 689,582" fill="none" stroke="#D4AF37" stroke-width="1.4"/>
+<line x1="680" y1="592" x2="680" y2="606" stroke="#D4AF37" stroke-width="1.2" stroke-dasharray="4,3"/>
+<circle cx="680" cy="615" r="9" fill="#12121e" stroke="#D4AF37" stroke-width="1.4"/>
+<text x="680" y="619" text-anchor="middle" font-size="6" fill="#D4AF37" font-weight="bold">TMDB</text>
+<line x1="680" y1="624" x2="680" y2="670" stroke="#D4AF37" stroke-width="1.1" stroke-dasharray="5,3" marker-end="url(#ea)"/>
+<text x="695" y="603" font-size="8.5" font-weight="bold" fill="#D4AF37">ITMDB</text>
+
+<line x1="870" y1="570" x2="870" y2="582" stroke="#D4AF37" stroke-width="1.4"/>
+<path d="M861,582 A9,9 0 0,1 879,582" fill="none" stroke="#D4AF37" stroke-width="1.4"/>
+<line x1="870" y1="592" x2="870" y2="606" stroke="#D4AF37" stroke-width="1.2" stroke-dasharray="4,3"/>
+<circle cx="870" cy="615" r="9" fill="#12121e" stroke="#D4AF37" stroke-width="1.4"/>
+<text x="870" y="619" text-anchor="middle" font-size="6" fill="#D4AF37" font-weight="bold">YT</text>
+<line x1="870" y1="624" x2="870" y2="670" stroke="#D4AF37" stroke-width="1.1" stroke-dasharray="5,3" marker-end="url(#ea)"/>
+<text x="885" y="603" font-size="8.5" font-weight="bold" fill="#D4AF37">IYouTube</text>
+
+
+<rect x="10" y="640" width="370" height="150" rx="3" fill="#1a1a2e" stroke="#4a7cc7" stroke-width="1.1"/>
+<text x="70" y="653" text-anchor="middle" font-size="10" font-weight="bold" fill="#6aa0e8">Base de Datos</text>
+<rect x="10" y="658" width="370" height="132" rx="3" fill="rgba(26,30,60,0.35)" stroke="#4a7cc7" stroke-width="1.1" stroke-dasharray="7,3"/>
+
+<g class="comp" id="c-db" onclick="open_('c-db')">
+  <rect class="cbg" x="30" y="670" width="330" height="100" rx="4" fill="#161625" stroke="#4a7cc7" stroke-width="1.1"/>
+  <rect x="343" y="674" width="11" height="7" rx="1" fill="#161625" stroke="#6aa0e8" stroke-width="0.9"/>
+  <rect x="347" y="678" width="11" height="7" rx="1" fill="#161625" stroke="#6aa0e8" stroke-width="0.9"/>
+  <text x="195" y="695" text-anchor="middle" font-size="8" fill="#4a7cc7" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="195" y="714" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#6aa0e8">MySQL DB</text>
+  <line x1="30" y1="723" x2="360" y2="723" stroke="#252535" stroke-width="0.9"/>
+  <text x="195" y="750" text-anchor="middle" font-size="8" fill="#404055" font-style="italic">magic_filmv01</text>
+</g>
+
+<rect x="395" y="640" width="122" height="20" rx="3" fill="#1a1a2e" stroke="#D4AF37" stroke-width="1.1"/>
+<text x="456" y="653" text-anchor="middle" font-size="10" font-weight="bold" fill="#D4AF37">APIs Externas</text>
+<rect x="395" y="658" width="575" height="132" rx="3" fill="rgba(22,16,8,0.42)" stroke="#D4AF37" stroke-width="1.2" stroke-dasharray="7,3"/>
+
+<g class="comp" id="c-agr" onclick="open_('c-agr')">
+  <rect class="cbg" x="415" y="670" width="150" height="100" rx="4" fill="#16162a" stroke="#D4AF37" stroke-width="1.1"/>
+  <rect x="548" y="674" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <rect x="552" y="678" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <text x="490" y="695" text-anchor="middle" font-size="7.5" fill="#8B6914" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="490" y="714" text-anchor="middle" font-size="11" font-weight="bold" fill="#D4AF37">API Groq</text>
+  <line x1="415" y1="723" x2="565" y2="723" stroke="#3a2a10" stroke-width="0.9"/>
+  <text x="490" y="750" text-anchor="middle" font-size="7.5" fill="#403020" font-style="italic">Llama 3 · Groq</text>
+</g>
+
+<g class="comp" id="c-atm" onclick="open_('c-atm')">
+  <rect class="cbg" x="605" y="670" width="150" height="100" rx="4" fill="#16162a" stroke="#D4AF37" stroke-width="1.1"/>
+  <rect x="738" y="674" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <rect x="742" y="678" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <text x="680" y="695" text-anchor="middle" font-size="7.5" fill="#8B6914" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="680" y="714" text-anchor="middle" font-size="11" font-weight="bold" fill="#D4AF37">API TMDB</text>
+  <line x1="605" y1="723" x2="755" y2="723" stroke="#D4AF37" stroke-width="0.9"/>
+  <text x="680" y="750" text-anchor="middle" font-size="7.5" fill="#403020" font-style="italic">themoviedb.org</text>
+</g>
+
+<g class="comp" id="c-ayt" onclick="open_('c-ayt')">
+  <rect class="cbg" x="795" y="670" width="150" height="100" rx="4" fill="#16162a" stroke="#D4AF37" stroke-width="1.1"/>
+  <rect x="928" y="674" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <rect x="932" y="678" width="11" height="7" rx="1" fill="#16162a" stroke="#D4AF37" stroke-width="0.9"/>
+  <text x="870" y="695" text-anchor="middle" font-size="7.5" fill="#8B6914" font-style="italic">&lt;&lt;component&gt;&gt;</text>
+  <text class="cname" x="870" y="714" text-anchor="middle" font-size="11" font-weight="bold" fill="#D4AF37">API YouTube</text>
+  <line x1="795" y1="723" x2="945" y2="723" stroke="#3a2a10" stroke-width="0.9"/>
+  <text x="870" y="750" text-anchor="middle" font-size="7.5" fill="#403020" font-style="italic">Data API v3</text>
+</g>
+</svg>
+</div>
+
+<div id="detail-col">
+<div id="detail-inner">
+  <div id="detail-header">
+    <div>
+      <div id="detail-title">—</div>
+      <div id="detail-pkg"></div>
+    </div>
+    <button id="close-btn" onclick="closePanel()">✕ cerrar</button>
+  </div>
+  <div id="detail-body"></div>
+</div>
+</div>
+</div>
+
+<div id="legend-bar">
+  <div class="li"><span class="pkg-b"></span> Paquete interno</div>
+  <div class="li"><span class="pkg-g"></span> Paquete externo</div>
+  <div class="li">
+    <svg width="36" height="12"><line x1="0" y1="6" x2="26" y2="6" stroke="#4a7cc7" stroke-width="1.2" stroke-dasharray="4,2"/><path d="M22 3L28 6L22 9" fill="none" stroke="#4a7cc7" stroke-width="1.4" stroke-linecap="round"/></svg>
+    Dependencia interna
+  </div>
+  <div class="li">
+    <svg width="36" height="12"><line x1="0" y1="6" x2="26" y2="6" stroke="#D4AF37" stroke-width="1.2" stroke-dasharray="4,2"/><path d="M22 3L28 6L22 9" fill="none" stroke="#D4AF37" stroke-width="1.4" stroke-linecap="round"/></svg>
+    Dependencia externa
+  </div>
+  <div class="li">
+    <svg width="22" height="14"><circle cx="11" cy="7" r="6" fill="#12121e" stroke="#D4AF37" stroke-width="1.2"/></svg>
+    Interfaz provista ○
+  </div>
+  <div class="li">
+    <svg width="22" height="14"><path d="M3,11 A8,8 0 0,0 19,11" fill="none" stroke="#D4AF37" stroke-width="1.2"/></svg>
+    Interfaz requerida ⌒
+  </div>
+</div>
+</div>
+
+
+
+</div>
+
+<!-- ══ SCRIPTS DIAGRAMA DE CLASES ══ -->
+<script>
+
+/* ══ SWITCHER ══ */
+let current = 'ec';
+let mfInited = false;
+function switchTo(id) {
+  document.querySelectorAll('.diagram-wrap').forEach(w => w.classList.remove('active'));
+  document.getElementById('wrap-' + id).classList.add('active');
+  if (id === 'mf' && !mfInited) {
+    mfInited = true;
+    setTimeout(() => { mfE.remeasure(); }, 60);
+  }
+  document.getElementById('tab-ec').style.cssText = id==='ec'
+    ? 'padding:6px 18px;border-radius:5px;border:1px solid rgba(196,154,56,0.4);font-size:12px;font-weight:600;cursor:pointer;font-family:Syne,sans-serif;background:rgba(196,154,56,0.10);color:#c49a38;'
+    : 'padding:6px 18px;border-radius:5px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:Syne,sans-serif;background:transparent;color:#44445a;';
+  document.getElementById('tab-mf').style.cssText = id==='mf'
+    ? 'padding:6px 18px;border-radius:5px;border:1px solid rgba(245,166,35,0.3);font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;background:rgba(245,166,35,0.09);color:#f5a623;'
+    : 'padding:6px 18px;border-radius:5px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;background:transparent;color:#555;';
+  // Adaptar switcher bar al tema
+  const bar = document.querySelector('#wrap-ec').previousElementSibling || document.getElementById('sw-ec');
+  current = id;
+}
+
+/* ══ MOTOR COMPARTIDO ══ */
+function svgEl(tag, attrs={}) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k,v] of Object.entries(attrs)) el.setAttribute(k,v);
+  return el;
+}
+
+function makeEngine(cfg) {
+  const {p, canvasId, svgId, vpId, classes, conns, steps, panelId, numId, conceptId, stepofId, pcId, titleId, descId, pointsId, relareaId, relchipsId, countId, cnameId, fillId, prevId, nextId, bpresId, bfreeId, initSc, initTx, initTy, arrMark, diaMark, purMark} = cfg;
+  let step=0, mode='presentation', scale=initSc, tx=initTx, ty=initTy;
+  let boxData={}, panning=false, px0=0,py0=0,tx0=0,ty0=0;
+
+  const STORE_KEY = 'uml-pos-' + p;
+
+  function savePositions() {
+    const pos = {};
+    for (const name of Object.keys(classes)) {
+      if (boxData[name]) pos[name] = {x: boxData[name].x, y: boxData[name].y};
+    }
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(pos)); } catch(e){}
+  }
+
+  function loadPositions() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch(e){ return null; }
+  }
+
+  function applyT(anim=false) {
+    const c=document.getElementById(canvasId);
+    c.style.transition=anim?'transform 0.7s cubic-bezier(0.16,1,0.3,1)':'none';
+    c.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;
+  }
+
+  function makeDraggable(box, name) {
+    let dragging=false, startX=0, startY=0, origX=0, origY=0;
+    box.addEventListener('mousedown', e => {
+      if (mode !== 'free') return;
+      // Solo iniciar drag desde el header
+      if (!e.target.closest('.class-header')) return;
+      e.stopPropagation();
+      dragging = true;
+      startX = e.clientX; startY = e.clientY;
+      origX = boxData[name].x; origY = boxData[name].y;
+      box.style.zIndex = 50;
+      box.style.transition = 'none';
+      document.body.style.userSelect = 'none';
+    });
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const dx = (e.clientX - startX) / scale;
+      const dy = (e.clientY - startY) / scale;
+      const nx = Math.max(0, origX + dx);
+      const ny = Math.max(0, origY + dy);
+      boxData[name].x = nx; boxData[name].y = ny;
+      box.style.left = nx + 'px'; box.style.top = ny + 'px';
+      drawConns();
+      updateDiagram();
+    });
+    document.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      box.style.zIndex = '';
+      document.body.style.userSelect = '';
+      savePositions();
+    });
+  }
+
+  function render() {
+    const canvas = document.getElementById(canvasId);
+    const saved  = loadPositions();
+    for (const [name,d] of Object.entries(classes)) {
+      const sx = saved&&saved[name] ? saved[name].x : d.x;
+      const sy = saved&&saved[name] ? saved[name].y : d.y;
+      const box = document.createElement('div');
+      let cls = 'class-box'+(d.isAbstract?' abstract':'')+(d.isService?' service':'');
+      box.className = cls; box.id = p+'-box-'+name;
+      box.style.left = sx+'px'; box.style.top = sy+'px';
+      box.style.cursor = 'default';
+      let html = '<div class="class-header" style="cursor:grab">';
+      if(d.isAbstract) html+='<span class="class-stereotype">&laquo;abstract&raquo;</span>';
+      if(d.isService)  html+='<span class="class-stereotype">&laquo;service&raquo;</span>';
+      html+=`<div class="class-name">${name.replace(/_/g,' ')}</div></div>`;
+      if(d.attrs&&d.attrs.length){html+='<div class="class-section">';d.attrs.forEach(a=>{html+=`<div class="class-member">${a}</div>`;});html+='</div>';}
+      if(d.methods&&d.methods.length){html+='<div class="class-section">';d.methods.forEach(m=>{html+=`<div class="class-member is-method">${m}</div>`;});html+='</div>';}
+      box.innerHTML = html;
+      canvas.appendChild(box);
+      makeDraggable(box, name);
+    }
+  }
+
+  function measure() {
+    const saved = loadPositions();
+    for (const name of Object.keys(classes)) {
+      const el = document.getElementById(p+'-box-'+name);
+      if(!el) continue;
+      const sx = saved&&saved[name] ? saved[name].x : classes[name].x;
+      const sy = saved&&saved[name] ? saved[name].y : classes[name].y;
+      boxData[name] = {x:sx, y:sy, w:el.offsetWidth, h:el.offsetHeight};
+    }
+  }
+
+  function resetPositions() {
+    try { localStorage.removeItem(STORE_KEY); } catch(e){}
+    for (const name of Object.keys(classes)) {
+      const el = document.getElementById(p+'-box-'+name);
+      if(!el) continue;
+      el.style.left = classes[name].x+'px';
+      el.style.top  = classes[name].y+'px';
+      boxData[name].x = classes[name].x;
+      boxData[name].y = classes[name].y;
+    }
+    drawConns();
+    updateDiagram();
+  }
+  function edge(src,tgt) {
+    const s=boxData[src],t=boxData[tgt];
+    if(!s||!t) return{x:0,y:0};
+    const scx=s.x+s.w/2,scy=s.y+s.h/2,tcx=t.x+t.w/2,tcy=t.y+t.h/2;
+    const dx=tcx-scx,dy=tcy-scy;
+    if(!dx&&!dy) return{x:scx,y:scy};
+    const hw=s.w/2,hh=s.h/2;
+    if(Math.abs(dx)/hw>=Math.abs(dy)/hh){const sx=dx>0?scx+hw:scx-hw;return{x:sx,y:scy+dy*(hw/Math.abs(dx))};}
+    else{const sy=dy>0?scy+hh:scy-hh;return{x:scx+dx*(hh/Math.abs(dy)),y:sy};}
+  }
+  function drawConns() {
+    const svg=document.getElementById(svgId);
+    svg.querySelectorAll('.conn').forEach(e=>e.remove());
+    for (const c of conns) {
+      const g=svgEl('g'); g.classList.add('conn'); g.id=p+'-conn-'+c.id;
+      g.style.opacity='0'; g.style.transition='opacity 0.5s ease';
+      const col=c.purple?'#9b59b6':'';
+      const ma=c.purple?`url(#${purMark})`:`url(#${arrMark})`;
+      let p1,p2;
+      if(c.type==='inheritance'){p1=edge(c.to,c.from);p2=edge(c.from,c.to);}
+      else{p1=edge(c.from,c.to);p2=edge(c.to,c.from);}
+      const strokeC=col||(arrMark==='mf-arr'?'#f5a623':'#c49a38');
+      const line=svgEl('line',{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:strokeC,'stroke-width':'1.5'});
+      if(c.type==='inheritance')   line.setAttribute('marker-end',`url(#${cfg.inhMark||arrMark})`);
+      else if(c.type==='composition'){line.setAttribute('marker-start',`url(#${diaMark})`);line.setAttribute('marker-end',ma);}
+      else if(c.type==='arrow')    line.setAttribute('marker-end',ma);
+      if(c.type==='assoc')         line.setAttribute('stroke-dasharray','4 3');
+      g.appendChild(line);
+      const mx=(p1.x+p2.x)/2,my=(p1.y+p2.y)/2;
+      if(c.label){const ddx=p2.x-p1.x,ddy=p2.y-p1.y,len=Math.sqrt(ddx*ddx+ddy*ddy)||1,ox=-ddy/len*9,oy=ddx/len*9;const lbl=svgEl('text',{x:mx+ox,y:my+oy,'text-anchor':'middle',fill:'#555','font-family':'IBM Plex Mono,monospace','font-size':'9','font-style':'italic'});lbl.textContent=c.label;g.appendChild(lbl);}
+      if(c.fromMul){const t1=svgEl('text',{x:p1.x+(p2.x-p1.x)*0.12,y:p1.y+(p2.y-p1.y)*0.12-5,'text-anchor':'middle',fill:'#555','font-family':'IBM Plex Mono,monospace','font-size':'8'});t1.textContent=c.fromMul;g.appendChild(t1);}
+      if(c.toMul){const t2=svgEl('text',{x:p1.x+(p2.x-p1.x)*0.88,y:p1.y+(p2.y-p1.y)*0.88-5,'text-anchor':'middle',fill:'#555','font-family':'IBM Plex Mono,monospace','font-size':'8'});t2.textContent=c.toMul;g.appendChild(t2);}
+      svg.appendChild(g);
+    }
+  }
+  function centerOn(name,anim=true){
+    const b=boxData[name];if(!b)return;
+    const vw=window.innerWidth,vh=window.innerHeight-50;
+    const pw=16+345+16,cx=b.x+b.w/2,cy=b.y+b.h/2,ts=1.05;
+    tx=pw+(vw-pw)/2-cx*ts; ty=vh/2-cy*ts; scale=ts; applyT(anim);
+  }
+  function updateUI(){
+    const s=steps[step];
+    document.getElementById(numId).textContent=String(step+1).padStart(2,'0');
+    document.getElementById(conceptId).textContent=s.concept;
+    document.getElementById(stepofId).textContent=`Paso ${step+1} de ${steps.length}`;
+    const pc=document.getElementById(pcId);pc.classList.remove('panel-anim');void pc.offsetWidth;pc.classList.add('panel-anim');
+    document.getElementById(titleId).textContent=s.title;
+    document.getElementById(descId).textContent=s.desc;
+    document.getElementById(pointsId).innerHTML=s.points.map(pt=>`<li>${pt}</li>`).join('');
+    const ra=document.getElementById(relareaId);
+    if(s.rels&&s.rels.length){document.getElementById(relchipsId).innerHTML=s.rels.map(r=>`<span class="rel-chip">${r}</span>`).join('');ra.style.display='block';}
+    else ra.style.display='none';
+    document.getElementById(countId).textContent=`${String(step+1).padStart(2,'0')} / ${String(steps.length).padStart(2,'0')}`;
+    document.getElementById(cnameId).textContent=s.title;
+    document.getElementById(fillId).style.width=((step+1)/steps.length*100)+'%';
+    document.getElementById(prevId).disabled=step===0;
+    document.getElementById(nextId).disabled=step===steps.length-1;
+  }
+  function updateDiagram(){
+    if(mode==='free'){
+      Object.keys(classes).forEach(n=>{const b=document.getElementById(p+'-box-'+n);b.className='class-box'+(classes[n].isAbstract?' abstract':'')+(classes[n].isService?' service':'')+' visible';});
+      conns.forEach(c=>{const g=document.getElementById(p+'-conn-'+c.id);if(g)g.style.opacity='1';});
+      return;
+    }
+    const revealed=new Set(steps.slice(0,step+1).map(s=>s.id));
+    const active=steps[step].id;
+    Object.keys(classes).forEach(n=>{
+      const b=document.getElementById(p+'-box-'+n);
+      const base='class-box'+(classes[n].isAbstract?' abstract':'')+(classes[n].isService?' service':'');
+      if(n===active) b.className=base+' visible active';
+      else if(revealed.has(n)) b.className=base+' visible revealed';
+      else b.className=base;
+    });
+    conns.forEach(c=>{
+      const g=document.getElementById(p+'-conn-'+c.id);if(!g)return;
+      if(c.revealAt<=step) g.style.opacity=c.revealAt===step?'1':'0.18';
+      else g.style.opacity='0';
+    });
+  }
+  function goTo(s,anim=true){
+    step=Math.max(0,Math.min(steps.length-1,s));
+    updateUI();updateDiagram();
+    if(mode==='presentation') centerOn(steps[step].id,anim);
+  }
+  function setMode(m){
+    mode=m;const pres=m==='presentation';
+    document.getElementById(bpresId).classList.toggle('on',pres);
+    document.getElementById(bfreeId).classList.toggle('on',!pres);
+    document.getElementById(panelId).classList.toggle('hidden',!pres);
+    document.getElementById(vpId).classList.toggle('pannable',!pres);
+    if(!pres){updateDiagram();scale=0.64;tx=55;ty=25;applyT(true);}
+    else{updateDiagram();centerOn(steps[step].id,true);}
+  }
+  const vp=document.getElementById(vpId);
+  vp.addEventListener('mousedown',e=>{if(mode!=='free')return;panning=true;px0=e.clientX;py0=e.clientY;tx0=tx;ty0=ty;vp.classList.add('panning');});
+  document.addEventListener('mousemove',e=>{if(!panning)return;tx=tx0+(e.clientX-px0);ty=ty0+(e.clientY-py0);applyT(false);});
+  document.addEventListener('mouseup',()=>{panning=false;vp.classList.remove('panning');});
+  vp.addEventListener('wheel',e=>{if(mode!=='free')return;e.preventDefault();const f=e.deltaY>0?0.9:1.1;const ns=Math.min(Math.max(scale*f,0.2),3);const r=vp.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;tx=mx-(mx-tx)*(ns/scale);ty=my-(my-ty)*(ns/scale);scale=ns;applyT(false);},{passive:false});
+  document.addEventListener('keydown',e=>{
+    if(current!==p) return;
+    if(mode!=='presentation') return;
+    if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();goTo(step+1);}
+    else if(e.key==='ArrowLeft'){e.preventDefault();goTo(step-1);}
+    else if(e.key==='Escape') setMode('free');
+  });
+  return {
+    init(){render();applyT(false);setTimeout(()=>{measure();drawConns();goTo(0,false);},80);},
+    remeasure(){measure();drawConns();goTo(0,false);},
+    reset: resetPositions,
+    next:()=>goTo(step+1), prev:()=>goTo(step-1), setMode
+  };
+}
+
+/* ══ DATOS E-COMMERCE ══ */
+const EC_CL={
+  Cliente:       {x:520,y:35, attrs:['-int id','-String nombre','-String apellido','-String email','-String telefono'], methods:['+actualizar() void','+login() boolean']},
+  Direccion:     {x:920,y:35, attrs:['-int id','-String calle','-String ciudad','-String codigoPostal','-String pais'], methods:[]},
+  Carrito_compra:{x:70,y:230, attrs:['-int id','-Date fechaCreacion','-String estado'], methods:['+agregar() void','+calcularTotal() double','+convertirEnPedido() void']},
+  DetalleProducto:{x:490,y:410,isAbstract:true, attrs:['-int cantidad','-double precioUnitario'], methods:['+calcularSubtotal() double']},
+  ItemCarrito:   {x:230,y:600, attrs:['-int id'], methods:[]},
+  Producto:      {x:490,y:740, attrs:['-int id','-String denominacion','-double precioUnitario','-int stock'], methods:['+verificarStock() boolean','+actualizarStock() void']},
+  Proveedor:     {x:870,y:740, attrs:['-int id','-String nombre','-String contacto','-String telefono'], methods:[]},
+  Pedido:        {x:920,y:230, attrs:['-int id','-Date fechaRealizacion','-String estado','-double total'], methods:['+confirmar() void','+cancelar() void','+calcularTotal() double']},
+  LineaPedido:   {x:750,y:600, attrs:['-int id','-double subtotal'], methods:[]},
+  Envio:         {x:1170,y:230, attrs:['-int id','-Date fechaEnvio','-String compania','-String numeroSeguimiento'], methods:['+actualizarEstado() void']},
+  Pago:          {x:1170,y:450, attrs:['-int id','-double monto','-String metodoPago','-String estado'], methods:['+procesar() boolean','+reembolsar() boolean']}
+};
+const EC_CO=[
+  {id:'c1',from:'Cliente',to:'Direccion',type:'arrow',fromMul:'1',toMul:'0..*',label:'tiene',revealAt:1},
+  {id:'c2',from:'Cliente',to:'Carrito_compra',type:'arrow',fromMul:'1',toMul:'0..*',label:'crea',revealAt:2},
+  {id:'c3',from:'Cliente',to:'Pedido',type:'arrow',fromMul:'1',toMul:'0..*',label:'realiza',revealAt:7},
+  {id:'c4',from:'Carrito_compra',to:'ItemCarrito',type:'composition',fromMul:'1',toMul:'1..*',label:'contiene',revealAt:4},
+  {id:'c5',from:'DetalleProducto',to:'ItemCarrito',type:'inheritance',revealAt:4},
+  {id:'c6',from:'DetalleProducto',to:'LineaPedido',type:'inheritance',revealAt:8},
+  {id:'c7',from:'ItemCarrito',to:'Producto',type:'arrow',fromMul:'0..*',toMul:'1',label:'referencia',revealAt:5},
+  {id:'c8',from:'LineaPedido',to:'Producto',type:'arrow',fromMul:'0..*',toMul:'1',label:'referencia',revealAt:8},
+  {id:'c9',from:'Pedido',to:'LineaPedido',type:'composition',fromMul:'1',toMul:'1..*',label:'incluye',revealAt:8},
+  {id:'c10',from:'Pedido',to:'Envio',type:'composition',fromMul:'1',toMul:'0..1',label:'genera',revealAt:9},
+  {id:'c11',from:'Pedido',to:'Pago',type:'arrow',fromMul:'1',toMul:'1..*',label:'procesa',revealAt:10},
+  {id:'c12',from:'Envio',to:'Direccion',type:'arrow',label:'entrega',revealAt:9},
+  {id:'c13',from:'Producto',to:'Proveedor',type:'assoc',fromMul:'0..*',toMul:'0..*',label:'suministra',revealAt:6}
+];
+const EC_ST=[
+  {id:'Cliente',title:'Cliente',concept:'Entidad Principal',desc:'Todo sistema comienza con el usuario. El Cliente es el actor central que interactua con todas las funcionalidades, desde el registro hasta la compra final.',points:['Almacena credenciales de autenticacion','Gestiona multiples direcciones de envio','Mantiene historial de carritos y pedidos','Puede actualizar su perfil en cualquier momento'],rels:['1:N Direccion','1:N Carrito_compra','1:N Pedido']},
+  {id:'Direccion',title:'Direccion',concept:'Entidad de Soporte',desc:'Un cliente puede tener multiples direcciones. Esta separacion permite gestionar envios flexibles sin duplicar datos en cada pedido.',points:['Desacoplada del Cliente para reutilizacion','Utilizada tanto para facturacion como envio','Estructura completa: calle, ciudad, CP, pais','Un cliente puede no tener direcciones aun'],rels:['N:1 Cliente','1:0..1 Envio']},
+  {id:'Carrito_compra',title:'Carrito de Compra',concept:'Estado Temporal',desc:'Representa la intencion de compra antes de confirmar. Estado transitorio que puede convertirse en pedido o ser abandonado.',points:['Mantiene fecha de creacion para detectar abandono','Estados: activo, convertido, abandonado','Calcula totales en tiempo real','Se convierte en Pedido via convertirEnPedido()'],rels:['N:1 Cliente','1:N ItemCarrito']},
+  {id:'DetalleProducto',title:'DetalleProducto',concept:'Clase Abstracta',desc:'Define el contrato comun para cualquier elemento que referencie un producto con cantidad. Aplica el patron Template Method para el calculo de subtotales.',points:['No puede instanciarse directamente','Define atributos compartidos: cantidad, precioUnitario','calcularSubtotal() heredado por todas las subclases','Garantiza consistencia en todos los calculos'],rels:['Herencia: ItemCarrito','Herencia: LineaPedido']},
+  {id:'ItemCarrito',title:'Item Carrito',concept:'Implementacion Temporal',desc:'Instancia concreta de DetalleProducto especifica para el carrito de compra. Hereda el calculo de subtotales y agrega su propio identificador.',points:['Extiende DetalleProducto por herencia','Referencia a Producto con relacion N:1','Pertenece a un Carrito mediante composicion','Si el carrito se elimina, sus items desaparecen'],rels:['extends DetalleProducto','N:1 Producto','N:1 Carrito_compra']},
+  {id:'Producto',title:'Producto',concept:'Entidad Central',desc:'El catalogo de bienes disponibles. Referenciado por multiples partes del sistema pero mantiene su independencia de cualquier proceso.',points:['Gestiona inventario (stock) y precios unitarios','Verifica disponibilidad antes de permitir la venta','Referenciado por ItemCarrito y LineaPedido','Relacion N:M con Proveedores'],rels:['1:N ItemCarrito','1:N LineaPedido','N:M Proveedor']},
+  {id:'Proveedor',title:'Proveedor',concept:'Entidad Externa',desc:'Representa las entidades que suministran productos. La relacion N:M permite que un producto tenga multiples fuentes de abastecimiento.',points:['Independiente del ciclo de venta al cliente','Relacion N:M con Productos','Permite estrategias de abastecimiento alternativo','Datos de contacto para gestion de inventario'],rels:['N:M Producto']},
+  {id:'Pedido',title:'Pedido',concept:'Entidad de Negocio',desc:'Representa una compra confirmada. Es el nucleo del proceso de venta, gestionando el ciclo completo desde la confirmacion hasta la entrega.',points:['Estados: pendiente, pagado, enviado, entregado, cancelado','Contiene lineas de pedido mediante composicion','Puede generar un Envio (relacion 0..1, opcional)','Registra multiples pagos (parciales o cuotas)'],rels:['N:1 Cliente','1:N LineaPedido','1:0..1 Envio','1:N Pago']},
+  {id:'LineaPedido',title:'Linea de Pedido',concept:'Persistencia Definitiva',desc:'Version persistente del detalle una vez confirmado el pedido. Almacena el subtotal calculado para conservar el historico aunque el precio del producto cambie.',points:['Extiende DetalleProducto por herencia','Guarda subtotal como dato historico inmutable','Referencia a Producto con relacion N:1','Pertenece al Pedido mediante composicion'],rels:['extends DetalleProducto','N:1 Producto','N:1 Pedido']},
+  {id:'Envio',title:'Envio',concept:'Logistica',desc:'Gestiona la entrega fisica de los pedidos. Es opcional porque algunos pedidos pueden ser retiro en tienda o corresponder a servicios digitales.',points:['Relacion 0..1 con Pedido (completamente opcional)','Referencia la Direccion de entrega del cliente','Numero de seguimiento para trazabilidad externa','Registra la compania transportista utilizada'],rels:['0..1:1 Pedido','N:1 Direccion']},
+  {id:'Pago',title:'Pago',concept:'Transaccion Financiera',desc:'Registro de transacciones monetarias asociadas al pedido. Un pedido puede tener multiples pagos para soportar pagos parciales, en cuotas o reembolsos.',points:['Multiples pagos por pedido (relacion 1:N)','Estados: pendiente, completado, fallido, reembolsado','Metodos procesar() y reembolsar() encapsulan la logica','Monto independiente del total (pagos parciales)'],rels:['N:1 Pedido']}
+];
+
+/* ══ DATOS MAGIC FILM
+   Layout por columnas para evitar cruces:
+   Fila 1 (y:40):  ServicioTMDB — Pelicula — Analisis — ServicioGemini
+   Fila 2 (y:380): Usuario — Clasificador — Genero
+   Fila 3 (y:720): HistorialAdmin — Favorito — HistorialBusqueda — CapaAnalisis — LogIA
+══ */
+const MF_CL={
+  // Fila 1 — flujo de datos externo → interno
+  ServicioTMDB:     {x:60,  y:40,  isService:true,   attrs:['-String apiKey','-String baseUrl'], methods:['+buscarPelicula(titulo) JSON','+obtenerDetalles(id) JSON']},
+  Pelicula:         {x:450, y:40,  attrs:['-int id','-int tmdb_id','-String titulo','-String director','-int anio','-String sinopsis','-JSON keywords','-enum tipo_analisis','-boolean tipo_forzado'], methods:['+buscar() List','+clasificar() enum']},
+  Analisis:         {x:840, y:40,  attrs:['-int id','-enum tipo','-String modelo_ia','-enum estado','-boolean eliminado'], methods:['+generar() void','+regenerar() void','+eliminar() void']},
+  ServicioGrok:   {x:1220,y:40,  isService:true,   attrs:['-String apiKey','-String modelo'], methods:['+generarAnalisis(d) String','+construirPrompt() String']},
+  // Fila 1.5 — Clasificador entre ServicioTMDB y Pelicula, sin cruzar fila 2
+  Clasificador:     {x:200, y:230, isAbstract:true,  attrs:['-String[] keywordsProfundo','-String[] keywordsEntret.','-int umbralScore'], methods:['+clasificar(p) enum','+calcularScore() int']},
+  // Fila 2 — actores y catálogo
+  Usuario:          {x:60,  y:430, attrs:['-int id','-String nombre_usuario','-String email','-String password_hash','-enum rol','-enum nivel_cinefilo','-boolean onboarding_completo'], methods:['+registrar() void','+login() boolean','+actualizarPerfil() void']},
+  Genero:           {x:640, y:430, attrs:['-int id','-String nombre'], methods:[]},
+  // Fila 3 — persistencia y trazabilidad (debajo de su clase padre)
+  HistorialAdmin:   {x:60,  y:790, attrs:['-int id','-enum accion','-String entidad','-int entidad_id','-String detalle'], methods:['+registrar() void']},
+  Favorito:         {x:295, y:790, attrs:['-int id','-timestamp guardado_en'], methods:['+guardar() void','+eliminar() void']},
+  HistorialBusqueda:{x:530, y:790, attrs:['-int id','-String termino_buscado','-timestamp buscado_en'], methods:[]},
+  CapaAnalisis:     {x:800, y:790, attrs:['-int id','-enum modo','-enum nombre_capa','-String contenido','-int orden'], methods:['+renderizar() String']},
+  LogIA:            {x:1060,y:790, attrs:['-int id','-String prompt_usado','-int tokens_estimados','-int tiempo_ms'], methods:[]}
+};
+const MF_CO=[
+  {id:'c1', from:'Usuario',to:'Genero',type:'assoc',fromMul:'N',toMul:'M',label:'prefiere',revealAt:1,purple:false},
+  {id:'c2', from:'Pelicula',to:'Genero',type:'assoc',fromMul:'N',toMul:'M',label:'clasifica',revealAt:2,purple:false},
+  {id:'c3', from:'ServicioTMDB',to:'Pelicula',type:'arrow',label:'provee datos',revealAt:4,purple:true},
+  {id:'c4', from:'Clasificador',to:'Pelicula',type:'arrow',label:'clasifica',revealAt:3,purple:false},
+  {id:'c5', from:'Clasificador',to:'ServicioTMDB',type:'arrow',label:'usa',revealAt:4,purple:false},
+  {id:'c6', from:'Pelicula',to:'Analisis',type:'arrow',fromMul:'1',toMul:'1',label:'genera',revealAt:6,purple:false},
+  {id:'c7', from:'ServicioGrok',to:'Analisis',type:'arrow',label:'genera',revealAt:6,purple:true},
+  {id:'c8', from:'Analisis',to:'CapaAnalisis',type:'composition',fromMul:'1',toMul:'1..*',label:'contiene',revealAt:7,purple:false},
+  {id:'c9', from:'Usuario',to:'Favorito',type:'arrow',fromMul:'1',toMul:'0..*',label:'guarda',revealAt:8,purple:false},
+  {id:'c10',from:'Pelicula',to:'Favorito',type:'arrow',fromMul:'1',toMul:'0..*',revealAt:8,purple:false},
+  {id:'c11',from:'Usuario',to:'HistorialBusqueda',type:'arrow',fromMul:'1',toMul:'0..*',label:'genera',revealAt:9,purple:false},
+  {id:'c12',from:'Pelicula',to:'HistorialBusqueda',type:'arrow',fromMul:'1',toMul:'0..*',revealAt:9,purple:false},
+  {id:'c13',from:'Analisis',to:'LogIA',type:'arrow',fromMul:'1',toMul:'0..*',label:'registra',revealAt:10,purple:false},
+  {id:'c14',from:'Usuario',to:'HistorialAdmin',type:'arrow',fromMul:'1',toMul:'0..*',label:'audita',revealAt:11,purple:false}
+];
+const MF_ST=[
+  {id:'Usuario',title:'Usuario',concept:'Entidad Principal',desc:'El actor central de Magic Film. Un Usuario puede ser Invitado, Registrado o Administrador. Su nivel cinefilo determina la profundidad del contenido que recibe.',points:['Tres roles: invitado, registrado, admin','Nivel cinefilo calculado segun actividad','Onboarding de generos en el primer acceso','Puede guardar favoritos y ver su historial'],rels:['N:M Genero','1:N Favorito','1:N HistorialBusqueda','1:N HistorialAdmin (admin)']},
+  {id:'Genero',title:'Genero',concept:'Catalogo de Clasificacion',desc:'Catalogo maestro de generos cinematograficos. Se relaciona en N:M tanto con Usuarios como con Peliculas.',points:['12 generos iniciales precargados','Un usuario selecciona sus generos en el onboarding','Una pelicula puede pertenecer a multiples generos','Base del motor de recomendaciones futuro'],rels:['N:M Usuario','N:M Pelicula']},
+  {id:'Pelicula',title:'Pelicula',concept:'Entidad Central del Catalogo',desc:'Representa una obra cinematografica. Sus datos provienen de TMDB y se enriquecen con la clasificacion interna.',points:['tmdb_id vincula con la API de TMDB','keywords JSON alimenta al Clasificador','tipo_analisis define el modo del analisis generado','tipo_forzado permite override manual del admin'],rels:['N:M Genero','1:1 Analisis','N:1 ServicioTMDB']},
+  {id:'Clasificador',title:'Clasificador',concept:'Logica de Clasificacion (Abstracta)',desc:'Clase abstracta que encapsula el algoritmo de clasificacion automatica. Analiza keywords de TMDB para decidir si una pelicula es ENTRETENIMIENTO o PROFUNDO.',points:['No instanciable directamente — aplica patron OCP','Calcula un score segun keywords del genero','Score >= umbral = PROFUNDO, de lo contrario ENTRETENIMIENTO','El admin puede sobreescribir su decision'],rels:['Clasifica: Pelicula','Usa: ServicioTMDB']},
+  {id:'ServicioTMDB',title:'ServicioTMDB',concept:'Servicio Externo — Datos',desc:'Capa de abstraccion sobre la API de TMDB. Centraliza todas las llamadas externas para obtener metadata de peliculas.',points:['API Key protegida en el backend, nunca expuesta','buscarPelicula() para busqueda por titulo','obtenerDetalles() para enriquecer la ficha completa','Resultado cacheado en BD para no repetir llamadas'],rels:['Provee datos a: Pelicula','Usado por: Clasificador']},
+  {id:'Analisis',title:'Analisis',concept:'Resultado de la IA',desc:'Almacena el resultado generado por Grok para una pelicula. La relacion 1:1 con Pelicula garantiza que no haya duplicados.',points:['Estado pendiente, generando, completo o error','Maneja la naturaleza asincrona de Grok','Eliminado logico (soft delete) para preservar historial','Unico por pelicula gracias a UNIQUE KEY en BD'],rels:['1:1 Pelicula','1:N CapaAnalisis','1:N LogIA']},
+  {id:'ServicioGrok',title:'ServicioGrok',concept:'Servicio Externo — IA Generativa',desc:'Integracion con Grok. Recibe los datos de la pelicula y construye un prompt especializado segun el tipo detectado.',points:['Prompt diferente segun tipo de pelicula','El analisis se guarda en BD para no repetir el costo','Si falla, el estado de Analisis queda en error','Tokens y tiempo se registran en LogIA'],rels:['Genera: Analisis']},
+  {id:'CapaAnalisis',title:'CapaAnalisis',concept:'Estructura del Analisis',desc:'Cada capa es una seccion tematica del analisis. Permite renderizar el contenido por partes y adaptar que capas se muestran segun el tipo de pelicula.',points:['Entretenimiento: resumen, momentos, easter_eggs, curiosidades','Profundo: narrativa, simbolismo, contexto, tecnica, conclusion','Campo modo evita mostrar capas incorrectas por tipo','Campo orden controla la secuencia de visualizacion'],rels:['N:1 Analisis (composicion)']},
+  {id:'Favorito',title:'Favorito',concept:'Interaccion del Usuario',desc:'Tabla de union entre Usuario y Pelicula. La restriccion UNIQUE sobre (usuario_id, pelicula_id) evita duplicados.',points:['Resuelve la relacion N:M entre Usuario y Pelicula','Registra timestamp de cuando se guardo','Base de las recomendaciones personalizadas futuras','Cascade delete si el usuario o la pelicula se eliminan'],rels:['N:1 Usuario','N:1 Pelicula']},
+  {id:'HistorialBusqueda',title:'HistorialBusqueda',concept:'Trazabilidad del Usuario',desc:'Registra cada termino buscado por un usuario y, si hubo resultado, la pelicula asociada. Permite analizar patrones de uso.',points:['termino_buscado guarda el texto literal','pelicula_id puede ser NULL si no hubo resultado','ON DELETE SET NULL: el log sobrevive si se borra la pelicula','Alimentara el motor de tendencias y sugerencias'],rels:['N:1 Usuario','N:0..1 Pelicula']},
+  {id:'LogIA',title:'LogIA',concept:'Trazabilidad de la IA',desc:'Registro tecnico de cada llamada a Grok. Fundamental para controlar costos y diagnosticar errores de generacion.',points:['prompt_usado para reproducir y depurar analisis fallidos','tokens_estimados para calcular el costo acumulado','tiempo_ms para detectar timeouts y optimizar prompts','ON DELETE SET NULL: el log sobrevive si se borra el analisis'],rels:['N:1 Analisis']},
+  {id:'HistorialAdmin',title:'HistorialAdmin',concept:'Auditoria del Sistema',desc:'Tabla de auditoria que registra cada accion administrativa. Garantiza trazabilidad completa cubriendo el requisito RF-006.',points:['Acciones: agregar, modificar, eliminar, regenerar_ia','entidad identifica la tabla afectada','entidad_id referencia el registro especifico modificado','Solo usuarios con rol admin generan entradas aqui'],rels:['N:1 Usuario (admin)']}
+];
+
+/* ══ INICIALIZAR ══ */
+const ecE = makeEngine({
+  p:'ec', canvasId:'cv-ec', svgId:'svg-ec', vpId:'vp-ec',
+  classes:EC_CL, conns:EC_CO, steps:EC_ST,
+  panelId:'panel-ec', numId:'ec-num', conceptId:'ec-concept', stepofId:'ec-stepof',
+  pcId:'ec-pc', titleId:'ec-title', descId:'ec-desc', pointsId:'ec-points',
+  relareaId:'ec-relarea', relchipsId:'ec-relchips',
+  countId:'ec-count', cnameId:'ec-cname', fillId:'ec-fill',
+  prevId:'ec-prev', nextId:'ec-next', bpresId:'ec-bpres', bfreeId:'ec-bfree',
+  initSc:0.72, initTx:80, initTy:40,
+  arrMark:'ec-arr', diaMark:'ec-dia', inhMark:'ec-inh', purMark:'ec-arr'
+});
+const mfE = makeEngine({
+  p:'mf', canvasId:'cv-mf', svgId:'svg-mf', vpId:'vp-mf',
+  classes:MF_CL, conns:MF_CO, steps:MF_ST,
+  panelId:'panel-mf', numId:'mf-num', conceptId:'mf-concept', stepofId:'mf-stepof',
+  pcId:'mf-pc', titleId:'mf-title', descId:'mf-desc', pointsId:'mf-points',
+  relareaId:'mf-relarea', relchipsId:'mf-relchips',
+  countId:'mf-count', cnameId:'mf-cname', fillId:'mf-fill',
+  prevId:'mf-prev', nextId:'mf-next', bpresId:'mf-bpres', bfreeId:'mf-bfree',
+  initSc:0.58, initTx:60, initTy:35,
+  arrMark:'mf-arr', diaMark:'mf-dia', inhMark:'mf-arr', purMark:'mf-pur'
+});
+ecE.init();
+mfE.init();
+
+</script>
+
+<!-- ══ SCRIPTS DIAGRAMA DE COMPONENTES ══ -->
+<script>
+
+const DATA = {
+  'c-ui':{title:'UI Pages',pkg:'Paquete: Presentación (Frontend)',desc:'Vistas HTML del usuario. Cada archivo es una página independiente — Magic Film no es una SPA. Cada página carga su propio JS y CSS específicos.',files:['pages/busqueda.html','pages/analisis.html','pages/perfil.html','pages/admin.html','pages/login.html','pages/onboarding.html','pages/404.html'],notes:[],ifaces:[]},
+  'c-js':{title:'Módulos JS',pkg:'Paquete: Presentación (Frontend)',desc:'Lógica de cada vista en el navegador. Cada página tiene su propio archivo JS que maneja eventos del DOM, renderiza resultados y llama al Cliente API.',files:['js/pages/busqueda.js','js/pages/analisis.js','js/pages/app.js','js/pages/admin.js'],notes:['Un archivo JS por pantalla (no bundlers)'],ifaces:[]},
+  'c-api':{title:'Cliente API',pkg:'Paquete: Presentación (Frontend)',desc:'Puente HTTP entre el frontend y el backend. client.js centraliza el fetch base y agrega automáticamente el token JWT Bearer en cada petición. Los demás archivos son wrappers por dominio.',files:['js/api/client.js','js/api/authApi.js','js/api/peliculasApi.js','js/api/analisisApi.js'],notes:['Todas las peticiones llevan Bearer token','Llama a rutas /api/* del backend'],ifaces:[{label:'IRestAPI',type:'gold',desc:'interfaz proporcionada por el Backend'}]},
+  'c-css':{title:'Estilos CSS',pkg:'Paquete: Presentación (Frontend)',desc:'Sistema de diseño visual de Magic Film. variables.css define la paleta dorada #D4AF37 usada en toda la interfaz. No usa preprocesadores — CSS puro.',files:['css/variables.css','css/global.css','css/components/navbar.css','css/components/cards.css','css/components/modal.css','css/pages/busqueda.css','css/pages/analisis.css'],notes:['Paleta: fondo #0d0d14 · acento #D4AF37'],ifaces:[]},
+  'c-rut':{title:'Rutas REST',pkg:'Paquete: Lógica de Negocio (Backend)',desc:'Punto de entrada de todas las peticiones HTTP. Express Router distribuye cada ruta a su controlador. La ruta de películas incluye el endpoint de YouTube.',files:['routes/auth.js','routes/peliculas.js — incluye /youtube/:tmdb_id','routes/analisis.js','routes/usuarios.js','routes/admin.js'],notes:['GET /api/peliculas/youtube/:tmdb_id llama a YouTube API'],ifaces:[{label:'IRestAPI',type:'gold',desc:'interfaz requerida por el Frontend'}]},
+  'c-ctrl':{title:'Controladores',pkg:'Paquete: Lógica de Negocio (Backend)',desc:'Procesan la lógica de cada petición. analisisController revisa si el análisis ya existe en BD antes de llamar a Groq. peliculasController incluye la lógica completa de delegación con servicios externos.',files:['controllers/authController.js','controllers/peliculasController.js','controllers/analisisController.js','controllers/usuariosController.js','controllers/adminController.js'],notes:['youtube() delega a youtubeService','Caché de análisis en BD antes de llamar IA'],ifaces:[]},
+  'c-mid':{title:'Middlewares',pkg:'Paquete: Lógica de Negocio (Backend)',desc:'Capas de verificación que se ejecutan antes de los controladores. Se encadenan en las rutas protegidas.',files:['middlewares/authMiddleware.js','middlewares/adminOnly.js','middlewares/validarInput.js'],notes:['authMiddleware verifica JWT y extrae usuario','adminOnly rechaza si rol != admin'],ifaces:[]},
+  'c-cfg':{title:'Config & Utils',pkg:'Paquete: Lógica de Negocio (Backend)',desc:'Configuración global. server.js es el punto de arranque — configura Express, CORS, registra rutas y sirve el frontend estático. Las 3 API keys viven en variables de entorno.',files:['server.js — Express + CORS + rutas','config/env.js — variables de entorno','utils/responseHelper.js — success/error JSON'],notes:['TMDB_API_KEY · GROQ_API_KEY · YOUTUBE_API_KEY','JWT_SECRET solo en .env, nunca en código'],ifaces:[]},
+  'c-mod':{title:'Modelos de Datos',pkg:'Paquete: Lógica de Negocio (Backend)',desc:'Capa de acceso a MySQL sin ORM externo. Cada modelo tiene sus propios métodos con queries SQL preparadas usando mysql2/promise. Pelicula.js guarda también el caché de YouTube.',files:['models/Pelicula.js','models/Analisis.js — crear, guardarCapas, registrarLog','models/Usuario.js','models/Favorito.js','models/Genero.js'],notes:['ORM propio — sin Sequelize','YouTube cache (30 días) en tabla peliculas'],ifaces:[{label:'ISQL',type:'blue',desc:'interfaz requerida → Pool de Conexiones MySQL'}]},
+  'c-ia':{title:'Motor Análisis IA',pkg:'Paquete: Lógica de Negocio (Backend)',desc:'Corazón de Magic Film. clasificadorService determina el tipo de análisis. geminiService construye el prompt y llama a Groq — a pesar del nombre, NO usa Google Gemini.',files:['services/geminiService.js → llama Groq API','services/clasificadorService.js'],notes:['⚠ nombre heredado: usa GROQ, no Gemini','Modelos: llama-3.3-70b → llama-3.1-8b (fallback)','Clasifica: ENTRETENIMIENTO o PROFUNDO','Fallback automático si rate limit'],ifaces:[{label:'IGroq',type:'gold',desc:'interfaz requerida → API Groq (Llama 3)'}]},
+  'c-tmdb':{title:'Conector TMDB',pkg:'Paquete: Lógica de Negocio (Backend)',desc:'Integración con The Movie Database. Obtiene todos los datos de películas y los enriche antes de enviárselos al Motor IA para construir el prompt.',files:['services/tmdbService.js'],notes:['buscarPelicula · obtenerDetalles · obtenerDatosCompletos','Retorna: reparto, director, similares','Keywords alimentan al clasificadorService'],ifaces:[{label:'ITMDB',type:'gold',desc:'interfaz requerida → API TMDB'}]},
+  'c-yt':{title:'Conector YouTube',pkg:'Paquete: Lógica de Negocio (Backend)',desc:'Servicio dedicado a la integración con YouTube Data API. Busca trailers y reseñas según la película procesada y limpia los resultados para ser consumidos por el cliente.',files:['services/youtubeService.js'],notes:['Abstracción extraída para separar responsabilidades'],ifaces:[{label:'IYouTube',type:'gold',desc:'interfaz requerida → API YouTube'}]},
+  'c-pool':{title:'Pool Conexiones',pkg:'Paquete: Lógica de Negocio (Backend)',desc:'Gestiona hasta 10 conexiones simultáneas con MySQL usando pooling. Al arrancar el servidor llama a testConnection() para verificar la conexión.',files:['config/db.js'],notes:['connectionLimit: 10 · charset: utf8mb4','SSL activado solo en producción (Aiven)','Sin SSL en local (XAMPP puerto 3307)'],ifaces:[]},
+  'c-db':{title:'MySQL DB',pkg:'Paquete: Base de Datos',desc:'Base de datos relacional del proyecto. Dos instancias: local en XAMPP para desarrollo y Aiven cloud para producción.',files:['Base de datos: magic_filmv01'],notes:['Tablas: usuarios, peliculas, analisis','capas_analisis, favoritos, generos','historial_busquedas, historial_admin'],ifaces:[{label:'ISQL',type:'blue',desc:'interfaz proporcionada para el Pool de Conexiones'}]}
+};
+
+function open_(id) {
+  const panel = document.getElementById('detail-col');
+  const d = DATA[id];
+  if (!d) return;
+  
+  panel.classList.add('open');
+  document.getElementById('detail-title').innerText = d.title;
+  document.getElementById('detail-pkg').innerText = d.pkg;
+  
+  let html = `<div class="detail-section"><div class="ds-label">Descripción</div><div class="ds-desc">${d.desc}</div></div>`;
+  
+  if(d.files && d.files.length) {
+    html += `<div class="detail-section"><div class="ds-label">Archivos Relevantes</div><div class="file-list">${d.files.map(f=>`<span class="file-tag">${f}</span>`).join('')}</div></div>`;
+  }
+  
+  if(d.notes && d.notes.length) {
+    html += `<div class="detail-section"><div class="ds-label">Notas Técnicas</div><div class="file-list">${d.notes.map(n=>`<span class="note-tag">${n}</span>`).join('')}</div></div>`;
+  }
+  
+  if(d.ifaces && d.ifaces.length) {
+     html += `<div class="detail-section"><div class="ds-label">Interfaces</div><div>${d.ifaces.map(i=>`<span class="iface-badge ib-${i.type}">${i.label}</span> <span class="ds-desc" style="font-size:10.5px">${i.desc}</span><br>`).join('')}</div></div>`;
+  }
+  
+  document.getElementById('detail-body').innerHTML = html;
+  document.querySelectorAll('.comp').forEach(c => c.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function closePanel() {
+  document.getElementById('detail-col').classList.remove('open');
+  document.querySelectorAll('.comp').forEach(c => c.classList.remove('active'));
+}
+
+</script>
+
+<!-- ══ CONTROLADOR DE NAVEGACIÓN PRINCIPAL ══ -->
+<script>
+(function() {
+  // Estado inicial: mostrar diagrama de clases (Magic Film tab activo)
+  // El diagrama de clases arranca mostrando E-Commerce, forzamos Magic Film
+  window.addEventListener('load', function() {
+    // Forzar tab Magic Film en el diagrama de clases al cargar
+    if (typeof switchTo === 'function') {
+      switchTo('mf');
+    }
+    showDiagram('clases');
+  });
+
+  window.showDiagram = function(which) {
+    const clasesWrapper = document.getElementById('clases-wrapper');
+    const compWrapper   = document.getElementById('comp-wrapper');
+    const navClases     = document.getElementById('nav-clases');
+    const navComp       = document.getElementById('nav-componentes');
+
+    if (which === 'clases') {
+      clasesWrapper.style.display = 'block';
+      compWrapper.classList.remove('active');
+      navClases.classList.add('active');
+      navComp.classList.remove('active');
+    } else {
+      clasesWrapper.style.display = 'none';
+      compWrapper.classList.add('active');
+      navClases.classList.remove('active');
+      navComp.classList.add('active');
+    }
+  };
+})();
+</script>
+
+</body>
+</html>

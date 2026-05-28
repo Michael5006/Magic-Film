@@ -2,12 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('mf_theme')||'dark');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - Magic Film</title>
     <link rel="stylesheet" href="../css/pages/styles.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
@@ -55,6 +57,7 @@
                         <i class="fas fa-pen"></i> Editar
                     </button>
                 </div>
+                <p id="profile-nombre" style="color:rgba(255,255,255,0.35);font-size:0.85rem;margin:0.1rem 0 0;"></p>
                 <span class="profile-level">
                     <i class="fas fa-film"></i>
                     Nivel: <span id="profile-nivel">-</span>
@@ -72,9 +75,21 @@
                     </div>
                 </div>
             </div>
-            <button class="btn btn-secondary" id="btn-logout" style="margin-left:auto;">
-                <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-            </button>
+            <div style="margin-left:auto; display:flex; flex-direction:column; gap:0.5rem; align-items:flex-end;">
+                <button class="btn btn-secondary" id="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                </button>
+                <button class="btn btn-secondary" id="btn-cambiar-password"
+                        style="font-size:0.78rem; padding:0.4rem 0.8rem; opacity:0.6;">
+                    <i class="fas fa-key"></i> Cambiar contraseña
+                </button>
+                <button class="btn btn-secondary" id="btn-eliminar-cuenta"
+                        style="font-size:0.78rem; padding:0.4rem 0.8rem; opacity:0.6; border-color:rgba(231,76,60,0.3); color:rgba(231,76,60,0.6);"
+                        onmouseover="this.style.borderColor='#e74c3c';this.style.color='#e74c3c';this.style.opacity='1'"
+                        onmouseout="this.style.borderColor='rgba(231,76,60,0.3)';this.style.color='rgba(231,76,60,0.6)';this.style.opacity='0.6'">
+                    <i class="fas fa-trash-alt"></i> Eliminar cuenta
+                </button>
+            </div>
         </div>
 
         <div class="profile-sections">
@@ -84,16 +99,34 @@
             <!-- PELÍCULAS GUARDADAS -->
             <div class="profile-section">
                 <h3><i class="fas fa-bookmark"></i> Películas Guardadas</h3>
-                <div class="saved-movies" id="saved-movies">
-                    <p style="color:#666;">Cargando favoritos...</p>
+                <div class="saved-movies-wrapper">
+                    <button class="carousel-arrow prev hidden" id="carousel-prev" aria-label="Anterior">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="saved-movies" id="saved-movies">
+                        <p style="color:#666;">Cargando favoritos...</p>
+                    </div>
+                    <button class="carousel-arrow next hidden" id="carousel-next" aria-label="Siguiente">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
             </div>
 
             <!-- HISTORIAL DE BÚSQUEDAS -->
             <div class="profile-section" id="section-historial" style="display:none;">
-                <h3><i class="fas fa-history"></i> Historial de Búsquedas</h3>
-                <div class="search-history" id="search-history"></div>
-            </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+        <h3 style="margin:0;"><i class="fas fa-history"></i> Historial de Búsquedas</h3>
+        <button onclick="limpiarHistorial()"
+                style="background:none;border:1px solid rgba(231,76,60,0.3);border-radius:6px;
+                       padding:0.3rem 0.7rem;color:rgba(231,76,60,0.6);cursor:pointer;
+                       font-size:0.75rem;transition:all 0.3s;"
+                onmouseover="this.style.borderColor='#e74c3c';this.style.color='#e74c3c'"
+                onmouseout="this.style.borderColor='rgba(231,76,60,0.3)';this.style.color='rgba(231,76,60,0.6)'">
+            <i class="fas fa-trash"></i> Limpiar
+        </button>
+    </div>
+    <div class="search-history" id="search-history"></div>
+</div>
 
             <div class="profile-actions">
                 <button class="btn btn-primary" onclick="window.location.href='busqueda.html'">
@@ -108,6 +141,44 @@
 <!-- INPUT OCULTO PARA FOTO -->
 <input type="file" id="input-foto" accept="image/*" style="display:none;" onchange="previewFoto(this)">
 
+<script src="../js/pages/app.js"></script>
 <script src="../js/pages/perfil.js"></script>
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-col footer-brand">
+            <a href="index.html" class="logo">Magic Film</a>
+            <p>Descifrando el significado detrás de cada historia. Explora el cine como nunca antes.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Explorar</h4>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="busqueda.html">Películas</a></li>
+                <li><a href="perfil.html">Mi perfil</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Comunidad</h4>
+            <ul>
+                <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                <li><a href="#"><i class="fab fa-x-twitter"></i> Twitter / X</a></li>
+                <li><a href="#"><i class="fab fa-github"></i> GitHub</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Magic Film</h4>
+            <ul>
+                <li><a href="sobre-nosotros.html">Sobre nosotros</a></li>
+                <li><a href="privacidad.html">Privacidad</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Magic Film · Todos los derechos reservados</p>
+        <span class="footer-tag"><i class="fas fa-film"></i> Análisis cinematográfico adaptativo</span>
+    </div>
+</footer>
+
 </body>
 </html>

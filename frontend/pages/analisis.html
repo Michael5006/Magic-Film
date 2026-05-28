@@ -2,12 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('mf_theme')||'dark');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análisis - Magic Film</title>
     <link rel="stylesheet" href="../css/pages/styles.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
@@ -18,6 +20,7 @@
             <li><a href="index.html" class="nav-link">Inicio</a></li>
             <li><a href="busqueda.html" class="nav-link">Explorar</a></li>
             <li><a href="perfil.html" class="nav-link">Mi perfil</a></li>
+            <li><a class="nav-link active nav-link-analisis" id="nav-analisis-link" title="">Análisis</a></li>
         </ul>
         <div class="nav-actions">
             <div class="avatar" onclick="window.location.href='perfil.html'" style="cursor:pointer;">
@@ -29,7 +32,7 @@
 
 <!-- ===== MODO ENTRETENIMIENTO ===== -->
 <section id="movie-detail-entertainment" class="page" style="display:none;">
-    <div class="movie-hero">
+    <div class="movie-hero entertainment-hero">
         <div class="hero-background">
             <img id="ent-hero-img" src="" alt="Movie Background">
             <div class="hero-gradient"></div>
@@ -45,6 +48,7 @@
                     <span class="meta-tag year" id="ent-year"></span>
                     <span class="meta-tag duration" id="ent-duration"></span>
                 </div>
+                <div id="ent-badge-tipo"></div>
                 <h1 class="movie-title" id="ent-title"></h1>
                 <p class="movie-synopsis" id="ent-synopsis"></p>
                 <div class="movie-stats">
@@ -70,6 +74,12 @@
             </button>
             <button class="tab" onclick="showTab('ent-curiosidades')" data-tab="ent-curiosidades">
                 <i class="fas fa-lightbulb"></i> Curiosidades
+            </button>
+            <button class="tab" onclick="showTab('ent-fandom')" data-tab="ent-fandom">
+                <i class="fas fa-users"></i> Fandom
+            </button>
+            <button class="tab" onclick="showTab('ent-veredicto')" data-tab="ent-veredicto">
+                <i class="fa-solid fa-clapperboard"></i> Veredicto
             </button>
         </div>
 
@@ -97,10 +107,30 @@
                 <div class="analysis-content" id="ent-curiosidades-content">Cargando...</div>
             </div>
         </div>
+        <div id="ent-fandom" class="tab-content">
+            <div class="analysis-box entertainment-analysis">
+                <h4><i class="fas fa-users"></i> Fandom</h4>
+                <div class="analysis-content" id="ent-fandom-content">Cargando...</div>
+            </div>
+        </div>
+        <div id="ent-veredicto" class="tab-content">
+            <div class="analysis-box entertainment-analysis" id="ent-veredicto-content"></div>
+        </div>
     </div>
+
+            <!-- Reparto entretenimiento -->
+<div class="movie-content">
+    <div id="ent-reparto-section"></div>
+</div>
 
     <div class="movie-content">
         <div id="ent-youtube-section"></div>
+
+    <!-- Similares entretenimiento -->
+<div class="movie-content">
+    <div id="ent-similares-section"></div>
+</div>
+
     </div>
 </section>
 
@@ -122,6 +152,7 @@
                     <span class="meta-tag year" id="prof-year"></span>
                     <span class="meta-tag duration" id="prof-duration"></span>
                 </div>
+                <div id="ent-badge-tipo"></div>
                 <h1 class="movie-title" id="prof-title"></h1>
                 <p class="movie-synopsis" id="prof-synopsis"></p>
                 <div class="movie-stats">
@@ -194,19 +225,87 @@
         </div>
     </div>
 
+        <!-- Reparto profundo -->
+<div class="movie-content">
+    <div id="prof-reparto-section"></div>
+</div>
+
     <div class="movie-content">
         <div id="prof-youtube-section"></div>
     </div>
+
+    <!-- Similares profundo -->
+<div class="movie-content">
+    <div id="prof-similares-section"></div>
+</div>
+
 </section>
 
-<!-- ESTADO DE CARGA -->
-<div id="loading-screen" style="display:flex; align-items:center; justify-content:center; min-height:80vh;">
-    <div style="text-align:center;">
-        <i class="fas fa-film" style="font-size:3rem; color:#f5a623; margin-bottom:1rem;"></i>
-        <p style="color:#a0a0a0; font-size:1.1rem;">Generando análisis cinematográfico...</p>
+<!-- Pantalla de carga -->
+<div id="loading-screen">
+    <p class="loader-brand">Magic Film</p>
+    <p class="loader-subtitle">Análisis cinematográfico con IA</p>
+
+    <div id="loader-normal">
+        <div class="loader-phrases">
+            <p class="loader-phrase">Analizando la narrativa de la obra...</p>
+            <p class="loader-phrase">Descifrando el simbolismo visual...</p>
+            <p class="loader-phrase">La IA está procesando el film...</p>
+        </div>
+        <div class="loader-bar-wrap">
+            <div class="loader-bar-fill" id="loader-bar-fill"></div>
+        </div>
+        <p class="loader-percent" id="loader-percent">0%</p>
+        <p class="loader-hint">Esto puede tomar unos segundos</p>
+    </div>
+
+    <div id="loader-error" style="display:none; text-align:center;">
+        <i class="fas fa-film" style="font-size:2.5rem; color:#e74c3c; margin-bottom:1rem;"></i>
+        <p id="loader-error-msg" style="color:#a0a0a0; margin-bottom:1.5rem;"></p>
+        <button id="btn-reintentar" class="btn btn-primary" style="gap:0.5rem;">
+            <i class="fas fa-redo"></i> Reintentar análisis
+        </button>
     </div>
 </div>
 
 <script src="../js/pages/analisis.js"></script>
+<script src="../js/pages/app.js"></script>
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-col footer-brand">
+            <a href="index.html" class="logo">Magic Film</a>
+            <p>Descifrando el significado detrás de cada historia. Explora el cine como nunca antes.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Explorar</h4>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="busqueda.html">Películas</a></li>
+                <li><a href="perfil.html">Mi perfil</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Comunidad</h4>
+            <ul>
+                <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                <li><a href="#"><i class="fab fa-x-twitter"></i> Twitter / X</a></li>
+                <li><a href="#"><i class="fab fa-github"></i> GitHub</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Magic Film</h4>
+            <ul>
+                <li><a href="sobre-nosotros.html">Sobre nosotros</a></li>
+                <li><a href="privacidad.html">Privacidad</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Magic Film · Todos los derechos reservados</p>
+        <span class="footer-tag"><i class="fas fa-film"></i> Análisis cinematográfico adaptativo</span>
+    </div>
+</footer>
+
 </body>
 </html>

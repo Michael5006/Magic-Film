@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('mf_theme')||'dark');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Magic Film</title>
+    <link rel="stylesheet" href="../css/pages/styles.css">
+    <link rel="stylesheet" href="../css/pages/admin.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="logo">Magic Film</a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Inicio</a></li>
+            <li><a href="busqueda.html" class="nav-link">Explorar</a></li>
+            <li><a href="perfil.html" class="nav-link">Mi perfil</a></li>
+        </ul>
+        <div class="nav-actions">
+            <div class="avatar" onclick="window.location.href='perfil.html'" style="cursor:pointer;">
+                <img src="../assets/images/Profile.jpg" alt="User">
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="admin-page">
+    <div class="admin-container">
+
+        <!-- Header -->
+        <div class="admin-header">
+            <div>
+                <h1 class="admin-title"><i class="fas fa-shield-alt"></i> Panel de Administración</h1>
+                <p class="admin-subtitle">Magic Film — Control total del sistema</p>
+            </div>
+            <div class="admin-live-badge">
+                <span class="live-dot"></span>
+                <span class="live-label">En vivo</span>
+                <span class="live-time" id="live-time">—</span>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="admin-stats" id="admin-stats">
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <span class="stat-value" id="stat-usuarios">—</span>
+                <span class="stat-label">Usuarios</span>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-film"></i>
+                <span class="stat-value" id="stat-peliculas">—</span>
+                <span class="stat-label">Películas</span>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <span class="stat-value" id="stat-analisis">—</span>
+                <span class="stat-label">Análisis completos</span>
+            </div>
+            <div class="stat-card stat-warn">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span class="stat-value" id="stat-pendientes">—</span>
+                <span class="stat-label">Análisis pendientes</span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchTab('usuarios')">
+                <i class="fas fa-users"></i> Usuarios
+            </button>
+            <button class="admin-tab" onclick="switchTab('peliculas')">
+                <i class="fas fa-film"></i> Películas
+            </button>
+            <button class="admin-tab" onclick="switchTab('historial')">
+                <i class="fas fa-history"></i> Historial
+            </button>
+        </div>
+
+        <!-- Tab: Usuarios -->
+        <div id="tab-usuarios" class="admin-tab-content active">
+            <div class="admin-search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-usuarios" class="admin-search-input"
+                       placeholder="Buscar por usuario, nombre o email..."
+                       oninput="filtrarUsuarios(this.value)">
+            </div>
+            <div class="table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                            <th>Nivel</th>
+                            <th>Rol</th>
+                            <th>Registro</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-usuarios">
+                        <tr><td colspan="7" class="table-loading">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Películas -->
+        <div id="tab-peliculas" class="admin-tab-content">
+            <div class="admin-search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-peliculas" class="admin-search-input"
+                       placeholder="Buscar por título, director o año..."
+                       oninput="filtrarPeliculas(this.value)">
+            </div>
+            <div class="table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Año</th>
+                            <th>Director</th>
+                            <th>Tipo</th>
+                            <th>Análisis</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-peliculas">
+                        <tr><td colspan="7" class="table-loading">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Historial -->
+        <div id="tab-historial" class="admin-tab-content">
+            <div class="table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Admin</th>
+                            <th>Acción</th>
+                            <th>Entidad</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-historial">
+                        <tr><td colspan="5" class="table-loading">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ── EDITOR DE ANÁLISIS (panel lateral) ── -->
+<div id="analisis-editor" class="analisis-editor-overlay" style="display:none;">
+    <div class="analisis-editor-panel">
+        <div class="analisis-editor-header">
+            <h3><i class="fas fa-edit"></i> <span id="analisis-editor-title">Editor de Análisis</span></h3>
+            <button class="analisis-editor-close" onclick="cerrarEditorAnalisis()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="analisis-editor-body" class="analisis-editor-body">
+            <p style="color:#666;text-align:center;padding:2rem;">Cargando capas...</p>
+        </div>
+    </div>
+</div>
+
+<script src="../js/pages/admin.js"></script>
+<script src="../js/pages/app.js"></script>
+</body>
+</html>

@@ -912,6 +912,75 @@ body::after {
 ::-webkit-scrollbar-thumb { background: #2a2a3e; border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: #3a3a58; }
 
+/* ── Hamburger & Mobile Nav ─────────────────────────── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  flex-shrink: 0;
+}
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text-primary, #fff);
+  border-radius: 2px;
+  transition: transform 0.25s, opacity 0.25s;
+}
+.navbar.nav-open .nav-hamburger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.navbar.nav-open .nav-hamburger span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.navbar.nav-open .nav-hamburger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-nav-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0; right: 0;
+  background: rgba(10,10,10,0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 0.5rem 1.25rem 1rem;
+  z-index: 998;
+}
+[data-theme="light"] .mobile-nav-menu {
+  background: rgba(253,248,242,0.98);
+  border-top-color: #e6d9cc;
+}
+.navbar.nav-open .mobile-nav-menu { display: block; }
+.mobile-nav-menu .nav-links {
+  display: flex !important;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.mobile-nav-menu .nav-links li { border-bottom: 1px solid rgba(255,255,255,0.05); }
+[data-theme="light"] .mobile-nav-menu .nav-links li { border-bottom-color: #e6d9cc; }
+.mobile-nav-menu .nav-links li:last-child { border-bottom: none; }
+.mobile-nav-menu .nav-link {
+  display: block;
+  padding: 0.85rem 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary, #a0a0a0);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.mobile-nav-menu .nav-link:hover,
+.mobile-nav-menu .nav-link.active { color: var(--accent-gold, #f5a623); }
+
+/* body-nav-open: evita scroll detrás del menú */
+body.body-nav-open { overflow: hidden; }
+
 /* ── Responsive ────────────────────────────────────── */
 @media (max-width: 1024px) {
   .home-container { grid-template-columns: 1fr; text-align: center; }
@@ -923,9 +992,11 @@ body::after {
   .profile-header { flex-direction: column; align-items: center; text-align: center; }
   .profile-stats  { justify-content: center; }
 }
+
 @media (max-width: 768px) {
   .nav-links { display: none; }
-  .nav-container { padding: 0 1.25rem; }
+  .nav-hamburger { display: flex; }
+  .nav-container { padding: 0 1rem; }
   .home-title { font-size: 2.4rem; }
   .movie-info-container { flex-direction: column; align-items: center; text-align: center; }
   .movie-poster-large { width: 145px; height: 218px; }
@@ -937,4 +1008,43 @@ body::after {
   .director-info { flex-direction: column; align-items: center; text-align: center; }
   .saved-movies { grid-template-columns: 1fr; }
   .profile-actions { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+  /* Navbar */
+  .nav-container { height: 56px; padding: 0 1rem; }
+  .logo { font-size: 1.4rem; }
+  .page, .main-content { padding-top: 56px; }
+
+  /* Home hero */
+  .home-container { padding: 1.5rem 1rem; gap: 1.5rem; }
+  .home-visual { height: 280px; }
+  .movie-cards { transform: scale(0.55); transform-origin: center top; }
+  .home-title { font-size: 1.9rem; line-height: 1.2; }
+  .home-description { font-size: 0.9rem; }
+  .home-buttons { flex-direction: column; align-items: center; gap: 0.6rem; }
+  .home-buttons .btn { width: 100%; max-width: 280px; justify-content: center; }
+  .users-stats { gap: 1rem; }
+  .stat-number { font-size: 1.2rem; }
+
+  /* Movie info panel */
+  .movie-poster-large { width: 120px; height: 180px; }
+  .movie-title { font-size: 1.35rem; }
+  .movie-genres { flex-wrap: wrap; gap: 0.4rem; }
+
+  /* Profile */
+  .user-profile-container { padding: 1.5rem 1rem; }
+  .profile-avatar-large { width: 80px; height: 80px; font-size: 1.8rem; }
+  .profile-name { font-size: 1.3rem; }
+  .profile-section { padding: 1rem; }
+
+  /* Inputs — evitar zoom en iOS */
+  input, select, textarea { font-size: 16px !important; }
+
+  /* Grids */
+  .symbol-grid { grid-template-columns: 1fr !important; }
+  .theme-grid  { grid-template-columns: 1fr !important; }
+  .context-grid { grid-template-columns: 1fr !important; }
+  .hot-scenes-grid { grid-template-columns: 1fr !important; }
+  .cast-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)) !important; }
 }

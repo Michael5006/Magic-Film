@@ -1,4 +1,4 @@
-const API_URL = 'https://magic-film-api.onrender.com/api';
+const API_URL = '/api';
 
 function getToken() { return localStorage.getItem('mf_token'); }
 
@@ -7,29 +7,38 @@ if (!getToken()) {
   window.location.href = 'login.html';
 }
 
+// Si ya completó el onboarding, redirigir a búsqueda
+const _usuario = JSON.parse(localStorage.getItem('mf_usuario') || '{}');
+if (_usuario.onboarding_completo) {
+  window.location.href = 'busqueda.html';
+}
+
 let generosSeleccionados = [];
 let nivelSeleccionado = 'entusiasta';
 
+// En toggleGenre — cambia 'genre-tag' por 'onb-genre':
 function toggleGenre(el) {
-  const id = parseInt(el.dataset.id);
+    const id = parseInt(el.dataset.id);
+    const nombre = el.dataset.nombre;
 
-  if (el.classList.contains('active')) {
-    el.classList.remove('active');
-    generosSeleccionados = generosSeleccionados.filter(g => g !== id);
-  } else {
-    if (generosSeleccionados.length >= 3) {
-      mostrarError('onb-error', 'Solo puedes seleccionar 3 géneros');
-      return;
+    if (el.classList.contains('active')) {
+        el.classList.remove('active');
+        generosSeleccionados = generosSeleccionados.filter(g => g.id !== id);
+    } else {
+        if (generosSeleccionados.length >= 3) {
+            mostrarError('onb-error', 'Solo puedes seleccionar 3 géneros');
+            return;
+        }
+        el.classList.add('active');
+        generosSeleccionados.push({ id, nombre });
     }
-    el.classList.add('active');
-    generosSeleccionados.push(id);
-  }
 }
 
+// En selectLevel — cambia 'level-card' por 'onb-level':
 function selectLevel(el, nivel) {
-  document.querySelectorAll('.level-card').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  nivelSeleccionado = nivel;
+    document.querySelectorAll('.onb-level').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    nivelSeleccionado = nivel;
 }
 
 function mostrarError(id, msg) {

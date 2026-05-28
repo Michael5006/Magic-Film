@@ -2,11 +2,25 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('mf_theme')||'dark');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Explorar - Magic Film</title>
     <link rel="stylesheet" href="../css/pages/styles.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        #palabra-dinamica::after {
+            content: '|';
+            color: #f5a623;
+            margin-left: 1px;
+            animation: cursor-blink 0.65s steps(1) infinite;
+        }
+        @keyframes cursor-blink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0; }
+        }
+    </style>
 </head>
 <body>
 
@@ -33,21 +47,17 @@
             <i class="fas fa-sparkles"></i>
             <span>Descubre el cine como nunca antes</span>
         </div>
-        <h2 class="explore-title">¿Qué película quieres<br><span class="highlight">descifrar</span> hoy?</h2>
-        <p class="explore-subtitle">Busca cualquier película y descubre sus secretos ocultos, curiosidades, significados profundos y líneas de tiempo.</p>
+        <h2 class="explore-title">¿Qué película quieres<br><span class="highlight" id="palabra-dinamica">descifrar</span> hoy?</h2>
+        <p class="explore-subtitle">Explora el universo de tus películas y series favoritas. Desde el entretenimiento más puro hasta los significados más profundos, desciframos cada historia para ti.</p>
 
         <div class="search-box">
             <i class="fas fa-search"></i>
             <input type="text" id="searchInput" placeholder="Busca una película..." onkeyup="handleSearch(event)">
         </div>
 
-        <div class="quick-tags">
-    <span class="quick-tag" data-genero-id="28" onclick="quickSearchPorId(28, 'Acción')">Acción</span>
-    <span class="quick-tag" data-genero-id="878" onclick="quickSearchPorId(878, 'Ciencia Ficción')">Ciencia Ficción</span>
-    <span class="quick-tag" data-genero-id="35" onclick="quickSearchPorId(35, 'Comedia')">Comedia</span>
-    <span class="quick-tag" data-genero-id="27" onclick="quickSearchPorId(27, 'Terror')">Terror</span>
-    <span class="quick-tag" data-genero-id="18" onclick="quickSearchPorId(18, 'Drama')">Drama</span>
-</div>
+       <div class="quick-tags" id="quick-tags">
+    <!-- Se cargan dinámicamente -->
+        </div>
 
         <div id="searchResults" class="search-results" style="display:none;">
             <h3>Resultados de búsqueda</h3>
@@ -70,11 +80,50 @@
     <div class="category-card" onclick="quickSearchPorId(27, 'Terror')"><i class="fas fa-ghost"></i><span>Terror</span></div>
     <div class="category-card" onclick="quickSearchPorId(878, 'Ciencia Ficción')"><i class="fas fa-rocket"></i><span>Ciencia Ficción</span></div>
     <div class="category-card" onclick="quickSearchPorId(10749, 'Romance')"><i class="fas fa-heart"></i><span>Romance</span></div>
+    <div class="category-card" onclick="quickSearchPorId(99, 'K-Drama')"><i class="fas fa-tv"></i><span>K-Drama</span></div>
 </div>
         </div>
     </div>
 </section>
 
 <script src="../js/pages/busqueda.js"></script>
+<script src="../js/pages/app.js"></script>
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-col footer-brand">
+            <a href="index.html" class="logo">Magic Film</a>
+            <p>Descifrando el significado detrás de cada historia. Explora el cine como nunca antes.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Explorar</h4>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="busqueda.html">Películas</a></li>
+                <li><a href="perfil.html">Mi perfil</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Comunidad</h4>
+            <ul>
+                <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                <li><a href="#"><i class="fab fa-x-twitter"></i> Twitter / X</a></li>
+                <li><a href="#"><i class="fab fa-github"></i> GitHub</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Magic Film</h4>
+            <ul>
+                <li><a href="sobre-nosotros.html">Sobre nosotros</a></li>
+                <li><a href="privacidad.html">Privacidad</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Magic Film · Todos los derechos reservados</p>
+        <span class="footer-tag"><i class="fas fa-film"></i> Análisis cinematográfico adaptativo</span>
+    </div>
+</footer>
+
 </body>
 </html>

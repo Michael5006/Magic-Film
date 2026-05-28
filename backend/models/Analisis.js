@@ -69,6 +69,8 @@ const Analisis = {
     await pool.execute('DELETE FROM capas_analisis WHERE analisis_id = ?', [analisis_id]);
   },
 
+  
+
   // Registrar log de IA
   async registrarLog(analisis_id, prompt, tiempo_ms) {
     await pool.execute(
@@ -76,7 +78,7 @@ const Analisis = {
        VALUES (?, ?, ?)`,
       [analisis_id, prompt, tiempo_ms]
     );
-  }
+  },
 
 };
 

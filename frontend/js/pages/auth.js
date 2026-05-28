@@ -1,4 +1,4 @@
-const API_URL = 'https://magic-film-api.onrender.com/api';
+const API_URL = '/api';
 
 function getToken() { return localStorage.getItem('mf_token'); }
 function setToken(t) { localStorage.setItem('mf_token', t); }
@@ -109,6 +109,131 @@ if (btnLogin) {
   });
 }
 
+// ── FORGOT PASSWORD ───────────────────────────
+const linkForgot = document.querySelector('.field-forgot a');
+if (linkForgot) {
+  linkForgot.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    const emailPrefill = document.getElementById('login-email')?.value.trim() || '';
+
+    const { value: email } = await Swal.fire({
+      title: 'Recuperar contraseña',
+      html: 'Ingresa tu correo y te enviaremos un enlace para restablecerla.',
+      input: 'email',
+      inputValue: emailPrefill,
+      inputPlaceholder: 'tucorreo@ejemplo.com',
+      background: '#0a0a0a',
+      color: '#ffffff',
+      confirmButtonColor: '#f5a623',
+      cancelButtonColor: '#333',
+      showCancelButton: true,
+      confirmButtonText: 'Enviar enlace',
+      cancelButtonText: 'Cancelar',
+      inputValidator: (v) => { if (!v) return 'Ingresa tu correo'; }
+    });
+
+    if (!email) return;
+
+    Swal.fire({
+      title: 'Enviando...',
+      background: '#0a0a0a',
+      color: '#ffffff',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    try {
+      const res  = await fetch(`${API_URL}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Listo!',
+        text: data.data?.mensaje || 'Si el correo está registrado, recibirás un enlace en breve.',
+        background: '#0a0a0a',
+        color: '#ffffff',
+        iconColor: '#f5a623',
+        confirmButtonColor: '#f5a623'
+      });
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de conexión',
+        background: '#0a0a0a',
+        color: '#ffffff',
+        confirmButtonColor: '#f5a623'
+      });
+    }
+  });
+}
+
+// ── GOOGLE AUTH CALLBACK ──────────────────────
+window.handleGoogleResponse = async function(response) {
+  Swal.fire({
+    title: 'Conectando con Google...',
+    background: '#0a0a0a',
+    color: '#ffffff',
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  try {
+    const res  = await fetch(`${API_URL}/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_token: response.credential })
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      setToken(data.data.token);
+      setUsuario(data.data.usuario);
+
+      Swal.fire({
+        icon: 'success',
+        title: `¡Bienvenido, ${data.data.usuario.nombre_usuario}!`,
+        background: '#0a0a0a',
+        color: '#ffffff',
+        iconColor: '#f5a623',
+        confirmButtonColor: '#f5a623',
+        timer: 1500,
+        timerProgressBar: true,
+        showConfirmButton: false
+      }).then(() => {
+        if (!data.data.usuario.onboarding_completo) {
+          window.location.href = 'onboarding.html';
+        } else {
+          window.location.href = 'busqueda.html';
+        }
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.error || 'No se pudo iniciar sesión con Google',
+        background: '#0a0a0a',
+        color: '#ffffff',
+        confirmButtonColor: '#f5a623'
+      });
+    }
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error de conexión',
+      background: '#0a0a0a',
+      color: '#ffffff',
+      confirmButtonColor: '#f5a623'
+    });
+  }
+};
+
 // ── REGISTRO ───────────────────────────────────
 const btnRegistro = document.getElementById('btn-registro');
 if (btnRegistro) {
@@ -132,30 +257,123 @@ if (btnRegistro) {
       return;
     }
 
+    // ── Paso 1: enviar código de verificación ──
     btnRegistro.disabled = true;
-    btnRegistro.textContent = 'Creando cuenta...';
+    btnRegistro.innerHTML = 'Enviando código... <i class="fas fa-circle-notch fa-spin"></i>';
+
+    try {
+      const resCodigo = await fetch(`${API_URL}/auth/enviar-codigo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const dataCodigo = await resCodigo.json();
+
+      if (!dataCodigo.ok) {
+        mostrarError('reg-error', dataCodigo.error || 'No se pudo enviar el código');
+        btnRegistro.disabled = false;
+        btnRegistro.innerHTML = 'Continuar <i class="fas fa-arrow-right"></i>';
+        return;
+      }
+    } catch (err) {
+      mostrarError('reg-error', 'Error de conexión con el servidor');
+      btnRegistro.disabled = false;
+      btnRegistro.innerHTML = 'Continuar <i class="fas fa-arrow-right"></i>';
+      return;
+    }
+
+    // ── Paso 2: pedir el código al usuario ──
+    const { value: codigo, isDismissed } = await Swal.fire({
+      title: 'Verifica tu correo',
+      html: `
+        <div style="overflow:hidden;">
+          <p style="color:#888;font-size:0.9rem;margin-bottom:1.2rem;">
+            Enviamos un código de 6 dígitos a <strong style="color:#f5a623;">${email}</strong>.<br>
+            Expira en 10 minutos.
+          </p>
+          <input id="swal-codigo" class="swal2-input" maxlength="6"
+                 placeholder="------"
+                 style="font-size:2rem;letter-spacing:0.5rem;text-align:center;font-weight:700;
+                        width:100%;max-width:200px;box-sizing:border-box;display:block;margin:0 auto;">
+        </div>
+      `,
+      background: '#0a0a0a',
+      color: '#ffffff',
+      confirmButtonColor: '#f5a623',
+      cancelButtonColor: '#333',
+      showCancelButton: true,
+      confirmButtonText: 'Verificar',
+      cancelButtonText: 'Cancelar',
+      customClass: { popup: 'swal-overflow-hidden' },
+      width: '360px',
+      didOpen: () => {
+        // Solo permitir dígitos
+        document.getElementById('swal-codigo').addEventListener('input', (e) => {
+          e.target.value = e.target.value.replace(/\D/g, '');
+        });
+        document.getElementById('swal-codigo').focus();
+      },
+      preConfirm: () => {
+        const val = document.getElementById('swal-codigo').value.trim();
+        if (val.length !== 6) {
+          Swal.showValidationMessage('El código debe tener 6 dígitos');
+          return false;
+        }
+        return val;
+      }
+    });
+
+    if (isDismissed || !codigo) {
+      btnRegistro.disabled = false;
+      btnRegistro.innerHTML = 'Continuar <i class="fas fa-arrow-right"></i>';
+      return;
+    }
+
+    // ── Paso 3: registrar con el código verificado ──
+    Swal.fire({
+      title: 'Creando tu cuenta...',
+      background: '#0a0a0a',
+      color: '#ffffff',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => Swal.showLoading()
+    });
 
     try {
       const res = await fetch(`${API_URL}/auth/registro`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre_completo, nombre_usuario, email, password })
+        body: JSON.stringify({ nombre_completo, nombre_usuario, email, password, codigo })
       });
       const data = await res.json();
 
       if (data.ok) {
         setToken(data.data.token);
         setUsuario(data.data.usuario);
+        Swal.close();
         window.location.href = 'onboarding.html';
       } else {
-        mostrarError('reg-error', data.error || 'Error al registrar');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.error || 'No se pudo completar el registro',
+          background: '#0a0a0a',
+          color: '#ffffff',
+          confirmButtonColor: '#f5a623'
+        });
         btnRegistro.disabled = false;
-        btnRegistro.innerHTML = 'CONTINUAR <i class="fas fa-arrow-right"></i>';
+        btnRegistro.innerHTML = 'Continuar <i class="fas fa-arrow-right"></i>';
       }
     } catch (err) {
-      mostrarError('reg-error', 'Error de conexión con el servidor');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de conexión',
+        background: '#0a0a0a',
+        color: '#ffffff',
+        confirmButtonColor: '#f5a623'
+      });
       btnRegistro.disabled = false;
-      btnRegistro.innerHTML = 'CONTINUAR <i class="fas fa-arrow-right"></i>';
+      btnRegistro.innerHTML = 'Continuar <i class="fas fa-arrow-right"></i>';
     }
   });
 }

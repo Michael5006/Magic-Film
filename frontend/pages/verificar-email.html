@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('mf_theme')||'dark');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Correo - Magic Film</title>
+    <link rel="stylesheet" href="../css/pages/login.css">
+    <link rel="stylesheet" href="../css/pages/styles.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .verify-panel {
+            text-align: center;
+            padding: 2rem 0;
+        }
+        .verify-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .verify-icon.success { color: #2ecc71; }
+        .verify-icon.error   { color: #e74c3c; }
+        .verify-icon.loading { color: #f5a623; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .verify-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0 0 0.75rem;
+            color: #fff;
+        }
+        .verify-msg {
+            color: #888;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0 0 2rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="cinema-bg">
+    <div class="film-strip"><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""></div>
+    <div class="film-strip"><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""><img src="" alt=""></div>
+</div>
+<div class="cinema-overlay"></div>
+<div class="scan-lines"></div>
+<div class="grain"></div>
+
+<nav class="login-nav">
+    <a href="index.html" class="logo">Magic Film</a>
+</nav>
+
+<div class="login-wrapper">
+    <div class="login-panel">
+        <div class="panel-accent">
+            <div class="panel-accent-line"></div>
+            <div class="panel-accent-dot"></div>
+        </div>
+
+        <div class="verify-panel" id="verify-content">
+            <div class="verify-icon loading">
+                <i class="fas fa-circle-notch"></i>
+            </div>
+            <h2 class="verify-title">Verificando tu correo...</h2>
+            <p class="verify-msg">Un momento, estamos activando tu cuenta.</p>
+        </div>
+    </div>
+</div>
+
+<script src="../js/pages/cinema-bg.js"></script>
+<script>
+(async () => {
+    const params = new URLSearchParams(window.location.search);
+    const token  = params.get('token');
+    const el     = document.getElementById('verify-content');
+
+    if (!token) {
+        el.innerHTML = `
+            <div class="verify-icon error"><i class="fas fa-times-circle"></i></div>
+            <h2 class="verify-title">Enlace inválido</h2>
+            <p class="verify-msg">No se encontró un token de verificación en este enlace.</p>
+            <a href="login.html" class="btn-cinema" style="display:inline-block;">Ir al inicio de sesión</a>
+        `;
+        return;
+    }
+
+    try {
+        const res  = await fetch(`/api/auth/verificar-email?token=${token}`);
+        const data = await res.json();
+
+        if (data.ok) {
+            el.innerHTML = `
+                <div class="verify-icon success"><i class="fas fa-check-circle"></i></div>
+                <h2 class="verify-title">¡Correo verificado!</h2>
+                <p class="verify-msg">${data.data.mensaje}</p>
+                <a href="busqueda.html" class="btn-cinema" style="display:inline-block;">Explorar Magic Film</a>
+            `;
+        } else {
+            el.innerHTML = `
+                <div class="verify-icon error"><i class="fas fa-times-circle"></i></div>
+                <h2 class="verify-title">Enlace expirado</h2>
+                <p class="verify-msg">${data.error || 'El enlace es inválido o ya expiró.'}<br>Inicia sesión y solicita un nuevo correo de verificación.</p>
+                <a href="login.html" class="btn-cinema" style="display:inline-block;">Iniciar sesión</a>
+            `;
+        }
+    } catch (e) {
+        el.innerHTML = `
+            <div class="verify-icon error"><i class="fas fa-exclamation-circle"></i></div>
+            <h2 class="verify-title">Error de conexión</h2>
+            <p class="verify-msg">No se pudo conectar con el servidor. Intenta de nuevo más tarde.</p>
+            <a href="login.html" class="btn-cinema" style="display:inline-block;">Volver</a>
+        `;
+    }
+})();
+</script>
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-col footer-brand">
+            <a href="index.html" class="logo">Magic Film</a>
+            <p>Descifrando el significado detrás de cada historia. Explora el cine como nunca antes.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Explorar</h4>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="busqueda.html">Películas</a></li>
+                <li><a href="perfil.html">Mi perfil</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Comunidad</h4>
+            <ul>
+                <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                <li><a href="#"><i class="fab fa-x-twitter"></i> Twitter / X</a></li>
+                <li><a href="#"><i class="fab fa-github"></i> GitHub</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Magic Film</h4>
+            <ul>
+                <li><a href="sobre-nosotros.html">Sobre nosotros</a></li>
+                <li><a href="privacidad.html">Privacidad</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Magic Film · Todos los derechos reservados</p>
+        <span class="footer-tag"><i class="fas fa-film"></i> Análisis cinematográfico adaptativo</span>
+    </div>
+</footer>
+
+</body>
+</html>

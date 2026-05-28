@@ -7,3 +7,6 @@ backend/.env
 .atl/
 CLAUDE.md
 agent-teams-lite/
+.claude
+docs/gen_manual.py
+pitch.html

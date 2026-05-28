@@ -2,77 +2,72 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('mf_theme')||'dark');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Magic Film</title>
     <link rel="stylesheet" href="../css/pages/login.css">
     <link rel="stylesheet" href="../css/pages/styles.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
-<!-- FONDO CINEMATOGRÁFICO -->
+<!-- FONDO CINEMATOGRÁFICO DINÁMICO -->
 <div class="cinema-bg">
     <div class="film-strip">
-        <img src="../assets/images/Midsommar.jpg" alt="">
-        <img src="../assets/images/Nun.jpg" alt="">
-        <img src="../assets/images/Scary.jpg" alt="">
-        <img src="../assets/images/Loki.jpg" alt="">
-        <img src="../assets/images/Midsommar.jpg" alt="">
-        <img src="../assets/images/Nun.jpg" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
     </div>
     <div class="film-strip">
-        <img src="../assets/images/Scary.jpg" alt="">
-        <img src="../assets/images/Loki.jpg" alt="">
-        <img src="../assets/images/Midsommar.jpg" alt="">
-        <img src="../assets/images/Nun.jpg" alt="">
-        <img src="../assets/images/Scary.jpg" alt="">
-        <img src="../assets/images/Loki.jpg" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
     </div>
     <div class="film-strip">
-        <img src="../assets/images/Nun.jpg" alt="">
-        <img src="../assets/images/Midsommar.jpg" alt="">
-        <img src="../assets/images/Loki.jpg" alt="">
-        <img src="../assets/images/Scary.jpg" alt="">
-        <img src="../assets/images/Nun.jpg" alt="">
-        <img src="../assets/images/Midsommar.jpg" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
     </div>
     <div class="film-strip">
-        <img src="../assets/images/Loki.jpg" alt="">
-        <img src="../assets/images/Scary.jpg" alt="">
-        <img src="../assets/images/Nun.jpg" alt="">
-        <img src="../assets/images/Midsommar.jpg" alt="">
-        <img src="../assets/images/Loki.jpg" alt="">
-        <img src="../assets/images/Scary.jpg" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+    </div>
+    <div class="film-strip">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+    </div>
+    <div class="film-strip">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
     </div>
 </div>
 <div class="cinema-overlay"></div>
+<div class="scan-lines"></div>
+<div class="projector-light"></div>
 <div class="grain"></div>
 
 <!-- NAVBAR -->
 <nav class="login-nav">
-    <a href="index.html" class="login-nav-logo">Magic Film</a>
+    <a href="index.html" class="logo">Magic Film</a>
     <div class="login-nav-links">
         <a href="index.html">Inicio</a>
         <a href="busqueda.html">Explorar</a>
     </div>
 </nav>
 
-<!-- DECORATIVO IZQUIERDO -->
-<div class="frame-counter">
-    <span>MAGIC FILM</span>
-    <div class="frame-line"></div>
-    <span>2026</span>
-</div>
-
-<!-- CITA CINEMATOGRÁFICA -->
-<div class="cinema-quote">
-    <blockquote>
-        "El cine es un espejo que refleja lo que no podemos decir con palabras."
-    </blockquote>
-    <cite>— Magic Film</cite>
-</div>
 
 <!-- FORMULARIO -->
 <div class="login-wrapper">
@@ -121,7 +116,7 @@
 
         <div class="divider"><span>o</span></div>
 
-        <button class="btn-google">
+        <button class="btn-google" id="btn-google-login">
             <i class="fab fa-google"></i> Continuar con Google
         </button>
 
@@ -133,5 +128,91 @@
 </div>
 
 <script src="../js/pages/auth.js"></script>
+<script src="../js/pages/cinema-bg.js"></script>
+<script>
+    const GOOGLE_CLIENT_ID = '351739610821-c9cf1r2k07uv8bk8601gqqo53ai5jkbm.apps.googleusercontent.com';
+    let googleReady = false;
+
+    function initGoogle() {
+        try {
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleGoogleResponse
+            });
+            googleReady = true;
+        } catch (e) {
+            console.error('Error inicializando Google:', e);
+        }
+    }
+
+    if (typeof google !== 'undefined') {
+        initGoogle();
+    } else {
+        document.querySelector('script[src*="gsi/client"]').addEventListener('load', initGoogle);
+    }
+
+    document.getElementById('btn-google-login')?.addEventListener('click', () => {
+        if (googleReady) {
+            google.accounts.id.prompt();
+        } else {
+            console.warn('Google no disponible, abriendo flujo OAuth manual');
+            const redirectUri = window.location.origin + '/pages/login.html';
+            const url = 'https://accounts.google.com/o/oauth2/v2/auth'
+                + '?client_id=' + GOOGLE_CLIENT_ID
+                + '&redirect_uri=' + encodeURIComponent(redirectUri)
+                + '&response_type=token+id_token'
+                + '&scope=openid+email+profile'
+                + '&nonce=' + Math.random().toString(36).slice(2);
+            window.location.href = url;
+        }
+    });
+
+    // Capturar respuesta del flujo OAuth redirect (fragment)
+    if (window.location.hash.includes('id_token')) {
+        const params = new URLSearchParams(window.location.hash.substring(1));
+        const idToken = params.get('id_token');
+        if (idToken) {
+            window.location.hash = '';
+            handleGoogleResponse({ credential: idToken });
+        }
+    }
+</script>
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-col footer-brand">
+            <a href="index.html" class="logo">Magic Film</a>
+            <p>Descifrando el significado detrás de cada historia. Explora el cine como nunca antes.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Explorar</h4>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="busqueda.html">Películas</a></li>
+                <li><a href="perfil.html">Mi perfil</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Comunidad</h4>
+            <ul>
+                <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                <li><a href="#"><i class="fab fa-x-twitter"></i> Twitter / X</a></li>
+                <li><a href="#"><i class="fab fa-github"></i> GitHub</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Magic Film</h4>
+            <ul>
+                <li><a href="sobre-nosotros.html">Sobre nosotros</a></li>
+                <li><a href="privacidad.html">Privacidad</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Magic Film · Todos los derechos reservados</p>
+        <span class="footer-tag"><i class="fas fa-film"></i> Análisis cinematográfico adaptativo</span>
+    </div>
+</footer>
+
 </body>
 </html>

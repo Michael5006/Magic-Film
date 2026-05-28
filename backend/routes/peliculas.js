@@ -19,10 +19,12 @@ const authOpcional = (req, res, next) => {
 router.get('/buscar', authOpcional, peliculasController.buscar);
 
 // Rutas públicas
-router.get('/buscar', peliculasController.buscar);
 router.get('/populares', peliculasController.populares);
+router.get('/recientes', peliculasController.recientes);
 router.get('/genero/:genero_id', peliculasController.porGenero);
 router.get('/youtube/:tmdb_id', peliculasController.youtube);
+router.get('/posters-fondo', peliculasController.postersFondo);
+router.get('/:tmdb_id/trailer', peliculasController.trailer);
 router.get('/:tmdb_id', peliculasController.obtener);
 
 module.exports = router;

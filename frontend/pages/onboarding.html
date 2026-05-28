@@ -2,80 +2,168 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('mf_theme')||'dark');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configura tu perfil - Magic Film</title>
+    <link rel="stylesheet" href="../css/pages/login.css">
     <link rel="stylesheet" href="../css/pages/styles.css">
+    <link rel="stylesheet" href="../css/pages/onboarding.css">
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
-<nav class="navbar">
-    <div class="nav-container">
-        <a href="index.html" class="logo">Magic Film</a>
+<!-- FONDO CINEMATOGRÁFICO DINÁMICO -->
+<div class="cinema-bg">
+    <div class="film-strip">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
     </div>
+    <div class="film-strip">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+    </div>
+    <div class="film-strip">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+    </div>
+    <div class="film-strip">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+    </div>
+    <div class="film-strip">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+    </div>
+    <div class="film-strip">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+        <img src="" alt=""><img src="" alt=""><img src="" alt="">
+    </div>
+</div>
+<div class="cinema-overlay"></div>
+<div class="scan-lines"></div>
+<div class="projector-light"></div>
+<div class="grain"></div>
+
+<nav class="login-nav">
+    <a href="index.html" class="logo">Magic Film</a>
 </nav>
 
-<section id="setup-profile" class="page active">
-    <div class="profile-bg-gradient"></div>
-    <div class="profile-container">
-        <div class="step-indicator">
-            <span class="step-text">Paso 2 de 2</span>
+<div class="login-wrapper">
+    <div class="login-panel onb-panel">
+
+        <div class="panel-accent">
+            <div class="panel-accent-line"></div>
+            <div class="panel-accent-dot"></div>
         </div>
-        <h2 class="profile-title">¿Qué tipo de cinéfilo eres?</h2>
-        <p class="profile-subtitle">Selecciona al menos 3 géneros que te apasionen para personalizar tu experiencia</p>
-        <div class="progress-bar"><div class="progress-fill"></div></div>
 
-        <div class="profile-card">
-            <h3>Crea tu perfil cinematográfico</h3>
-            <p class="card-description">Selecciona tu nivel de experiencia y personaliza tu análisis de películas</p>
-            <div class="popcorn-icon"><i class="fas fa-popcorn"></i></div>
+        <div class="reg-step">
+            <span class="reg-step-text">Paso 2 de 2 — Tu perfil cinematográfico</span>
+            <div class="reg-progress">
+                <div class="reg-progress-fill" style="width:100%;"></div>
+            </div>
+        </div>
 
-            <div class="form-group">
-                <label>Tu nivel de cinéfilo</label>
-                <div class="level-options">
-                    <div class="level-card" onclick="selectLevel(this, 'explorador')">
-                        <i class="fas fa-couch"></i>
-                        <span class="level-name">Explorador</span>
-                        <span class="level-desc">Recién Comienzo</span>
-                    </div>
-                    <div class="level-card active" onclick="selectLevel(this, 'entusiasta')">
-                        <i class="fas fa-film"></i>
-                        <span class="level-name">Entusiasta</span>
-                        <span class="level-desc">Veo Regularmente</span>
-                    </div>
-                    <div class="level-card" onclick="selectLevel(this, 'experto')">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span class="level-name">Experto del cine</span>
-                        <span class="level-desc">Vivo El Cine</span>
-                    </div>
+        <h1 class="panel-title">¿Qué tipo de<br>cinéfilo eres?</h1>
+        <p class="panel-subtitle">Elige tu nivel y 3 géneros para personalizar tu experiencia</p>
+
+        <!-- NIVEL -->
+        <div class="field-group">
+            <label class="field-label">Tu nivel de cinéfilo</label>
+            <div class="onb-levels">
+                <div class="onb-level" onclick="selectLevel(this, 'explorador')">
+                    <i class="fas fa-couch"></i>
+                    <span class="onb-level-name">Explorador</span>
+                    <span class="onb-level-desc">Recién comienzo</span>
+                </div>
+                <div class="onb-level active" onclick="selectLevel(this, 'entusiasta')">
+                    <i class="fas fa-film"></i>
+                    <span class="onb-level-name">Entusiasta</span>
+                    <span class="onb-level-desc">Veo regularmente</span>
+                </div>
+                <div class="onb-level" onclick="selectLevel(this, 'experto')">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span class="onb-level-name">Experto</span>
+                    <span class="onb-level-desc">Vivo el cine</span>
                 </div>
             </div>
-
-            <div class="form-group">
-                <label>¿Cuáles son tus géneros favoritos?</label>
-                <span class="hint">Selecciona exactamente 3</span>
-                <div class="genre-tags" id="setupGenreTags">
-                    <span class="genre-tag" data-id="1" onclick="toggleGenre(this)">Acción</span>
-                    <span class="genre-tag" data-id="2" onclick="toggleGenre(this)">Drama</span>
-                    <span class="genre-tag" data-id="3" onclick="toggleGenre(this)">Comedia</span>
-                    <span class="genre-tag" data-id="4" onclick="toggleGenre(this)">Terror</span>
-                    <span class="genre-tag" data-id="5" onclick="toggleGenre(this)">Ciencia Ficción</span>
-                    <span class="genre-tag" data-id="6" onclick="toggleGenre(this)">Thriller</span>
-                    <span class="genre-tag" data-id="7" onclick="toggleGenre(this)">Romance</span>
-                    <span class="genre-tag" data-id="8" onclick="toggleGenre(this)">Psicológico</span>
-                </div>
-            </div>
-
-            <div id="onb-error" style="color:#e74c3c;font-size:0.85rem;margin-bottom:0.5rem;display:none;"></div>
-
-            <button class="btn btn-primary btn-full" id="btn-onboarding">
-                COMENZAR MI VIAJE CINEMATOGRÁFICO
-            </button>
         </div>
+
+        <!-- GÉNEROS -->
+        <div class="field-group">
+            <label class="field-label">Géneros favoritos <span style="color:#f5a623;">— elige 3</span></label>
+            <div class="onb-genres" id="setupGenreTags">
+                <span class="onb-genre" data-id="28"    data-nombre="Acción"          onclick="toggleGenre(this)">Acción</span>
+                <span class="onb-genre" data-id="18"    data-nombre="Drama"           onclick="toggleGenre(this)">Drama</span>
+                <span class="onb-genre" data-id="35"    data-nombre="Comedia"         onclick="toggleGenre(this)">Comedia</span>
+                <span class="onb-genre" data-id="27"    data-nombre="Terror"          onclick="toggleGenre(this)">Terror</span>
+                <span class="onb-genre" data-id="878"   data-nombre="Ciencia Ficción" onclick="toggleGenre(this)">Ciencia Ficción</span>
+                <span class="onb-genre" data-id="53"    data-nombre="Thriller"        onclick="toggleGenre(this)">Thriller</span>
+                <span class="onb-genre" data-id="10749" data-nombre="Romance"         onclick="toggleGenre(this)">Romance</span>
+                <span class="onb-genre" data-id="99"    data-nombre="K-Drama"          onclick="toggleGenre(this)">K-Drama</span>
+            </div>
+        </div>
+
+        <div id="onb-error" class="login-error"></div>
+
+        <button class="btn-cinema" id="btn-onboarding">
+            Comenzar mi viaje &nbsp;<i class="fas fa-film"></i>
+        </button>
+
     </div>
-</section>
+</div>
 
 <script src="../js/pages/onboarding.js"></script>
+<script src="../js/pages/cinema-bg.js"></script>
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-col footer-brand">
+            <a href="index.html" class="logo">Magic Film</a>
+            <p>Descifrando el significado detrás de cada historia. Explora el cine como nunca antes.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Explorar</h4>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="busqueda.html">Películas</a></li>
+                <li><a href="perfil.html">Mi perfil</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Comunidad</h4>
+            <ul>
+                <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                <li><a href="#"><i class="fab fa-x-twitter"></i> Twitter / X</a></li>
+                <li><a href="#"><i class="fab fa-github"></i> GitHub</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Magic Film</h4>
+            <ul>
+                <li><a href="sobre-nosotros.html">Sobre nosotros</a></li>
+                <li><a href="privacidad.html">Privacidad</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Magic Film · Todos los derechos reservados</p>
+        <span class="footer-tag"><i class="fas fa-film"></i> Análisis cinematográfico adaptativo</span>
+    </div>
+</footer>
+
 </body>
 </html>
